@@ -1,0 +1,499 @@
+.route-loading-shell {
+  min-height: 280px;
+  display: grid;
+  place-items: center;
+  padding: 32px;
+  border-radius: 28px;
+  border: 1px solid rgba(138, 180, 248, 0.15);
+  background: rgba(10, 10, 20, 0.56);
+  color: #d1d7e6;
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.28);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.afterlight-top-actions {
+  flex-wrap: wrap;
+}
+
+.afterlight-config-panel,
+.afterlight-author-panel,
+.afterlight-editor-panel,
+.afterlight-entry-card {
+  display: grid;
+  gap: 16px;
+}
+
+.afterlight-entry-card {
+  position: relative;
+}
+
+.afterlight-entry-card:has(.annotation-popup) {
+  z-index: 20;
+}
+
+.afterlight-entry-card.is-active {
+  z-index: 20;
+}
+
+.afterlight-config-panel code {
+  margin-inline: 4px;
+}
+
+.afterlight-author-copy {
+  display: grid;
+  gap: 10px;
+}
+
+.afterlight-author-panel.is-visitor-mode {
+  gap: 12px;
+  padding-block: 18px;
+  background: rgba(255, 255, 255, 0.025);
+  border-color: rgba(255, 255, 255, 0.06);
+  box-shadow: none;
+}
+
+.afterlight-author-panel.is-author-mode {
+  gap: 18px;
+}
+
+.afterlight-author-panel.is-author-mode .afterlight-author-copy {
+  gap: 8px;
+}
+
+.afterlight-author-panel.is-author-mode .afterlight-editor {
+  margin-top: 4px;
+}
+
+.afterlight-author-panel--footer:hover,
+.afterlight-author-panel--footer:focus-within {
+  opacity: 1;
+}
+
+.afterlight-author-panel.is-visitor-mode .afterlight-author-copy {
+  gap: 8px;
+}
+
+.afterlight-author-panel.is-visitor-mode h2 {
+  font-size: 1rem;
+}
+
+.afterlight-login-disclosure {
+  display: grid;
+  gap: 16px;
+}
+
+.afterlight-login-summary {
+  justify-self: start;
+  color: rgba(209, 215, 230, 0.72);
+  cursor: pointer;
+  font-size: 14px;
+  transition: color 0.25s ease;
+}
+
+.afterlight-login-summary:hover {
+  color: #eef2ff;
+}
+
+.afterlight-login-disclosure[open] .afterlight-login-summary {
+  color: #eef2ff;
+}
+
+.afterlight-login-disclosure .afterlight-login-form {
+  max-width: 620px;
+}
+
+.afterlight-author-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.afterlight-author-email,
+.afterlight-entry-date,
+.afterlight-entry-hint,
+.afterlight-attachment-meta,
+.afterlight-attachment-empty {
+  color: rgba(209, 215, 230, 0.76);
+  font-size: 14px;
+}
+
+.afterlight-login-form,
+.afterlight-editor {
+  display: grid;
+  gap: 18px;
+}
+
+.afterlight-editor-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.afterlight-field {
+  display: grid;
+  gap: 10px;
+  text-align: left;
+}
+
+.afterlight-field > span,
+.afterlight-annotation-header span {
+  color: #eef2ff;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.afterlight-field input,
+.afterlight-field textarea {
+  width: 100%;
+  border: 1px solid rgba(138, 180, 248, 0.18);
+  border-radius: 18px;
+  background: rgba(8, 10, 18, 0.56);
+  color: #f5f7fb;
+  padding: 14px 16px;
+  font: inherit;
+  resize: vertical;
+  outline: none;
+  transition: border-color 0.25s ease, box-shadow 0.25s ease, background 0.25s ease;
+}
+
+.afterlight-field input:focus,
+.afterlight-field textarea:focus {
+  border-color: rgba(255, 200, 110, 0.5);
+  box-shadow: 0 0 0 3px rgba(255, 200, 110, 0.12);
+  background: rgba(10, 14, 24, 0.7);
+}
+
+.afterlight-annotation-fieldset {
+  padding: 18px;
+  border-radius: 24px;
+  border: 1px solid rgba(138, 180, 248, 0.14);
+  background: rgba(255, 255, 255, 0.025);
+}
+
+.afterlight-annotation-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: start;
+  gap: 16px;
+  margin-bottom: 14px;
+}
+
+.afterlight-annotation-header p {
+  font-size: 14px;
+}
+
+.afterlight-annotation-list,
+.afterlight-upload-queue,
+.afterlight-attachment-editor-list {
+  display: grid;
+  gap: 14px;
+}
+
+.afterlight-annotation-card,
+.afterlight-upload-card,
+.afterlight-attachment-editor-card {
+  display: grid;
+  gap: 14px;
+  padding: 18px;
+  border-radius: 20px;
+  border: 1px solid rgba(138, 180, 248, 0.12);
+  background: rgba(8, 10, 18, 0.38);
+}
+
+.afterlight-upload-progress {
+  width: 100%;
+  height: 8px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+}
+
+.afterlight-upload-progress span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, rgba(255, 200, 110, 0.78), rgba(138, 180, 248, 0.9));
+  transition: width 0.2s ease;
+}
+
+.afterlight-upload-card.is-error {
+  border-color: rgba(255, 144, 168, 0.3);
+}
+
+.afterlight-upload-preview,
+.afterlight-attachment-editor-preview {
+  width: 100%;
+  aspect-ratio: 1;
+  object-fit: cover;
+  border-radius: 18px;
+  border: 1px solid rgba(138, 180, 248, 0.12);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.afterlight-upload-copy,
+.afterlight-attachment-editor-copy {
+  display: grid;
+  gap: 10px;
+}
+
+.afterlight-attachment-name {
+  color: #eef2ff;
+  font-weight: 600;
+}
+
+.afterlight-annotation-actions,
+.afterlight-entry-actions,
+.afterlight-editor-actions,
+.afterlight-attachment-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.afterlight-publish-toggle {
+  display: inline-flex;
+  gap: 10px;
+  align-items: center;
+  justify-self: start;
+  color: #eef2ff;
+}
+
+.afterlight-publish-toggle input {
+  accent-color: #ffc86e;
+}
+
+.afterlight-status-message {
+  padding: 14px 16px;
+  border-radius: 18px;
+  border: 1px solid rgba(138, 180, 248, 0.16);
+}
+
+.afterlight-status-message.is-success {
+  color: #e8ffd7;
+  background: rgba(84, 160, 86, 0.16);
+  border-color: rgba(111, 207, 151, 0.28);
+}
+
+.afterlight-status-message.is-error {
+  color: #ffd6dc;
+  background: rgba(198, 76, 102, 0.16);
+  border-color: rgba(255, 144, 168, 0.26);
+}
+
+.afterlight-entry-list {
+  margin-top: 4px;
+}
+
+.afterlight-entry-card.is-draft {
+  border-style: dashed;
+}
+
+.afterlight-entry-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.afterlight-entry-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 68px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 13px;
+  letter-spacing: 0.04em;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+}
+
+.afterlight-entry-badge.is-published {
+  color: #ecffe0;
+  background: rgba(77, 150, 80, 0.2);
+}
+
+.afterlight-entry-badge.is-draft {
+  color: #ffe7c4;
+  background: rgba(164, 109, 38, 0.22);
+}
+
+.annotated-text {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.15em;
+  align-items: baseline;
+  text-align: left;
+}
+
+.afterlight-entry-copy .annotation-term {
+  margin-inline: 0.12em;
+}
+
+.afterlight-attachment-grid {
+  display: grid;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.afterlight-attachment-grid.is-single {
+  grid-template-columns: 1fr;
+}
+
+.afterlight-attachment-grid.is-double {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.afterlight-attachment-grid.is-quad {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.afterlight-attachment-grid.is-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.afterlight-attachment-tile {
+  position: relative;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  overflow: hidden;
+  border-radius: 22px;
+  aspect-ratio: 1;
+  background: rgba(10, 12, 20, 0.6);
+}
+
+.afterlight-attachment-grid.is-single .afterlight-attachment-tile {
+  aspect-ratio: 16 / 10;
+}
+
+.afterlight-attachment-media {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.afterlight-video-overlay,
+.afterlight-attachment-more {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+}
+
+.afterlight-video-overlay {
+  background: linear-gradient(180deg, transparent, rgba(0, 0, 0, 0.45));
+}
+
+.afterlight-video-play {
+  width: 58px;
+  height: 58px;
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  background: rgba(8, 10, 18, 0.55);
+  font-size: 22px;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+}
+
+.afterlight-video-duration {
+  position: absolute;
+  right: 10px;
+  bottom: 10px;
+  padding: 4px 8px;
+  border-radius: 999px;
+  background: rgba(8, 10, 18, 0.7);
+  font-size: 12px;
+}
+
+.afterlight-attachment-more {
+  background: rgba(8, 10, 18, 0.54);
+  font-size: 28px;
+  font-weight: 700;
+}
+
+.afterlight-lightbox-video-shell {
+  width: min(92vw, 1120px);
+  display: grid;
+  gap: 14px;
+}
+
+.afterlight-lightbox-video {
+  width: 100%;
+  max-height: 80vh;
+  border-radius: 18px;
+  background: #000;
+}
+
+.afterlight-lightbox-caption {
+  color: #f5f7fb;
+  text-align: center;
+}
+
+.afterlight-attachment-editor-preview-shell {
+  position: relative;
+}
+
+.afterlight-attachment-chip {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  padding: 4px 8px;
+  border-radius: 999px;
+  background: rgba(8, 10, 18, 0.7);
+  color: #fff;
+  font-size: 12px;
+}
+
+.afterlight-attachment-fallback {
+  display: grid;
+  place-items: center;
+  min-height: 120px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.04);
+  color: rgba(209, 215, 230, 0.7);
+}
+
+.afterlight-upload-trigger {
+  cursor: pointer;
+}
+
+.btn.secondary.danger {
+  border-color: rgba(255, 144, 168, 0.28);
+  color: #ffdce4;
+}
+
+.btn.secondary.danger:hover {
+  border-color: rgba(255, 144, 168, 0.44);
+  background: rgba(152, 43, 74, 0.28);
+}
+
+@media (max-width: 900px) {
+  .afterlight-editor-grid,
+  .afterlight-upload-card,
+  .afterlight-attachment-editor-card {
+    grid-template-columns: 1fr;
+  }
+
+  .afterlight-author-panel.is-author-mode .afterlight-author-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .afterlight-annotation-header,
+  .afterlight-author-actions,
+  .afterlight-entry-meta {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .afterlight-attachment-grid.is-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}

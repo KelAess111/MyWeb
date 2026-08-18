@@ -1,0 +1,124 @@
+.annotation-wrapper {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  vertical-align: baseline;
+}
+
+.annotation-term {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  font: inherit;
+  line-height: inherit;
+  cursor: pointer;
+  padding: 0 0.15em;
+  margin: 0;
+  border-radius: 0.45em;
+  transition: transform 0.2s ease, background 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.annotation-term:hover,
+.annotation-term:focus-visible {
+  transform: translateY(-1px);
+  outline: none;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.16);
+}
+
+.annotation-term[data-category='lore'] {
+  color: #f1b8ff;
+  background: rgba(241, 184, 255, 0.1);
+}
+
+.annotation-term[data-category='process'] {
+  color: #9fd4ff;
+  background: rgba(159, 212, 255, 0.1);
+}
+
+.annotation-term[data-category='meta'] {
+  color: #dcd4ff;
+  background: rgba(220, 212, 255, 0.1);
+}
+
+.annotation-term[data-category='warning'] {
+  color: #ffd8a8;
+  background: rgba(255, 216, 168, 0.12);
+}
+
+.annotation-term[data-category='world'] {
+  color: #aef1d8;
+  background: rgba(174, 241, 216, 0.11);
+}
+
+.annotation-popup {
+  position: absolute;
+  top: calc(100% + 12px);
+  left: 0;
+  z-index: 50;
+  width: min(320px, 75vw);
+  display: grid;
+  gap: 10px;
+  padding: 16px;
+  border-radius: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(18, 21, 31, 0.92);
+  box-shadow: 0 20px 48px rgba(0, 0, 0, 0.28);
+  backdrop-filter: blur(14px);
+}
+
+.annotation-popup::before {
+  content: '';
+  position: absolute;
+  top: -8px;
+  left: 22px;
+  width: 16px;
+  height: 16px;
+  background: rgba(18, 21, 31, 0.92);
+  border-top: 1px solid rgba(255, 255, 255, 0.14);
+  border-left: 1px solid rgba(255, 255, 255, 0.14);
+  transform: rotate(45deg);
+}
+
+.annotation-popup-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.annotation-popup-title {
+  color: #f5f7fb;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.annotation-close {
+  appearance: none;
+  border: 0;
+  width: 28px;
+  height: 28px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  color: #f5f7fb;
+  cursor: pointer;
+  font-size: 18px;
+  line-height: 1;
+}
+
+.annotation-popup-content {
+  color: #d7deef;
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+@media (max-width: 768px) {
+  .annotation-popup {
+    left: 50%;
+    transform: translateX(-50%);
+    width: min(320px, calc(100vw - 32px));
+  }
+
+  .annotation-popup::before {
+    left: calc(50% - 8px);
+  }
+}

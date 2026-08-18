@@ -1,0 +1,44 @@
+:root {
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  color: #eef2ff;
+  background: #060816;
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  color: #eef2ff;
+  background: radial-gradient(circle at top, rgba(31, 38, 68, 0.92), #060816 62%);
+  font-family: 'Inter', 'Noto Sans SC', 'Microsoft YaHei', sans-serif;
+}
+
+body * {
+  box-sizing: border-box;
+}
+
+body a {
+  color: inherit;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+
+#root {
+  min-height: 100vh;
+}

@@ -1,0 +1,46 @@
+.background-layer {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  pointer-events: none;
+  opacity: 1;
+}
+
+.background-layer__image {
+  position: absolute;
+  inset: 0;
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: right center;
+  background-attachment: fixed;
+  transform: scale(1.02);
+  filter: blur(14px) brightness(0.72);
+}
+
+.background-layer--glass .background-layer__overlay {
+  position: absolute;
+  inset: 0;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  background:
+    linear-gradient(
+      180deg,
+      rgba(10, 12, 18, 0.18) 0%,
+      rgba(10, 12, 18, 0.26) 100%
+    );
+}
+
+.background-layer--glass::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(
+      90deg,
+      rgba(15, 17, 23, 0.32) 0%,
+      rgba(15, 17, 23, 0.18) 28%,
+      rgba(15, 17, 23, 0.04) 58%,
+      rgba(15, 17, 23, 0.1) 100%
+    );
+}
