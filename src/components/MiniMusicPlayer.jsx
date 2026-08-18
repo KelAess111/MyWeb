@@ -10,12 +10,15 @@ function MiniMusicPlayer({ isHomePage = false, ocArea = null, onUiStateChange })
     activeTrack,
     activeTrackIndex,
     audioStatus,
+    autoplayNext,
     currentTime,
     duration,
     formatTime,
     handleMessageSubmit,
     handleProgressChange,
     handleSelectTrack,
+    handleSetPlaybackMode,
+    handleToggleAutoplayNext,
     handleTogglePlay,
     handleTrackChange,
     isPlaying,
@@ -24,6 +27,7 @@ function MiniMusicPlayer({ isHomePage = false, ocArea = null, onUiStateChange })
     messageText,
     messages,
     musicTracks,
+    playbackMode,
     progressValue,
     setActiveTab,
     setMessageName,
@@ -166,6 +170,44 @@ function MiniMusicPlayer({ isHomePage = false, ocArea = null, onUiStateChange })
               </div>
 
               <div className="music-player-progress-block">
+                <div className="music-player-playback-options" aria-label="播放选项">
+                  <button
+                    type="button"
+                    className={`music-player-option-chip ${autoplayNext ? 'is-active' : ''}`}
+                    aria-pressed={autoplayNext}
+                    onClick={handleToggleAutoplayNext}
+                  >
+                    自动连播 {autoplayNext ? '开启' : '关闭'}
+                  </button>
+
+                  <div className="music-player-mode-group" role="group" aria-label="播放模式">
+                    <button
+                      type="button"
+                      className={`music-player-option-chip ${playbackMode === 'sequential' ? 'is-active' : ''}`}
+                      aria-pressed={playbackMode === 'sequential'}
+                      onClick={() => handleSetPlaybackMode('sequential')}
+                    >
+                      顺序播放
+                    </button>
+                    <button
+                      type="button"
+                      className={`music-player-option-chip ${playbackMode === 'loop' ? 'is-active' : ''}`}
+                      aria-pressed={playbackMode === 'loop'}
+                      onClick={() => handleSetPlaybackMode('loop')}
+                    >
+                      列表循环
+                    </button>
+                    <button
+                      type="button"
+                      className={`music-player-option-chip ${playbackMode === 'shuffle' ? 'is-active' : ''}`}
+                      aria-pressed={playbackMode === 'shuffle'}
+                      onClick={() => handleSetPlaybackMode('shuffle')}
+                    >
+                      随机播放
+                    </button>
+                  </div>
+                </div>
+
                 <input
                   type="range"
                   min="0"
@@ -181,7 +223,13 @@ function MiniMusicPlayer({ isHomePage = false, ocArea = null, onUiStateChange })
                     ? activeTrack?.note ?? '当前歌曲资源暂时不可播放，请检查路径。'
                     : audioStatus === 'missing'
                       ? '当前曲目还没有配置可播放文件。'
-                      : '框体会从左上角向右下方平滑扩容，内部内容随后淡入。'}
+                      : autoplayNext
+                        ? playbackMode === 'loop'
+                          ? '已开启自动连播：播放到末尾时会从头继续。'
+                          : playbackMode === 'shuffle'
+                            ? '已开启自动连播：下一首会随机切换到不同曲目。'
+                            : '已开启自动连播：当前曲目结束后会自动播放下一首。'
+                        : '自动连播已关闭，当前曲目结束后会停止播放。'}
                 </div>
               </div>
 

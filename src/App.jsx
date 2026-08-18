@@ -46,6 +46,8 @@ function readStoredPlaybackState() {
       isPlaying: false,
       currentTime: 0,
       activeTab: 'player',
+      autoplayNext: false,
+      playbackMode: 'sequential',
     }
   }
 
@@ -60,6 +62,8 @@ function readStoredPlaybackState() {
       isPlaying: Boolean(parsed.isPlaying),
       currentTime: Number.isFinite(parsed.currentTime) ? Math.max(parsed.currentTime, 0) : 0,
       activeTab: parsed.activeTab === 'messages' ? 'messages' : 'player',
+      autoplayNext: Boolean(parsed.autoplayNext),
+      playbackMode: ['sequential', 'loop', 'shuffle'].includes(parsed.playbackMode) ? parsed.playbackMode : 'sequential',
     }
   } catch {
     return {
@@ -67,6 +71,8 @@ function readStoredPlaybackState() {
       isPlaying: false,
       currentTime: 0,
       activeTab: 'player',
+      autoplayNext: false,
+      playbackMode: 'sequential',
     }
   }
 }
@@ -88,6 +94,40 @@ function readStoredMessages() {
   }
 }
 
+function getRandomTrackIndex(currentIndex, totalTracks) {
+  if (totalTracks <= 1) {
+    return currentIndex
+  }
+
+  let nextIndex = currentIndex
+  while (nextIndex === currentIndex) {
+    nextIndex = Math.floor(Math.random() * totalTracks)
+  }
+
+  return nextIndex
+}
+
+function resolveNextTrackIndex(currentIndex, totalTracks, playbackMode) {
+  if (totalTracks <= 0) {
+    return null
+  }
+
+  if (playbackMode === 'shuffle') {
+    return getRandomTrackIndex(currentIndex, totalTracks)
+  }
+
+  const nextIndex = currentIndex + 1
+  if (nextIndex < totalTracks) {
+    return nextIndex
+  }
+
+  if (playbackMode === 'loop') {
+    return 0
+  }
+
+  return null
+}
+
 export function useMusicPlayer() {
   const context = useContext(MusicPlayerContext)
 
@@ -103,6 +143,8 @@ function MusicPlayerProvider({ children }) {
   const [activeTrackIndex, setActiveTrackIndex] = useState(playbackState.activeTrackIndex)
   const [isPlaying, setIsPlaying] = useState(playbackState.isPlaying)
   const [activeTab, setActiveTab] = useState(playbackState.activeTab)
+  const [autoplayNext, setAutoplayNext] = useState(playbackState.autoplayNext)
+  const [playbackMode, setPlaybackMode] = useState(playbackState.playbackMode)
   const [currentTime, setCurrentTime] = useState(playbackState.currentTime)
   const [duration, setDuration] = useState(0)
   const [audioStatus, setAudioStatus] = useState('idle')
@@ -134,8 +176,17 @@ function MusicPlayerProvider({ children }) {
     }
 
     const handleEnded = () => {
-      setIsPlaying(false)
+      const nextIndex = autoplayNext ? resolveNextTrackIndex(activeTrackIndex, musicTracks.length, playbackMode) : null
+
+      if (nextIndex === null) {
+        setIsPlaying(false)
+        setCurrentTime(0)
+        return
+      }
+
+      setActiveTrackIndex(nextIndex)
       setCurrentTime(0)
+      setIsPlaying(true)
     }
 
     const handleError = () => {
@@ -156,7 +207,7 @@ function MusicPlayerProvider({ children }) {
       audio.removeEventListener('error', handleError)
       audioRef.current = null
     }
-  }, [playbackState.currentTime])
+  }, [playbackState.currentTime, activeTrackIndex, autoplayNext, playbackMode])
 
   useEffect(() => {
     const audio = audioRef.current
@@ -213,9 +264,11 @@ function MusicPlayerProvider({ children }) {
         isPlaying,
         currentTime,
         activeTab,
+        autoplayNext,
+        playbackMode,
       }),
     )
-  }, [activeTab, activeTrackIndex, currentTime, isPlaying])
+  }, [activeTab, activeTrackIndex, autoplayNext, currentTime, isPlaying, playbackMode])
 
   useEffect(() => {
     if (typeof window === 'undefined') {
@@ -263,6 +316,28 @@ function MusicPlayerProvider({ children }) {
     }
   }, [])
 
+  const handleToggleAutoplayNext = useCallback(() => {
+    setAutoplayNext((current) => !current)
+  }, [])
+
+  const handleSetPlaybackMode = useCallback((nextMode) => {
+    setPlaybackMode((current) => (current === nextMode ? current : nextMode))
+  }, [])
+
+  const handleCyclePlaybackMode = useCallback(() => {
+    setPlaybackMode((current) => {
+      if (current === 'sequential') {
+        return 'loop'
+      }
+
+      if (current === 'loop') {
+        return 'shuffle'
+      }
+
+      return 'sequential'
+    })
+  }, [])
+
   const handleMessageSubmit = useCallback(
     async (event) => {
       event.preventDefault()
@@ -302,12 +377,16 @@ function MusicPlayerProvider({ children }) {
       activeTrack,
       activeTrackIndex,
       audioStatus,
+      autoplayNext,
       currentTime,
       duration,
       formatTime,
+      handleCyclePlaybackMode,
       handleMessageSubmit,
       handleProgressChange,
       handleSelectTrack,
+      handleSetPlaybackMode,
+      handleToggleAutoplayNext,
       handleTogglePlay,
       handleTrackChange,
       isPlaying,
@@ -316,6 +395,7 @@ function MusicPlayerProvider({ children }) {
       messageText,
       messages,
       musicTracks,
+      playbackMode,
       progressValue,
       setActiveTab,
       setMessageName,
@@ -327,11 +407,15 @@ function MusicPlayerProvider({ children }) {
       activeTrack,
       activeTrackIndex,
       audioStatus,
+      autoplayNext,
       currentTime,
       duration,
+      handleCyclePlaybackMode,
       handleMessageSubmit,
       handleProgressChange,
       handleSelectTrack,
+      handleSetPlaybackMode,
+      handleToggleAutoplayNext,
       handleTogglePlay,
       handleTrackChange,
       isPlaying,
@@ -339,6 +423,7 @@ function MusicPlayerProvider({ children }) {
       messageStatus,
       messageText,
       messages,
+      playbackMode,
       progressValue,
     ],
   )
