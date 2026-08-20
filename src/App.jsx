@@ -6,6 +6,7 @@ import HiddenArchivePage from './pages/HiddenArchivePage'
 import HiddenSpaceGamesPage from './pages/HiddenSpaceGamesPage'
 import HiddenSpacePaintingPage from './pages/HiddenSpacePaintingPage'
 import HiddenSpaceWritingPage from './pages/HiddenSpaceWritingPage'
+import PublicWritingPage from './pages/PublicWritingPage'
 import HiddenSpaceJournalPage from './pages/HiddenSpaceJournalPage'
 import HiddenSpacePersonalPage from './pages/HiddenSpacePersonalPage'
 import HiddenSpaceLayout from './components/HiddenSpaceLayout'
@@ -444,7 +445,15 @@ function AppRoutes({ musicUiState, onOcAreaChange, replayIntroEnabled }) {
           />
         }
       />
-      <Route path="/works/:categoryId" element={<CategoryPage />} />
+      <Route path="/works/writing" element={<PublicWritingPage />} />
+      <Route path="/works/writing/*" element={<PublicWritingPage />} />
+      <Route path="/writing" element={<PublicWritingPage />} />
+      <Route
+        path="/works/:categoryId"
+        element={
+          <CategoryPage />
+        }
+      />
       <Route path="/hidden" element={<HiddenSpaceLayout />}>
         <Route index element={<HiddenArchivePage />} />
         <Route path="games" element={<HiddenSpaceGamesPage />} />
@@ -487,7 +496,7 @@ function AppShell() {
 
   return (
     <div className="site">
-      <BackgroundLayer mode="glass" />
+      <BackgroundLayer mode="base" />
       <SiteHeader replayIntroEnabled={replayIntroEnabled} setReplayIntroEnabled={setReplayIntroEnabled} />
       <AppRoutes
         replayIntroEnabled={replayIntroEnabled}

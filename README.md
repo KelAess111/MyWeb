@@ -15,21 +15,25 @@
 请先执行：
 
 - `supabase-afterlight-attachments.sql`
+- `supabase-writing-tree.sql`
 
-它会完成：
+它们会完成：
 
-- 为 `afterlight_entries` 增加 `attachments` 字段
-- 创建 `journal-images` 与 `journal-videos` buckets
-- 配置 Storage RLS：
-  - 所有人可读
-  - 已登录作者可上传 / 更新 / 删除
+- 为写作树与 Afterlight 日志建立对应存储表
+- 创建存储 bucket
+- 配置 Storage / table RLS：
+  - 访客只读
+  - 已登录作者可写
 
-## 访问方式
+## 写作模块访问
 
-- 访客：只能查看已公开日志
-- 作者：用邮箱 magic link 登录后，可在网页里新增 / 编辑 / 删除日志，并上传图片/视频附件
+- 访客：只能查看写作树与内容
+- 作者：在 `/writing?edit=K` 进入作者模式后，点击发送验证码；验证码发送到预设作者邮箱，页面不展示邮箱地址
+- 验证通过后，才能进入编辑
+- Supabase 的 Email provider 模板需要使用 `{{ .Token }}` 输出六位验证码；默认的 `{{ .ConfirmationURL }}` 是登录链接，不能用于本页面的验证码输入框
 
 ## 备注
 
-- `AnnotationTerm` 复用了现有注释弹层组件，日志正文中的吐槽词会被替换成可点击的注释按钮。
+- 写作栏位编辑、子栏位编辑、内容编辑都由同一套写作树驱动。
+- 内容正文保留注释模块，和日志区的注释交互一致。
 - 图片与视频附件会通过 Supabase Storage 保存，并在前端以网格和 lightbox 形式展示。

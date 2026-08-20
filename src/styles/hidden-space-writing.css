@@ -1,0 +1,432 @@
+:root {
+  --writing-shell-bg: rgba(10, 12, 20, 0.72);
+  --writing-shell-border: rgba(148, 178, 255, 0.14);
+  --writing-shell-border-strong: rgba(162, 210, 255, 0.26);
+  --writing-shell-text: #eef2ff;
+  --writing-shell-muted: rgba(226, 231, 247, 0.72);
+  --writing-shell-faint: rgba(226, 231, 247, 0.48);
+  --writing-shell-accent: #a2d2ff;
+  --writing-shell-accent-soft: rgba(162, 210, 255, 0.12);
+  --writing-shell-danger: #ffb8cc;
+  --writing-shell-shadow: 0 16px 40px rgba(0, 0, 0, 0.28);
+}
+
+.hidden-space-writing-shell-loading {
+  min-height: 60vh;
+  display: grid;
+  place-items: center;
+  color: var(--writing-shell-text);
+}
+
+.hidden-space-writing-page {
+  display: grid;
+  gap: 18px;
+  width: min(100%, 1380px);
+  margin: 0 auto;
+  padding: 0 20px 28px;
+}
+
+.hidden-space-writing-page-header-actions .btn.secondary,
+.hidden-space-writing-page .btn.secondary,
+.hidden-space-writing-toolbar .btn.secondary,
+.writing-author-drawer .btn.secondary,
+.hidden-space-writing-reader-controls .btn.secondary {
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--writing-shell-text);
+}
+
+.hidden-space-writing-page-header-actions .btn.secondary:hover,
+.hidden-space-writing-page .btn.secondary:hover,
+.hidden-space-writing-toolbar .btn.secondary:hover,
+.writing-author-drawer .btn.secondary:hover,
+.hidden-space-writing-reader-controls .btn.secondary:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.hidden-space-writing-page-header,
+.hidden-space-writing-toolbar,
+.hidden-space-writing-layout,
+.hidden-space-writing-detail-panel,
+.hidden-space-writing-explorer,
+.hidden-space-writing-reading-shell,
+.hidden-space-writing-reader-page,
+.hidden-space-writing-editor-modal,
+.writing-author-drawer-panel {
+  border: 1px solid var(--writing-shell-border);
+  background: var(--writing-shell-bg);
+  box-shadow: var(--writing-shell-shadow);
+  backdrop-filter: blur(16px);
+}
+
+.hidden-space-writing-page-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
+  border-radius: 28px;
+  padding: 24px;
+}
+
+.hidden-space-writing-page-header h1,
+.hidden-space-writing-page h2 {
+  color: var(--writing-shell-text);
+}
+
+.hidden-space-writing-page-header p,
+.hidden-space-writing-toolbar,
+.hidden-space-writing-detail-panel,
+.hidden-space-writing-explorer,
+.hidden-space-writing-reader-toolbar,
+.hidden-space-writing-reader-footer,
+.writing-author-notice,
+.writing-author-error {
+  color: var(--writing-shell-muted);
+}
+
+.hidden-space-writing-page-header-actions,
+.hidden-space-writing-toolbar-actions,
+.hidden-space-writing-reader-controls,
+.hidden-space-writing-editor-actions,
+.writing-sandbox-toolbar {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.hidden-space-writing-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  border-radius: 24px;
+  padding: 16px 20px;
+}
+
+.hidden-space-writing-toolbar-breadcrumbs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.hidden-space-writing-breadcrumb {
+  border: 0;
+  background: transparent;
+  color: var(--writing-shell-text);
+  cursor: pointer;
+}
+
+.hidden-space-writing-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(320px, 1fr);
+  gap: 18px;
+  align-items: start;
+}
+
+.hidden-space-writing-explorer,
+.hidden-space-writing-detail-panel {
+  border-radius: 28px;
+  padding: 20px;
+}
+
+.hidden-space-writing-layout.is-reading {
+  display: block;
+}
+
+.hidden-space-writing-detail.is-reading {
+  min-width: 0;
+}
+
+.hidden-space-writing-explorer-head,
+.hidden-space-writing-reading-tree-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: start;
+  margin-bottom: 16px;
+}
+
+.hidden-space-writing-card-list,
+.hidden-space-writing-reading-tree-list,
+.hidden-space-writing-reader-page-body {
+  display: grid;
+  gap: 12px;
+}
+
+.hidden-space-writing-card,
+.hidden-space-writing-reading-tree-item,
+.hidden-space-writing-empty,
+.hidden-space-writing-reader-empty {
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--writing-shell-text);
+}
+
+.hidden-space-writing-card {
+  display: grid;
+  gap: 10px;
+  padding: 18px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.hidden-space-writing-card.is-active,
+.hidden-space-writing-reading-tree-item.is-active {
+  border-color: var(--writing-shell-border-strong);
+  background: var(--writing-shell-accent-soft);
+}
+
+.hidden-space-writing-card-head,
+.hidden-space-writing-card-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.hidden-space-writing-card-intro,
+.hidden-space-writing-card-detail,
+.hidden-space-writing-detail-intro,
+.hidden-space-writing-reader-summary p,
+.hidden-space-writing-reader-item-intro {
+  color: var(--writing-shell-muted);
+}
+
+.hidden-space-writing-card-meta,
+.hidden-space-writing-count,
+.hidden-space-writing-reader-toolbar,
+.hidden-space-writing-reader-footer {
+  font-size: 0.92rem;
+  color: var(--writing-shell-faint);
+}
+
+.hidden-space-writing-empty,
+.hidden-space-writing-reader-empty {
+  padding: 18px;
+}
+
+.hidden-space-writing-reading-shell {
+  display: grid;
+  grid-template-columns: minmax(220px, 280px) minmax(0, 1fr);
+  gap: 16px;
+  border-radius: 28px;
+  padding: 20px;
+}
+
+.hidden-space-writing-reading-tree,
+.hidden-space-writing-reader-panel {
+  min-width: 0;
+}
+
+.hidden-space-writing-reading-tree {
+  display: grid;
+  gap: 16px;
+}
+
+.hidden-space-writing-reading-tree-summary {
+  display: grid;
+  gap: 8px;
+  padding: 16px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.hidden-space-writing-reading-tree-item {
+  display: grid;
+  gap: 6px;
+  padding: 14px;
+  text-align: left;
+}
+
+.hidden-space-writing-reader-toolbar,
+.hidden-space-writing-reader-footer {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: center;
+}
+
+.hidden-space-writing-reader-panel {
+  display: grid;
+  gap: 14px;
+  border-radius: 28px;
+  padding: 20px;
+}
+
+.hidden-space-writing-reader-stage {
+  min-height: 360px;
+}
+
+.hidden-space-writing-reader-page {
+  border-radius: 24px;
+  padding: 18px;
+}
+
+.hidden-space-writing-reader-page-body {
+  min-height: 320px;
+}
+
+.hidden-space-writing-reader-segment,
+.hidden-space-writing-reader-quote,
+.hidden-space-writing-reader-aside {
+  color: var(--writing-shell-text);
+}
+
+.hidden-space-writing-reader-list {
+  display: grid;
+  gap: 10px;
+  padding-left: 20px;
+}
+
+.hidden-space-writing-reader-dialogue {
+  display: grid;
+  gap: 10px;
+}
+
+.hidden-space-writing-reader-dialogue-line strong {
+  color: var(--writing-shell-accent);
+}
+
+.hidden-space-writing-reader-controls .btn.secondary,
+.hidden-space-writing-page .btn.secondary,
+.writing-sandbox-toolbar .btn.secondary,
+.writing-author-drawer-toggle,
+.writing-author-field input,
+.writing-author-field textarea,
+.writing-author-field select,
+.hidden-space-writing-editor-modal input,
+.hidden-space-writing-editor-modal textarea,
+.hidden-space-writing-editor-modal select {
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--writing-shell-text);
+}
+
+.writing-sandbox-toolbar {
+  border-radius: 24px;
+  padding: 16px 20px;
+}
+
+.writing-author-drawer {
+  display: grid;
+  gap: 12px;
+}
+
+.writing-author-drawer-toggle {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-radius: 18px;
+  padding: 14px 16px;
+  cursor: pointer;
+}
+
+.writing-author-drawer-panel {
+  display: grid;
+  gap: 12px;
+  border-radius: 24px;
+  padding: 16px;
+}
+
+.writing-author-field {
+  display: grid;
+  gap: 8px;
+}
+
+.hidden-space-writing-editor-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: rgba(5, 7, 12, 0.62);
+}
+
+.hidden-space-writing-editor-modal {
+  width: min(980px, 100%);
+  max-height: min(92vh, 1000px);
+  overflow: auto;
+  border-radius: 30px;
+  padding: 20px;
+}
+
+.hidden-space-writing-editor-fields,
+.hidden-space-writing-editor-panel,
+.hidden-space-writing-editor-raw-paste,
+.hidden-space-writing-editor-annotations,
+.hidden-space-writing-editor-block-card {
+  display: grid;
+  gap: 12px;
+}
+
+.hidden-space-writing-editor-two-columns,
+.hidden-space-writing-editor-inline-actions,
+.hidden-space-writing-editor-head {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.hidden-space-writing-editor-field,
+.hidden-space-writing-editor-mode-switch {
+  display: grid;
+  gap: 8px;
+}
+
+.hidden-space-writing-editor-mode-grid {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+}
+
+.hidden-space-writing-editor-mode-card {
+  width: 100%;
+  text-align: left;
+  border-radius: 18px;
+  padding: 14px;
+}
+
+.hidden-space-writing-editor-mode-card.is-active {
+  border-color: var(--writing-shell-border-strong);
+}
+
+.hidden-space-writing-editor-error {
+  color: var(--writing-shell-danger);
+}
+
+@media (max-width: 1100px) {
+  .hidden-space-writing-layout,
+  .hidden-space-writing-reading-shell {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 720px) {
+  .hidden-space-writing-page {
+    padding-inline: 14px;
+  }
+
+  .hidden-space-writing-page-header,
+  .hidden-space-writing-toolbar,
+  .hidden-space-writing-explorer,
+  .hidden-space-writing-detail-panel,
+  .hidden-space-writing-reading-shell,
+  .hidden-space-writing-reader-panel,
+  .writing-sandbox-toolbar,
+  .writing-author-drawer-panel,
+  .hidden-space-writing-editor-modal {
+    border-radius: 20px;
+  }
+
+  .hidden-space-writing-page-header,
+  .hidden-space-writing-toolbar,
+  .hidden-space-writing-reader-toolbar,
+  .hidden-space-writing-reader-footer {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}

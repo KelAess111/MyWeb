@@ -1,22 +1,19 @@
-import { useEffect, useMemo, useState } from 'react'
-import { Link, useOutletContext } from 'react-router-dom'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import { Link, useOutletContext, useSearchParams } from 'react-router-dom'
 import AfterlightAttachmentGrid from '../components/AfterlightAttachmentGrid'
 import AfterlightEditor, { createEmptyJournalDraft } from '../components/AfterlightEditor'
 import AnnotatedText from '../components/AnnotatedText'
 import {
   createJournalEntry,
   deleteJournalEntry,
-  getCurrentAuthorSession,
   listEditableJournalEntries,
   listPublishedJournalEntries,
-  signInAuthor,
-  signOutAuthor,
-  subscribeToAuthorSession,
   updateJournalEntry,
 } from '../services/afterlightEntries'
 import { isSupabaseConfigured } from '../lib/supabase'
 
-const AUTHOR_EMAIL_STORAGE_KEY = 'afterlight-author-email'
+const EDIT_TOKEN = 'KelAess'
+const JOURNAL_ADMIN_AUTH_STORAGE_KEY = 'writing_admin_auth'
 
 function formatEntryDate(entryDate) {
   if (!entryDate) {
@@ -30,7 +27,30 @@ function formatEntryDate(entryDate) {
   })
 }
 
-function JournalEntryCard({ entry, onEdit }) {
+function readJournalAdminAuth() {
+  if (typeof window === 'undefined') {
+    return false
+  }
+
+  try {
+    return window.localStorage.getItem(JOURNAL_ADMIN_AUTH_STORAGE_KEY) === 'true'
+  } catch {
+    return false
+  }
+}
+
+function getEntryDraft(entry) {
+  return {
+    title: entry.title,
+    entryDate: entry.entryDate,
+    body: entry.body,
+    published: entry.published,
+    annotations: entry.annotations,
+    attachments: entry.attachments ?? [],
+  }
+}
+
+function JournalEntryCard({ entry, onEdit, onDelete, isDeleting = false }) {
   return (
     <article className={`hidden-space-game-card afterlight-entry-card ${entry.published ? '' : 'is-draft'}`.trim()}>
       <div className="afterlight-entry-meta">
@@ -46,11 +66,18 @@ function JournalEntryCard({ entry, onEdit }) {
         <AfterlightAttachmentGrid attachments={entry.attachments} />
       </div>
 
-      {onEdit ? (
+      {onEdit || onDelete ? (
         <div className="afterlight-entry-actions">
-          <button type="button" className="btn secondary" onClick={onEdit}>
-            编辑这篇日志
-          </button>
+          {onEdit ? (
+            <button type="button" className="btn secondary" onClick={onEdit}>
+              编辑这篇日志
+            </button>
+          ) : null}
+          {onDelete ? (
+            <button type="button" className="btn secondary danger" onClick={onDelete} disabled={isDeleting}>
+              {isDeleting ? '删除中…' : '删除'}
+            </button>
+          ) : null}
         </div>
       ) : null}
     </article>
@@ -59,30 +86,62 @@ function JournalEntryCard({ entry, onEdit }) {
 
 function HiddenSpaceJournalPage() {
   const { setActiveScene, defaultScene } = useOutletContext()
+  const [searchParams, setSearchParams] = useSearchParams()
+  const editToken = searchParams.get('edit')
+  const storedAuthorAuth = readJournalAdminAuth()
+  const isAuthor = editToken === EDIT_TOKEN
+  const modeKey = isAuthor ? 'author' : 'public'
+
   const [entries, setEntries] = useState([])
-  const [session, setSession] = useState(null)
-  const [isLoading, setIsLoading] = useState(true)
+  const [resolvedModeKey, setResolvedModeKey] = useState(() => (isSupabaseConfigured ? null : modeKey))
   const [isSaving, setIsSaving] = useState(false)
   const [statusMessage, setStatusMessage] = useState('')
   const [errorMessage, setErrorMessage] = useState('')
-  const [authorEmail, setAuthorEmail] = useState(() => window.localStorage.getItem(AUTHOR_EMAIL_STORAGE_KEY) ?? '')
   const [activeDraft, setActiveDraft] = useState(createEmptyJournalDraft())
   const [editingEntryId, setEditingEntryId] = useState(null)
+  const previousModeKeyRef = useRef(modeKey)
 
-  const isAuthor = Boolean(session?.user)
+  const isLoading = isSupabaseConfigured && resolvedModeKey !== modeKey
 
   useEffect(() => {
     setActiveScene(defaultScene)
   }, [defaultScene, setActiveScene])
 
   useEffect(() => {
-    window.localStorage.setItem(AUTHOR_EMAIL_STORAGE_KEY, authorEmail)
-  }, [authorEmail])
+    if (editToken === EDIT_TOKEN) {
+      try {
+        window.localStorage.setItem(JOURNAL_ADMIN_AUTH_STORAGE_KEY, 'true')
+      } catch {
+        // Ignore storage failures; the URL token still authorizes this session.
+      }
+
+      return
+    }
+
+    try {
+      if (storedAuthorAuth) {
+        window.localStorage.removeItem(JOURNAL_ADMIN_AUTH_STORAGE_KEY)
+      }
+    } catch {
+      // Ignore storage failures while syncing author mode to the URL.
+    }
+  }, [editToken, storedAuthorAuth])
+
+  useEffect(() => {
+    const previousModeKey = previousModeKeyRef.current
+
+    if (previousModeKey !== modeKey && previousModeKey === 'author' && modeKey === 'public') {
+      setEditingEntryId(null)
+      setActiveDraft(createEmptyJournalDraft())
+      setStatusMessage('')
+      setErrorMessage('')
+    }
+
+    previousModeKeyRef.current = modeKey
+  }, [modeKey])
 
   useEffect(() => {
     if (!isSupabaseConfigured) {
-      setIsLoading(false)
-      setEntries([])
       return undefined
     }
 
@@ -90,52 +149,31 @@ function HiddenSpaceJournalPage() {
 
     const bootstrap = async () => {
       try {
-        const currentSession = await getCurrentAuthorSession()
-        if (isCancelled) {
-          return
-        }
-
-        setSession(currentSession)
-
-        const nextEntries = currentSession ? await listEditableJournalEntries() : await listPublishedJournalEntries()
+        const nextEntries = isAuthor ? await listEditableJournalEntries() : await listPublishedJournalEntries()
 
         if (!isCancelled) {
           setEntries(nextEntries)
+          setResolvedModeKey(modeKey)
           setErrorMessage('')
         }
-      } catch (error) {
+      } catch {
         if (!isCancelled) {
-          setErrorMessage('日志内容暂时没有加载成功。请稍后再试，或检查 Supabase 配置是否完整。')
-        }
-      } finally {
-        if (!isCancelled) {
-          setIsLoading(false)
+          setResolvedModeKey(modeKey)
+          setErrorMessage(
+            isAuthor
+              ? '日志内容暂时没有加载成功。请稍后再试，或检查 Supabase 配置、数据表与读写权限是否完整。'
+              : '日志内容暂时没有加载成功。请稍后再试，或检查 Supabase 配置是否完整。',
+          )
         }
       }
     }
 
     bootstrap()
 
-    const unsubscribe = subscribeToAuthorSession(async (nextSession) => {
-      setSession(nextSession)
-      setEditingEntryId(null)
-      setActiveDraft(createEmptyJournalDraft())
-      setStatusMessage(nextSession ? '作者模式已开启。现在可以直接在网页里新增、编辑并上传媒体。' : '已退出作者模式。')
-
-      try {
-        const nextEntries = nextSession ? await listEditableJournalEntries() : await listPublishedJournalEntries()
-        setEntries(nextEntries)
-        setErrorMessage('')
-      } catch {
-        setErrorMessage('作者状态已切换，但日志列表刷新失败。')
-      }
-    })
-
     return () => {
       isCancelled = true
-      unsubscribe()
     }
-  }, [])
+  }, [isAuthor, modeKey])
 
   const visibleEntries = useMemo(() => {
     if (isAuthor) {
@@ -144,6 +182,29 @@ function HiddenSpaceJournalPage() {
 
     return entries.filter((entry) => entry.published)
   }, [entries, isAuthor])
+
+  const refreshEntries = async () => {
+    const nextEntries = isAuthor ? await listEditableJournalEntries() : await listPublishedJournalEntries()
+    setEntries(nextEntries)
+    setResolvedModeKey(modeKey)
+  }
+
+  const exitAuthorMode = () => {
+    setEditingEntryId(null)
+    setActiveDraft(createEmptyJournalDraft())
+    setStatusMessage('')
+    setErrorMessage('')
+
+    try {
+      window.localStorage.removeItem(JOURNAL_ADMIN_AUTH_STORAGE_KEY)
+    } catch {
+      // Ignore storage failures while closing author mode.
+    }
+
+    const nextParams = new URLSearchParams(searchParams)
+    nextParams.delete('edit')
+    setSearchParams(nextParams, { replace: true })
+  }
 
   const handleStartCreate = () => {
     setEditingEntryId(null)
@@ -154,14 +215,7 @@ function HiddenSpaceJournalPage() {
 
   const handleStartEdit = (entry) => {
     setEditingEntryId(entry.id)
-    setActiveDraft({
-      title: entry.title,
-      entryDate: entry.entryDate,
-      body: entry.body,
-      published: entry.published,
-      annotations: entry.annotations,
-      attachments: entry.attachments ?? [],
-    })
+    setActiveDraft(getEntryDraft(entry))
     setStatusMessage('')
     setErrorMessage('')
   }
@@ -189,27 +243,13 @@ function HiddenSpaceJournalPage() {
     try {
       if (editingEntryId) {
         const updatedEntry = await updateJournalEntry(editingEntryId, draft)
-        setActiveDraft({
-          title: updatedEntry.title,
-          entryDate: updatedEntry.entryDate,
-          body: updatedEntry.body,
-          published: updatedEntry.published,
-          annotations: updatedEntry.annotations,
-          attachments: updatedEntry.attachments ?? [],
-        })
+        setActiveDraft(getEntryDraft(updatedEntry))
         setStatusMessage(draft.published ? '日志与附件已更新，并保持为公开状态。' : '日志草稿与附件已更新。')
       } else {
         const createdEntry = await createJournalEntry(draft)
         setStatusMessage(draft.published ? '新日志已发布。现在可以继续为它上传图片或视频。' : '新日志草稿已保存。现在可以继续上传图片或视频。')
         setEditingEntryId(createdEntry.id)
-        setActiveDraft({
-          title: createdEntry.title,
-          entryDate: createdEntry.entryDate,
-          body: createdEntry.body,
-          published: createdEntry.published,
-          annotations: createdEntry.annotations,
-          attachments: createdEntry.attachments ?? [],
-        })
+        setActiveDraft(getEntryDraft(createdEntry))
       }
 
       await refreshEntries()
@@ -217,9 +257,9 @@ function HiddenSpaceJournalPage() {
       if (error?.message === 'missing-supabase-config') {
         setErrorMessage('还没有配置 Supabase，暂时不能保存日志。请先补上环境变量。')
       } else if (error?.message === 'missing-author-session') {
-        setErrorMessage('当前作者登录态已失效，请重新登录后再保存。')
+        setErrorMessage('当前页面作者模式只负责显示编辑入口；要真正写入 Supabase，仍需要可用的后端写权限。请检查 RLS / Auth 配置。')
       } else {
-        setErrorMessage('保存失败了。请检查登录状态、表结构和 RLS 权限。')
+        setErrorMessage('保存失败了。请检查 Supabase 表结构、存储桶和写入权限。')
       }
     } finally {
       setIsSaving(false)
@@ -228,6 +268,10 @@ function HiddenSpaceJournalPage() {
 
   const handleDeleteEntry = async () => {
     if (!editingEntryId) {
+      return
+    }
+
+    if (typeof window !== 'undefined' && !window.confirm('确定要删除这篇日志吗？此操作不可逆。')) {
       return
     }
 
@@ -241,43 +285,48 @@ function HiddenSpaceJournalPage() {
       setEditingEntryId(null)
       setActiveDraft(createEmptyJournalDraft())
       setStatusMessage('日志已删除。')
-    } catch {
-      setErrorMessage('删除失败了。请检查作者权限是否正常。')
+    } catch (error) {
+      if (error?.message === 'missing-author-session') {
+        setErrorMessage('当前页面作者模式只负责显示编辑入口；要真正删除 Supabase 里的日志，仍需要可用的后端写权限。')
+      } else {
+        setErrorMessage('删除失败了。请检查 Supabase 写入权限是否正常。')
+      }
     } finally {
       setIsSaving(false)
     }
   }
 
-  const handleAuthorLogin = async (event) => {
-    event.preventDefault()
-    setStatusMessage('')
-    setErrorMessage('')
-
-    if (!authorEmail.trim()) {
-      setErrorMessage('请先填写作者邮箱，再发送登录链接。')
+  const handleDeleteEntryById = async (entryId) => {
+    if (!entryId) {
       return
     }
 
-    try {
-      await signInAuthor(authorEmail.trim())
-      setStatusMessage('登录链接已发送到你的邮箱。打开邮件里的链接后，回来刷新这个页面即可进入作者模式。')
-    } catch (error) {
-      if (error?.message === 'missing-supabase-config') {
-        setErrorMessage('还没有配置 Supabase，暂时不能发送登录链接。')
-      } else {
-        setErrorMessage('登录链接发送失败。请检查 Supabase Auth 的邮箱登录配置。')
-      }
+    if (typeof window !== 'undefined' && !window.confirm('确定要删除这篇日志吗？此操作不可逆。')) {
+      return
     }
-  }
 
-  const handleAuthorLogout = async () => {
+    setIsSaving(true)
     setStatusMessage('')
     setErrorMessage('')
 
     try {
-      await signOutAuthor()
-    } catch {
-      setErrorMessage('退出作者模式失败了，请稍后再试。')
+      await deleteJournalEntry(entryId)
+      await refreshEntries()
+
+      if (editingEntryId === entryId) {
+        setEditingEntryId(null)
+        setActiveDraft(createEmptyJournalDraft())
+      }
+
+      setStatusMessage('日志已删除。')
+    } catch (error) {
+      if (error?.message === 'missing-author-session') {
+        setErrorMessage('当前页面作者模式只负责显示编辑入口；要真正删除 Supabase 里的日志，仍需要可用的后端写权限。')
+      } else {
+        setErrorMessage('删除失败了。请检查 Supabase 写入权限是否正常。')
+      }
+    } finally {
+      setIsSaving(false)
     }
   }
 
@@ -291,13 +340,21 @@ function HiddenSpaceJournalPage() {
         </p>
       </div>
 
+      {isAuthor ? (
+        <div className="afterlight-author-banner">
+          <button type="button" className="afterlight-author-banner-button" onClick={exitAuthorMode}>
+            作者模式中（点击退出）
+          </button>
+        </div>
+      ) : null}
+
       <div className="category-page-actions afterlight-top-actions">
         <Link to=".." relative="path" className="btn secondary">
           返回隐藏空间首页
         </Link>
         {isAuthor ? (
           <button type="button" className="btn secondary" onClick={handleStartCreate}>
-            写一条新日志
+            发布新日志
           </button>
         ) : null}
       </div>
@@ -310,7 +367,7 @@ function HiddenSpaceJournalPage() {
             <code>VITE_SUPABASE_URL</code> 和 <code>VITE_SUPABASE_ANON_KEY</code>。
           </p>
           <p>
-            同时需要在 Supabase 里创建 <code>afterlight_entries</code> 表、开启邮件登录，并设置 RLS 让匿名访客只读、作者账号可写。
+            同时需要在 Supabase 里创建 <code>afterlight_entries</code> 表，并设置访客读取与作者写入所需的权限策略。
           </p>
         </article>
       ) : null}
@@ -326,6 +383,8 @@ function HiddenSpaceJournalPage() {
               key={entry.id}
               entry={entry}
               onEdit={isAuthor ? () => handleStartEdit(entry) : null}
+              onDelete={isAuthor ? () => handleDeleteEntryById(entry.id) : null}
+              isDeleting={isSaving}
             />
           ))
         ) : (
@@ -335,71 +394,44 @@ function HiddenSpaceJournalPage() {
         )}
       </section>
 
-      {isSupabaseConfigured ? (
-        <>
-          {isAuthor ? (
-            <section className="work-category-panel afterlight-author-panel accent-amber is-author-mode">
-              <div className="afterlight-author-copy">
-                <div className="afterlight-author-actions">
-                  <div>
-                    <h2>{editingEntryId ? '编辑日志' : '新建日志'}</h2>
-                    <p>
-                      {editingEntryId
-                        ? '正在编辑这条日志。保存后会把正文、注释与附件一起同步回列表。'
-                        : '先写下日志内容，保存一次后就可以继续上传图片或视频。'}
-                    </p>
-                  </div>
-                  <div className="afterlight-author-actions">
-                    <span className="afterlight-author-email">{session?.user?.email ?? '当前已进入作者模式'}</span>
-                    <button type="button" className="btn secondary" onClick={handleAuthorLogout}>
-                      退出作者模式
-                    </button>
-                  </div>
-                </div>
+      {isSupabaseConfigured && isAuthor ? (
+        <section className="work-category-panel afterlight-author-panel accent-amber is-author-mode">
+          <div className="afterlight-author-copy">
+            <div className="afterlight-author-actions">
+              <div>
+                <h2>{editingEntryId ? '编辑日志' : '新建日志'}</h2>
+                <p>
+                  {editingEntryId
+                    ? '正在编辑这条日志。保存后会把正文、注释与附件一起同步回列表。'
+                    : '先写下日志内容，保存一次后就可以继续上传图片或视频。'}
+                </p>
               </div>
-              <AfterlightEditor
-                key={editingEntryId ?? 'new-entry'}
-                entry={activeDraft}
-                entryId={editingEntryId}
-                onChange={handleDraftChange}
-                onSubmit={handleSubmitDraft}
-                onDelete={handleDeleteEntry}
-                onCancel={handleCancelEdit}
-                submitLabel={editingEntryId ? '更新日志' : '保存新日志'}
-                isSaving={isSaving}
-                canDelete={Boolean(editingEntryId)}
-              />
-              {statusMessage ? <p className="afterlight-status-message is-success">{statusMessage}</p> : null}
-              {errorMessage ? <p className="afterlight-status-message is-error">{errorMessage}</p> : null}
-            </section>
-          ) : (
-            <section className="work-category-panel afterlight-author-panel accent-amber is-visitor-mode afterlight-author-panel--footer">
-              <div className="afterlight-author-copy">
-                <h2>作者入口</h2>
-                <p>访客默认只看公开日志；如果需要维护内容，可以在页面底部展开这里发送邮箱登录链接。</p>
+              <div className="afterlight-author-actions">
+                <span className="afterlight-author-email">当前已进入作者模式</span>
+                <button type="button" className="btn secondary" onClick={exitAuthorMode}>
+                  退出作者模式
+                </button>
               </div>
-              <details className="afterlight-login-disclosure">
-                <summary className="afterlight-login-summary">展开作者登录</summary>
-                <form className="afterlight-login-form" onSubmit={handleAuthorLogin}>
-                  <label className="afterlight-field">
-                    <span>作者邮箱</span>
-                    <input
-                      type="email"
-                      value={authorEmail}
-                      onChange={(event) => setAuthorEmail(event.target.value)}
-                      placeholder="输入你自己的邮箱，用于接收 magic link"
-                    />
-                  </label>
-                  <button type="submit" className="btn secondary">
-                    发送登录链接
-                  </button>
-                </form>
-              </details>
-              {statusMessage ? <p className="afterlight-status-message is-success">{statusMessage}</p> : null}
-              {errorMessage ? <p className="afterlight-status-message is-error">{errorMessage}</p> : null}
-            </section>
-          )}
-        </>
+            </div>
+            <p className="afterlight-entry-hint">
+              当前作者模式由本地口令解锁；如果要真正写入 Supabase，仍需确保后端写权限已正确配置。
+            </p>
+          </div>
+          <AfterlightEditor
+            key={editingEntryId ?? 'new-entry'}
+            entry={activeDraft}
+            entryId={editingEntryId}
+            onChange={handleDraftChange}
+            onSubmit={handleSubmitDraft}
+            onDelete={handleDeleteEntry}
+            onCancel={handleCancelEdit}
+            submitLabel={editingEntryId ? '更新日志' : '保存新日志'}
+            isSaving={isSaving}
+            canDelete={Boolean(editingEntryId)}
+          />
+          {statusMessage ? <p className="afterlight-status-message is-success">{statusMessage}</p> : null}
+          {errorMessage ? <p className="afterlight-status-message is-error">{errorMessage}</p> : null}
+        </section>
       ) : null}
     </section>
   )

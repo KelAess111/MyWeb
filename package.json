@@ -7,7 +7,8 @@
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "generate:writing": "node scripts/generate-writing-content.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.111.0",

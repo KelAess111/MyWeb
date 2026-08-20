@@ -1,0 +1,156 @@
+{
+  "title": "写作角落",
+  "intro": "这里会收纳一些文字碎片、目录化的草稿和还在生长的片段。",
+  "ocHoverLine": {
+    "text": "写作不是一次写完，而是先让它有地方慢慢长出来。",
+    "expression": "calm",
+    "caption": "先把层级和容器搭好，后面内容才有秩序。"
+  },
+  "children": [
+    {
+      "type": "folder",
+      "title": "片段与碎句",
+      "intro": "短小、灵感式、还没长成完整结构的文字。",
+      "ocHoverLine": {
+        "text": "有些东西先是片段，后来才长出脉络。",
+        "expression": "thoughtful",
+        "caption": "片段区适合放短文本与氛围段落。"
+      },
+      "children": [
+        {
+          "type": "entry",
+          "title": "夜里留下的记录",
+          "intro": "一个偏 fragment 模板的小段落，适合承载氛围感。",
+          "template": "fragment",
+          "excerptLabel": "碎片",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "这是一段用来测试目录与阅读系统的短文字。它不用太长，只要能说明结构已经开始成形。"
+            },
+            {
+              "type": "quote",
+              "text": "我希望它像一页抽屉，轻轻拉开就能看到东西。"
+            }
+          ],
+          "ocHoverLine": {
+            "text": "短句、气息、留白，这些都可以先活下来。",
+            "expression": "soft",
+            "caption": "fragment 模板：适合短段落。"
+          }
+        },
+        {
+          "type": "entry",
+          "title": "设定碎片",
+          "intro": "一个 world-note 模板示例，适合放世界观、条目和说明。",
+          "template": "world-note",
+          "excerptLabel": "设定",
+          "blocks": [
+            {
+              "type": "subheading",
+              "text": "核心概念"
+            },
+            {
+              "type": "paragraph",
+              "text": "这里可以放设定背景、人物关系或尚未公开的结构说明。"
+            },
+            {
+              "type": "list",
+              "items": [
+                "条目一：世界观关键词",
+                "条目二：人物关系",
+                "条目三：待补充项"
+              ]
+            }
+          ],
+          "ocHoverLine": {
+            "text": "设定不一定要一次说完，可以像目录一样慢慢展开。",
+            "expression": "calm",
+            "caption": "world-note 模板：适合分点说明。"
+          }
+        }
+      ]
+    },
+    {
+      "type": "folder",
+      "title": "长文与段落",
+      "intro": "更适合较长的散文、章节式段落或需要分页的正文。",
+      "ocHoverLine": {
+        "text": "长文应该被拆成页，而不是被压成一整屏的重负担。",
+        "expression": "thoughtful",
+        "caption": "长文区后面会接分页阅读器。"
+      },
+      "children": [
+        {
+          "type": "entry",
+          "title": "一个会慢慢展开的段落",
+          "intro": "essay 模板示例，未来适合承载分页逻辑。",
+          "template": "essay",
+          "excerptLabel": "长文",
+          "blocks": [
+            {
+              "type": "subheading",
+              "text": "第一章"
+            },
+            {
+              "type": "paragraph",
+              "text": "这里会有更长的正文，未来需要测量后自动分页。先把内容形态准备好。"
+            },
+            {
+              "type": "paragraph",
+              "text": "这段正文故意写得稍微长一点，方便后续分页时验证块级切分、页面翻转和标题保留。"
+            },
+            {
+              "type": "aside",
+              "text": "注记：这个模板对应未来的完整阅读器。"
+            }
+          ],
+          "ocHoverLine": {
+            "text": "长文要留给阅读器，而不是挤在目录里。",
+            "expression": "calm",
+            "caption": "essay 模板：适合未来分页。"
+          }
+        }
+      ]
+    },
+    {
+      "type": "folder",
+      "title": "对话与片场",
+      "intro": "对话体、场景草稿、角色互相说话的内容。",
+      "ocHoverLine": {
+        "text": "有些文字不是叙述，而是让角色自己开口。",
+        "expression": "curious",
+        "caption": "对话模板适合有声部的内容。"
+      },
+      "children": [
+        {
+          "type": "entry",
+          "title": "一段对话试样",
+          "intro": "dialogue 模板示例，后面可以直接渲染成多说话人形式。",
+          "template": "dialogue",
+          "excerptLabel": "对话",
+          "blocks": [
+            {
+              "type": "dialogue",
+              "lines": [
+                {
+                  "speaker": "A",
+                  "text": "先把目录搭出来。"
+                },
+                {
+                  "speaker": "B",
+                  "text": "然后让内容自己进来。"
+                }
+              ]
+            }
+          ],
+          "ocHoverLine": {
+            "text": "对话体会让页面更像场景，而不是说明书。",
+            "expression": "soft",
+            "caption": "dialogue 模板：适合角色发声。"
+          }
+        }
+      ]
+    }
+  ]
+}

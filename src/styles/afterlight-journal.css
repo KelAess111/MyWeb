@@ -16,6 +16,26 @@
   flex-wrap: wrap;
 }
 
+.afterlight-author-banner {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 12px;
+}
+
+.afterlight-author-banner-button {
+  border: 1px solid rgba(255, 200, 110, 0.32);
+  border-radius: 999px;
+  background: rgba(255, 200, 110, 0.14);
+  color: #fff2d6;
+  padding: 8px 14px;
+  font: inherit;
+  cursor: pointer;
+}
+
+.afterlight-author-banner-button:hover {
+  background: rgba(255, 200, 110, 0.2);
+}
+
 .afterlight-config-panel,
 .afterlight-author-panel,
 .afterlight-editor-panel,
@@ -78,32 +98,21 @@
   font-size: 1rem;
 }
 
-.afterlight-login-disclosure {
-  display: grid;
-  gap: 16px;
+.afterlight-author-actions--row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  justify-content: space-between;
 }
 
-.afterlight-login-summary {
-  justify-self: start;
-  color: rgba(209, 215, 230, 0.72);
-  cursor: pointer;
+.afterlight-author-mode-note {
+  color: rgba(209, 215, 230, 0.76);
   font-size: 14px;
-  transition: color 0.25s ease;
 }
 
-.afterlight-login-summary:hover {
-  color: #eef2ff;
-}
-
-.afterlight-login-disclosure[open] .afterlight-login-summary {
-  color: #eef2ff;
-}
-
-.afterlight-login-disclosure .afterlight-login-form {
-  max-width: 620px;
-}
-
-.afterlight-author-actions {
+.afterlight-author-actions,
+.afterlight-author-actions--row {
   display: flex;
   flex-wrap: wrap;
   gap: 12px;

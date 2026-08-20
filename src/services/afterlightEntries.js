@@ -203,17 +203,6 @@ export async function deleteJournalEntry(id) {
   }
 }
 
-export async function getCurrentAuthorSession() {
-  const client = ensureSupabase()
-  const { data, error } = await client.auth.getSession()
-
-  if (error) {
-    throw error
-  }
-
-  return data.session
-}
-
 async function getRequiredAuthorId(client) {
   const { data, error } = await client.auth.getUser()
 
@@ -452,39 +441,3 @@ export async function deleteJournalAttachment(attachment) {
   }
 }
 
-export async function signInAuthor(email) {
-  const client = ensureSupabase()
-  const { error } = await client.auth.signInWithOtp({
-    email,
-    options: {
-      emailRedirectTo: window.location.href,
-    },
-  })
-
-  if (error) {
-    throw error
-  }
-}
-
-export async function signOutAuthor() {
-  const client = ensureSupabase()
-  const { error } = await client.auth.signOut()
-
-  if (error) {
-    throw error
-  }
-}
-
-export function subscribeToAuthorSession(callback) {
-  if (!isSupabaseConfigured || !supabase) {
-    return () => {}
-  }
-
-  const {
-    data: { subscription },
-  } = supabase.auth.onAuthStateChange((_event, session) => {
-    callback(session)
-  })
-
-  return () => subscription.unsubscribe()
-}
