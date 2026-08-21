@@ -10,6 +10,7 @@ import {
   resolveNode,
   resolveSelectedNode,
 } from '../utils/writingNavigation'
+import { createOCSceneFromNode } from '../utils/writingOCScenes'
 
 function getTreeRoot(data) {
   if (!data) {
@@ -70,12 +71,11 @@ function WritingCard({ node, selected, onSelect, onOpen, editorMode }) {
     >
       <div className="hidden-space-writing-card-head">
         <strong>{node.title}</strong>
-        <span>{node.type === 'folder' ? '目录' : node.template || '条目'}</span>
       </div>
       <p className="hidden-space-writing-card-intro">{node.intro || '暂无简介'}</p>
-      <p className="hidden-space-writing-card-detail">{preview || '暂无详情'}</p>
       <div className="hidden-space-writing-card-meta">
         <span>{node.type === 'folder' ? `${getVisibleChildren(node).length} 项` : `${Array.isArray(node.blocks) ? node.blocks.length : 0} 段`}</span>
+        {node.date ? <span>{node.date}</span> : null}
         {editorMode ? <span>可编辑</span> : <span>只读</span>}
       </div>
     </button>
@@ -172,6 +172,15 @@ function WritingContainer({
     }
   }, [defaultScene, onSceneChange])
 
+  useEffect(() => {
+    if (typeof onSceneChange === 'function' && selectedNode) {
+      const ocScene = createOCSceneFromNode(selectedNode)
+      if (ocScene) {
+        onSceneChange(ocScene)
+      }
+    }
+  }, [selectedNode, onSceneChange])
+
   const writeSearch = (patch) => {
     const nextParams = new URLSearchParams(searchParams)
     Object.entries(patch).forEach(([key, value]) => {
@@ -266,7 +275,6 @@ function WritingContainer({
         <div>
           <p className="hidden-space-writing-count">{titlePrefix}</p>
           <h1>{routeLabel}</h1>
-          <p>{detailNode?.detail || detailNode?.intro || '请选择一个栏位查看详情。'}</p>
         </div>
         <div className="hidden-space-writing-page-header-actions">
           <Link to={backTo} relative={backTo === '..' ? 'path' : undefined} className="btn secondary">
@@ -365,13 +373,7 @@ function WritingContainer({
               <p className="hidden-space-writing-count">详情栏</p>
               <h2>{detailNode?.title || root.title}</h2>
               <p className="hidden-space-writing-detail-intro">{detailNode?.detail || detailNode?.intro || '请选择一个栏位来查看详情。'}</p>
-              <div className="hidden-space-writing-detail-copy">
-                <p>
-                  {selectedIsEntry
-                    ? '这是一个内容条目。单击时这里只显示详情；双击左侧条目后才会进入分页阅读。'
-                    : '这是一个目录栏位。单击时这里只显示详情；双击左侧目录后会进入下一层分栏。'}
-                </p>
-              </div>
+              {detailNode?.date ? <p className="hidden-space-writing-count">日期：{detailNode.date}</p> : null}
             </section>
           )}
         </main>

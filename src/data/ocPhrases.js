@@ -23,7 +23,7 @@ export const homepageDefaultScenes = [
   },
   {
     id: 'oc-default-3',
-    text: '如果想关闭入场动画，可以在设置里取消勾选“显示入场动画”。',
+    text: '如果想关闭入场动画，可以在设置里取消勾选”显示入场动画”。',
     expression: 'helpless',
     image: resetSpeechless,
     alt: 'KelAess 的 Q 版形象露出无言以对的表情，像是在说明设置里的入场动画选项。',
@@ -87,5 +87,16 @@ export const homepageMusicScenes = [
     image: resetDrink,
     alt: 'KelAess 的 Q 版形象拿着饮料，提醒来访者先休息一下。',
     caption: '循环播放之前，先照顾一下自己。',
+  },
+]
+
+export const writingDefaultScenes = [
+  {
+    id: 'oc-writing-default',
+    text: '这里是写作角落。选一个栏位，我会告诉你我怎么看。',
+    expression: 'calm',
+    image: resetGreet,
+    alt: 'KelAess 的 Q 版形象以平静的姿态欢迎来到写作角落。',
+    caption: '选个栏位，听听芮瑟特的评价。',
   },
 ]

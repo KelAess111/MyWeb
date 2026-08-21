@@ -27,11 +27,61 @@ function flattenParagraphText(blocks = []) {
     .filter(Boolean)
 }
 
-function paginateBlocks(blocks, size = 3) {
-  const pages = []
-  for (let index = 0; index < blocks.length; index += size) {
-    pages.push(blocks.slice(index, index + size))
+function getBlockCharacterCount(block) {
+  if (!block) {
+    return 0
   }
+
+  if (block.type === 'paragraph' || block.type === 'quote' || block.type === 'aside' || block.type === 'subheading') {
+    return (block.text ?? '').length
+  }
+
+  if (block.type === 'list') {
+    return Array.isArray(block.items) ? block.items.join('').length : 0
+  }
+
+  if (block.type === 'dialogue') {
+    if (!Array.isArray(block.lines)) {
+      return 0
+    }
+
+    return block.lines.reduce((sum, line) => {
+      return sum + (line?.speaker ?? '').length + (line?.text ?? '').length
+    }, 0)
+  }
+
+  return 0
+}
+
+function paginateBlocks(blocks, targetCharsPerPage = 800) {
+  if (!blocks || blocks.length === 0) {
+    return [[]]
+  }
+
+  const pages = []
+  let currentPage = []
+  let currentPageChars = 0
+
+  for (const block of blocks) {
+    const blockChars = getBlockCharacterCount(block)
+
+    if (currentPage.length === 0) {
+      currentPage.push(block)
+      currentPageChars = blockChars
+    } else if (currentPageChars + blockChars <= targetCharsPerPage) {
+      currentPage.push(block)
+      currentPageChars += blockChars
+    } else {
+      pages.push(currentPage)
+      currentPage = [block]
+      currentPageChars = blockChars
+    }
+  }
+
+  if (currentPage.length > 0) {
+    pages.push(currentPage)
+  }
+
   return pages.length ? pages : [[]]
 }
 
@@ -147,7 +197,7 @@ function ReadingPane({
               onClick={() => onJumpToEntry(item)}
             >
               <span className="hidden-space-writing-reading-tree-item-title">{item.title}</span>
-              <span className="hidden-space-writing-reading-tree-item-intro">{item.detail || item.intro || '暂无简介'}</span>
+              <span className="hidden-space-writing-reading-tree-item-intro">{item.intro || '暂无简介'}</span>
             </button>
           )) : (
             <div className="hidden-space-writing-reader-empty">当前目录没有其他条目。</div>
@@ -172,6 +222,7 @@ function ReadingPane({
             <p className="hidden-space-writing-count">{entry.template || '条目'}</p>
             <h2>{entry.title}</h2>
             <p className="hidden-space-writing-detail-intro">{entry.detail || entry.intro || '这条内容还没有简介。'}</p>
+            {entry.date ? <p className="hidden-space-writing-count">日期：{entry.date}</p> : null}
           </div>
         </header>
 

@@ -5,7 +5,7 @@ import { HIDDEN_WRITING_WORKSPACE } from '../services/writingService'
 import { useWritingWorkspace } from '../hooks/useWritingWorkspace'
 
 function HiddenSpaceWritingPage() {
-  const { setActiveScene, defaultScene } = useOutletContext()
+  const { setActiveScene } = useOutletContext()
   const {
     authorDrawerOpen,
     authorNotice,
@@ -41,7 +41,6 @@ function HiddenSpaceWritingPage() {
         backTo=".."
         rootLabel="隐藏空间首页"
         onSceneChange={setActiveScene}
-        defaultScene={defaultScene}
         editorMode={canEdit}
         onEditNode={canEdit ? saveNode : undefined}
         onDeleteNode={canEdit ? deleteNode : undefined}

@@ -64,6 +64,7 @@ function createFolderDraft(entry, { createNew = false } = {}) {
     title: source.title ?? '未命名目录',
     intro: source.intro ?? '',
     detail: source.detail ?? source.intro ?? '',
+    date: source.date ?? '',
     excerptLabel: source.excerptLabel ?? '目录',
     meta: source.meta && typeof source.meta === 'object' ? source.meta : {},
     children: createNew ? [] : (Array.isArray(source.children) ? source.children : []),
@@ -91,6 +92,7 @@ function cleanEntry(entry) {
     title: normalized.title.trim(),
     intro: normalized.intro.trim(),
     detail: String(normalized.detail ?? normalized.intro ?? '').trim(),
+    date: String(normalized.date ?? '').trim(),
     annotations: cleanAnnotations(normalized.annotations),
     blocks: normalized.blocks.map((block) => {
       if (block.type === 'list') {
@@ -381,13 +383,15 @@ function WritingEditorModal({
                 <span>详情</span>
                 <textarea rows={4} value={draft.detail ?? draft.intro ?? ''} onChange={(event) => updateField('detail', event.target.value)} />
               </label>
-              {editorMode === 'node' && allowsChildCreation ? (
-                <div className="hidden-space-writing-editor-inline-actions">
-                  <button type="button" className="btn secondary" onClick={startChildCreation} disabled={isSaving}>
-                    新增子栏位
-                  </button>
-                </div>
-              ) : null}
+              <label className="hidden-space-writing-editor-field">
+                <span>日期（可选，可填"不知道"）</span>
+                <input
+                  type="text"
+                  value={draft.date ?? ''}
+                  onChange={(event) => updateField('date', event.target.value)}
+                  placeholder='例如：2024年1月，或输入"不知道"'
+                />
+              </label>
             </section>
           ) : null}
 
