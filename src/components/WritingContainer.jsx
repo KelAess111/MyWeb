@@ -96,11 +96,11 @@ function WritingContainer({
   onToggleEditorMode,
   onRequestEditorAccess,
   isSaving = false,
+  layoutVariant = 'default',
 }) {
   const [searchParams, setSearchParams] = useSearchParams()
   const [editingNode, setEditingNode] = useState(null)
   const [editingMode, setEditingMode] = useState('node')
-  const [editorError, setEditorError] = useState('')
 
   const index = useMemo(() => createWritingIndex(data), [data])
   const root = getTreeRoot(index.root)
@@ -261,7 +261,7 @@ function WritingContainer({
   const parentTitle = selectedFolder?.title || rootLabel
 
   return (
-    <section className="hidden-space-writing-page">
+    <section className={`hidden-space-writing-page ${layoutVariant === 'compact' ? 'hidden-space-writing-page--compact' : ''}`}>
       <header className="hidden-space-writing-page-header">
         <div>
           <p className="hidden-space-writing-count">{titlePrefix}</p>
@@ -391,7 +391,7 @@ function WritingContainer({
           onDelete={onDeleteNode}
           onClose={() => setEditingNode(null)}
           isSaving={isSaving}
-          error={editorError}
+          error=""
           initialMode={editingMode}
           saveLabel="保存更改"
         />

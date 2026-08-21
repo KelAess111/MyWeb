@@ -1,13 +1,49 @@
 import { isSupabaseConfigured, supabase } from '../lib/supabase'
 
-const STORAGE_PREFIX = 'writing-service'
-const STORAGE_KEYS = {
-  tree: `${STORAGE_PREFIX}:tree`,
-  drafts: `${STORAGE_PREFIX}:drafts`,
-  authorEmail: `${STORAGE_PREFIX}:author-email`,
-}
 const TABLE_NAME = 'public_writing_tree'
-const TREE_KEY = 'public-writing-root'
+
+const workspaceDefinitions = {
+  public: {
+    id: 'public',
+    treeKey: 'public-writing-root',
+    storageKeys: {
+      tree: 'writing-service:tree',
+      drafts: 'writing-service:drafts',
+      authorEmail: 'writing-service:author-email',
+      editorMode: 'writing_admin_auth',
+      authorAccess: 'writing_author_access',
+    },
+  },
+  hidden: {
+    id: 'hidden',
+    treeKey: 'hidden-writing-root',
+    storageKeys: {
+      tree: 'hidden-writing-service:tree',
+      drafts: 'hidden-writing-service:drafts',
+      authorEmail: 'hidden-writing-service:author-email',
+      editorMode: 'hidden_writing_admin_auth',
+      authorAccess: 'hidden_writing_author_access',
+    },
+  },
+}
+
+export const PUBLIC_WRITING_WORKSPACE = Object.freeze(workspaceDefinitions.public)
+export const HIDDEN_WRITING_WORKSPACE = Object.freeze(workspaceDefinitions.hidden)
+
+function resolveWritingWorkspace(workspace = PUBLIC_WRITING_WORKSPACE) {
+  const workspaceId = typeof workspace === 'string' ? workspace : workspace?.id
+  const resolved = workspaceDefinitions[workspaceId]
+
+  if (!resolved) {
+    throw new Error('invalid-writing-workspace')
+  }
+
+  return resolved
+}
+
+export function getWritingWorkspaceStorageKeys(workspace = PUBLIC_WRITING_WORKSPACE) {
+  return { ...resolveWritingWorkspace(workspace).storageKeys }
+}
 
 function canUseStorage() {
   try {
@@ -365,8 +401,9 @@ export async function getWritingAuthorSession() {
   return data.session ?? null
 }
 
-export async function requestWritingAuthorOtp(email) {
+export async function requestWritingAuthorOtp(email, workspace = PUBLIC_WRITING_WORKSPACE) {
   const client = ensureSupabase()
+  const { storageKeys } = resolveWritingWorkspace(workspace)
   const normalizedEmail = normalizeText(email).trim().toLowerCase()
 
   if (!normalizedEmail) {
@@ -384,13 +421,14 @@ export async function requestWritingAuthorOtp(email) {
     throw error
   }
 
-  writeStorage(STORAGE_KEYS.authorEmail, normalizedEmail)
+  writeStorage(storageKeys.authorEmail, normalizedEmail)
   return true
 }
 
-export async function verifyWritingAuthorOtp({ email, token }) {
+export async function verifyWritingAuthorOtp({ email, token }, workspace = PUBLIC_WRITING_WORKSPACE) {
   const client = ensureSupabase()
-  const normalizedEmail = normalizeText(email).trim().toLowerCase() || getStoredAuthorEmail()
+  const { storageKeys } = resolveWritingWorkspace(workspace)
+  const normalizedEmail = normalizeText(email).trim().toLowerCase() || readStorage(storageKeys.authorEmail) || ''
   const normalizedToken = normalizeText(token).trim()
 
   if (!normalizedEmail) {
@@ -411,19 +449,21 @@ export async function verifyWritingAuthorOtp({ email, token }) {
     throw error
   }
 
-  writeStorage(STORAGE_KEYS.authorEmail, normalizedEmail)
+  writeStorage(storageKeys.authorEmail, normalizedEmail)
   return data.session ?? null
 }
 
-export async function signOutWritingAuthor() {
+export async function signOutWritingAuthor(workspace = PUBLIC_WRITING_WORKSPACE) {
+  const { storageKeys } = resolveWritingWorkspace(workspace)
+
   if (!isSupabaseConfigured || !supabase) {
-    removeStorage(STORAGE_KEYS.authorEmail)
+    removeStorage(storageKeys.authorEmail)
     return true
   }
 
   const { error } = await supabase.auth.signOut()
 
-  removeStorage(STORAGE_KEYS.authorEmail)
+  removeStorage(storageKeys.authorEmail)
 
   if (error) {
     throw error
@@ -432,13 +472,14 @@ export async function signOutWritingAuthor() {
   return true
 }
 
-export function getStoredAuthorEmail() {
-  return readStorage(STORAGE_KEYS.authorEmail) ?? ''
+export function getStoredAuthorEmail(workspace = PUBLIC_WRITING_WORKSPACE) {
+  return readStorage(resolveWritingWorkspace(workspace).storageKeys.authorEmail) ?? ''
 }
 
-async function loadWritingTreeFromSupabase() {
+async function loadWritingTreeFromSupabase(workspace) {
   const client = ensureSupabase()
-  const { data, error } = await client.from(TABLE_NAME).select('tree_data').eq('tree_key', TREE_KEY).maybeSingle()
+  const { treeKey } = resolveWritingWorkspace(workspace)
+  const { data, error } = await client.from(TABLE_NAME).select('tree_data').eq('tree_key', treeKey).maybeSingle()
 
   if (error) {
     throw error
@@ -447,17 +488,45 @@ async function loadWritingTreeFromSupabase() {
   return data?.tree_data ?? null
 }
 
-async function saveWritingTreeToSupabase(tree) {
+async function saveWritingTreeToSupabase(tree, workspace) {
   const client = ensureSupabase()
+  const { treeKey } = resolveWritingWorkspace(workspace)
   const authorId = await getRequiredAuthorId(client)
-  const payload = {
-    tree_key: TREE_KEY,
-    tree_data: normalizeWritingTree(tree),
-    updated_by: authorId,
-    created_by: authorId,
+  const normalizedTree = normalizeWritingTree(tree)
+  const { data: existingRow, error: loadError } = await client
+    .from(TABLE_NAME)
+    .select('tree_key')
+    .eq('tree_key', treeKey)
+    .maybeSingle()
+
+  if (loadError) {
+    throw loadError
   }
 
-  const { error } = await client.from(TABLE_NAME).upsert(payload, { onConflict: 'tree_key' })
+  if (existingRow) {
+    const { error } = await client
+      .from(TABLE_NAME)
+      .update({
+        tree_data: normalizedTree,
+        updated_by: authorId,
+      })
+      .eq('tree_key', treeKey)
+
+    if (error) {
+      throw error
+    }
+
+    return true
+  }
+
+  const { error } = await client
+    .from(TABLE_NAME)
+    .insert({
+      tree_key: treeKey,
+      tree_data: normalizedTree,
+      created_by: authorId,
+      updated_by: authorId,
+    })
 
   if (error) {
     throw error
@@ -466,40 +535,55 @@ async function saveWritingTreeToSupabase(tree) {
   return true
 }
 
-export async function saveWritingTree(tree) {
+async function hasWritingAuthorSession() {
+  if (!isSupabaseConfigured || !supabase) {
+    return false
+  }
+
+  const { data, error } = await supabase.auth.getSession()
+  return !error && Boolean(data.session)
+}
+
+export async function saveWritingTree(tree, workspace = PUBLIC_WRITING_WORKSPACE) {
+  const resolvedWorkspace = resolveWritingWorkspace(workspace)
   const normalizedTree = normalizeWritingTree(tree)
-  const didSaveLocal = writeStorage(STORAGE_KEYS.tree, serializeWritingTree(normalizedTree))
+  const didSaveLocal = writeStorage(resolvedWorkspace.storageKeys.tree, serializeWritingTree(normalizedTree))
 
   if (isSupabaseConfigured && supabase) {
-    await saveWritingTreeToSupabase(normalizedTree)
+    await saveWritingTreeToSupabase(normalizedTree, resolvedWorkspace)
   }
 
   return didSaveLocal || Boolean(normalizedTree)
 }
 
-export async function loadWritingTree(fallback = null) {
-  if (isSupabaseConfigured && supabase) {
+export async function loadWritingTree(fallback = null, workspace = PUBLIC_WRITING_WORKSPACE) {
+  const resolvedWorkspace = resolveWritingWorkspace(workspace)
+  const isHiddenWorkspace = resolvedWorkspace.id === HIDDEN_WRITING_WORKSPACE.id
+  const canLoadRemote = !isHiddenWorkspace || await hasWritingAuthorSession()
+
+  if (canLoadRemote && isSupabaseConfigured && supabase) {
     try {
-      const remoteTree = await loadWritingTreeFromSupabase()
+      const remoteTree = await loadWritingTreeFromSupabase(resolvedWorkspace)
       if (remoteTree) {
         const normalized = normalizeWritingTree(remoteTree)
-        writeStorage(STORAGE_KEYS.tree, JSON.stringify(normalized))
+        writeStorage(resolvedWorkspace.storageKeys.tree, JSON.stringify(normalized))
         return normalized
       }
     } catch {
-      // Fall back to the provided fallback when remote loading fails.
+      // Use the workspace fallback when remote loading fails.
     }
-
-    const localTree = parseJson(readStorage(STORAGE_KEYS.tree), null)
-    return localTree ? normalizeWritingTree(localTree) : fallback
   }
 
-  const parsed = parseJson(readStorage(STORAGE_KEYS.tree), null)
-  return parsed ? normalizeWritingTree(parsed) : fallback
+  if (isHiddenWorkspace && !await hasWritingAuthorSession()) {
+    return fallback
+  }
+
+  const localTree = parseJson(readStorage(resolvedWorkspace.storageKeys.tree), null)
+  return localTree ? normalizeWritingTree(localTree) : fallback
 }
 
-export function clearWritingTree() {
-  return removeStorage(STORAGE_KEYS.tree)
+export function clearWritingTree(workspace = PUBLIC_WRITING_WORKSPACE) {
+  return removeStorage(resolveWritingWorkspace(workspace).storageKeys.tree)
 }
 
 export function normalizeWritingDraft(draft) {
@@ -522,21 +606,21 @@ export function serializeWritingDrafts(drafts) {
   return JSON.stringify(list)
 }
 
-export function saveWritingDrafts(drafts) {
-  return writeStorage(STORAGE_KEYS.drafts, serializeWritingDrafts(drafts))
+export function saveWritingDrafts(drafts, workspace = PUBLIC_WRITING_WORKSPACE) {
+  return writeStorage(resolveWritingWorkspace(workspace).storageKeys.drafts, serializeWritingDrafts(drafts))
 }
 
-export function loadWritingDrafts(fallback = []) {
-  const parsed = parseJson(readStorage(STORAGE_KEYS.drafts), [])
+export function loadWritingDrafts(fallback = [], workspace = PUBLIC_WRITING_WORKSPACE) {
+  const parsed = parseJson(readStorage(resolveWritingWorkspace(workspace).storageKeys.drafts), [])
   return Array.isArray(parsed)
     ? parsed.map((draft, index) => normalizeWritingDraft({ ...draft, id: draft?.id ?? `writing-draft-${index}` }))
     : fallback
 }
 
-export function clearWritingDrafts() {
-  return removeStorage(STORAGE_KEYS.drafts)
+export function clearWritingDrafts(workspace = PUBLIC_WRITING_WORKSPACE) {
+  return removeStorage(resolveWritingWorkspace(workspace).storageKeys.drafts)
 }
 
-export function getWritingStorageKeys() {
-  return { ...STORAGE_KEYS }
+export function getWritingStorageKeys(workspace = PUBLIC_WRITING_WORKSPACE) {
+  return getWritingWorkspaceStorageKeys(workspace)
 }

@@ -1,132 +1,141 @@
 {
-  "title": "写作角落",
-  "intro": "这里会收纳一些文字碎片、目录化的草稿和还在生长的片段。",
+  "id": "hidden-writing-root",
+  "slug": "hidden-writing",
+  "title": "隐藏写作角落",
+  "intro": "这里只收纳隐藏空间内部的段落、设定和只给特定路线使用的文本。",
+  "detail": "这是一套和公开写作区结构一致、但内容与存储完全隔离的隐藏写作目录。",
   "ocHoverLine": {
-    "text": "写作不是一次写完，而是先让它有地方慢慢长出来。",
+    "text": "这里的文字不需要公开，它们只需要在自己的房间里长好。",
     "expression": "calm",
-    "caption": "先把层级和容器搭好，后面内容才有秩序。"
+    "caption": "隐藏空间的写作目录会和公开写作区保持功能一致，但内容彼此隔离。"
   },
   "children": [
     {
       "type": "folder",
-      "title": "片段与碎句",
-      "intro": "短小、灵感式、还没长成完整结构的文字。",
+      "id": "hidden-writing-folder-oc-notes",
+      "slug": "oc-notes",
+      "title": "OC 侧写",
+      "intro": "偏人物状态、口吻、观察角度的内部笔记。",
+      "detail": "这里放的是更靠近角色内侧的记录，用来支撑隐藏空间左侧常驻的 OC 区域。",
       "ocHoverLine": {
-        "text": "有些东西先是片段，后来才长出脉络。",
+        "text": "人物不是设定表本身，而是会在细节里反复露出边角。",
         "expression": "thoughtful",
-        "caption": "片段区适合放短文本与氛围段落。"
+        "caption": "先收纳人物侧写，再决定哪些内容值得展开成正文。"
       },
       "children": [
         {
           "type": "entry",
-          "title": "夜里留下的记录",
-          "intro": "一个偏 fragment 模板的小段落，适合承载氛围感。",
+          "id": "hidden-writing-entry-voice-profile",
+          "slug": "voice-profile",
+          "title": "说话方式备忘",
+          "intro": "记录角色在不同状态下的语气、停顿和避让方式。",
+          "detail": "这是一个终点内容条目，双击后会直接进入阅读页，不再显示外层目录。",
           "template": "fragment",
-          "excerptLabel": "碎片",
+          "excerptLabel": "侧写",
           "blocks": [
             {
               "type": "paragraph",
-              "text": "这是一段用来测试目录与阅读系统的短文字。它不用太长，只要能说明结构已经开始成形。"
+              "text": "他在情绪稳定的时候会把句子说得很平，像是提前把所有波澜都压回去了；但一旦被逼到解释边缘，尾音就会轻微发紧。"
             },
             {
               "type": "quote",
-              "text": "我希望它像一页抽屉，轻轻拉开就能看到东西。"
+              "text": "“我不是不回答，我只是想先把最不会伤人的那一种说法挑出来。”"
             }
           ],
           "ocHoverLine": {
-            "text": "短句、气息、留白，这些都可以先活下来。",
+            "text": "先记住他们怎么开口，后面的剧情才会自己带出力度。",
             "expression": "soft",
-            "caption": "fragment 模板：适合短段落。"
+            "caption": "隐藏区的 fragment 条目适合保留这种偏人物口吻的内容。"
           }
         },
         {
           "type": "entry",
-          "title": "设定碎片",
-          "intro": "一个 world-note 模板示例，适合放世界观、条目和说明。",
+          "id": "hidden-writing-entry-sensory-triggers",
+          "slug": "sensory-triggers",
+          "title": "感官触发点",
+          "intro": "整理会让人物立刻进入防备或松弛状态的细节。",
+          "detail": "用来服务后续场景书写的快速触发清单。",
           "template": "world-note",
           "excerptLabel": "设定",
           "blocks": [
             {
               "type": "subheading",
-              "text": "核心概念"
-            },
-            {
-              "type": "paragraph",
-              "text": "这里可以放设定背景、人物关系或尚未公开的结构说明。"
+              "text": "会立即警觉的东西"
             },
             {
               "type": "list",
               "items": [
-                "条目一：世界观关键词",
-                "条目二：人物关系",
-                "条目三：待补充项"
+                "过亮且没有来源解释的灯光",
+                "陌生人直接站到背后一步内的距离",
+                "对方在回答前先笑的停顿"
               ]
-            }
-          ],
-          "ocHoverLine": {
-            "text": "设定不一定要一次说完，可以像目录一样慢慢展开。",
-            "expression": "calm",
-            "caption": "world-note 模板：适合分点说明。"
-          }
-        }
-      ]
-    },
-    {
-      "type": "folder",
-      "title": "长文与段落",
-      "intro": "更适合较长的散文、章节式段落或需要分页的正文。",
-      "ocHoverLine": {
-        "text": "长文应该被拆成页，而不是被压成一整屏的重负担。",
-        "expression": "thoughtful",
-        "caption": "长文区后面会接分页阅读器。"
-      },
-      "children": [
-        {
-          "type": "entry",
-          "title": "一个会慢慢展开的段落",
-          "intro": "essay 模板示例，未来适合承载分页逻辑。",
-          "template": "essay",
-          "excerptLabel": "长文",
-          "blocks": [
-            {
-              "type": "subheading",
-              "text": "第一章"
-            },
-            {
-              "type": "paragraph",
-              "text": "这里会有更长的正文，未来需要测量后自动分页。先把内容形态准备好。"
-            },
-            {
-              "type": "paragraph",
-              "text": "这段正文故意写得稍微长一点，方便后续分页时验证块级切分、页面翻转和标题保留。"
             },
             {
               "type": "aside",
-              "text": "注记：这个模板对应未来的完整阅读器。"
+              "text": "这类条目更偏内部工作台，不适合直接与公开写作区互通。"
             }
           ],
           "ocHoverLine": {
-            "text": "长文要留给阅读器，而不是挤在目录里。",
+            "text": "把触发点写清楚，场景里的反应才不会像硬加上去的效果。",
             "expression": "calm",
-            "caption": "essay 模板：适合未来分页。"
+            "caption": "隐藏区 world-note 条目主要服务人物行为一致性。"
           }
         }
       ]
     },
     {
       "type": "folder",
-      "title": "对话与片场",
-      "intro": "对话体、场景草稿、角色互相说话的内容。",
+      "id": "hidden-writing-folder-scenes",
+      "slug": "scenes",
+      "title": "封闭场景",
+      "intro": "更适合在隐藏空间里阅读的片段式正文。",
+      "detail": "这里存放的是和 OC 线并排工作的小场景，进入后直接阅读，不与公开目录共享。",
       "ocHoverLine": {
-        "text": "有些文字不是叙述，而是让角色自己开口。",
+        "text": "有些场景只需要在这里成立，不需要被带去公开场域。",
         "expression": "curious",
-        "caption": "对话模板适合有声部的内容。"
+        "caption": "这组条目更偏隐藏路线内的独立正文。"
       },
       "children": [
         {
           "type": "entry",
-          "title": "一段对话试样",
-          "intro": "dialogue 模板示例，后面可以直接渲染成多说话人形式。",
+          "id": "hidden-writing-entry-corridor-scene",
+          "slug": "corridor-scene",
+          "title": "走廊拐角",
+          "intro": "一个适合分页阅读器的隐藏区短场景。",
+          "detail": "这里用 essay 结构示范隐藏空间里的正文条目。",
+          "template": "essay",
+          "excerptLabel": "场景",
+          "blocks": [
+            {
+              "type": "subheading",
+              "text": "拐角前"
+            },
+            {
+              "type": "paragraph",
+              "text": "走廊比预想中更安静，安静到鞋底摩擦地面的声音都像是不该被留下来的证据。"
+            },
+            {
+              "type": "paragraph",
+              "text": "他在拐角前停了一下，没有立刻过去，而是先抬眼看向灯影最薄的那一段墙，好像那里能给出某种比直觉更可靠的回答。"
+            },
+            {
+              "type": "aside",
+              "text": "阅读器会按块分页，因此这里保留了几种不同类型的段落。"
+            }
+          ],
+          "ocHoverLine": {
+            "text": "隐藏区的正文也该有自己的节奏，而不是借公开区来占位。",
+            "expression": "calm",
+            "caption": "essay 条目用来验证隐藏区和公开区拥有同等的阅读能力。"
+          }
+        },
+        {
+          "type": "entry",
+          "id": "hidden-writing-entry-quiet-exchange",
+          "slug": "quiet-exchange",
+          "title": "低声交换",
+          "intro": "一段对话体样例，用来验证隐藏区的 dialogue 渲染。",
+          "detail": "该条目展示隐藏空间里的对话型终点内容。",
           "template": "dialogue",
           "excerptLabel": "对话",
           "blocks": [
@@ -135,19 +144,19 @@
               "lines": [
                 {
                   "speaker": "A",
-                  "text": "先把目录搭出来。"
+                  "text": "你已经在这里等很久了吗？"
                 },
                 {
                   "speaker": "B",
-                  "text": "然后让内容自己进来。"
+                  "text": "没有很久，只是刚好比你先把那点犹豫消化完。"
                 }
               ]
             }
           ],
           "ocHoverLine": {
-            "text": "对话体会让页面更像场景，而不是说明书。",
+            "text": "对话型内容在隐藏区也要完整成立，而不是只当测试数据。",
             "expression": "soft",
-            "caption": "dialogue 模板：适合角色发声。"
+            "caption": "dialogue 条目确保隐藏写作区不是公开区的镜像副本。"
           }
         }
       ]

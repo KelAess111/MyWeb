@@ -398,6 +398,84 @@
   color: var(--writing-shell-danger);
 }
 
+.hidden-space-writing-page--compact {
+  gap: 12px;
+  width: min(100%, 1120px);
+  padding: 0 12px 18px;
+}
+
+.hidden-space-writing-page--compact .hidden-space-writing-page-header,
+.hidden-space-writing-page--compact .hidden-space-writing-toolbar,
+.hidden-space-writing-page--compact .hidden-space-writing-layout,
+.hidden-space-writing-page--compact .hidden-space-writing-detail-panel,
+.hidden-space-writing-page--compact .hidden-space-writing-explorer,
+.hidden-space-writing-page--compact .hidden-space-writing-reading-shell,
+.hidden-space-writing-page--compact .hidden-space-writing-reader-page {
+  border-radius: 20px;
+}
+
+.hidden-space-writing-page--compact .hidden-space-writing-page-header {
+  padding: 18px;
+}
+
+.hidden-space-writing-page--compact .hidden-space-writing-toolbar {
+  padding: 12px 14px;
+}
+
+.hidden-space-writing-page--compact .hidden-space-writing-layout {
+  grid-template-columns: minmax(0, 1.45fr) minmax(260px, 0.9fr);
+  gap: 12px;
+}
+
+.hidden-space-writing-page--compact .hidden-space-writing-explorer,
+.hidden-space-writing-page--compact .hidden-space-writing-detail-panel,
+.hidden-space-writing-page--compact .hidden-space-writing-reader-panel,
+.hidden-space-writing-page--compact .hidden-space-writing-reading-shell {
+  padding: 14px;
+}
+
+.hidden-space-writing-page--compact .hidden-space-writing-explorer-head,
+.hidden-space-writing-page--compact .hidden-space-writing-reading-tree-head {
+  margin-bottom: 12px;
+}
+
+.hidden-space-writing-page--compact .hidden-space-writing-card-list,
+.hidden-space-writing-page--compact .hidden-space-writing-reading-tree-list,
+.hidden-space-writing-page--compact .hidden-space-writing-reader-page-body {
+  gap: 9px;
+}
+
+.hidden-space-writing-page--compact .hidden-space-writing-card,
+.hidden-space-writing-page--compact .hidden-space-writing-reading-tree-item,
+.hidden-space-writing-page--compact .hidden-space-writing-empty,
+.hidden-space-writing-page--compact .hidden-space-writing-reader-empty {
+  border-radius: 16px;
+}
+
+.hidden-space-writing-page--compact .hidden-space-writing-card {
+  gap: 8px;
+  padding: 13px;
+}
+
+.hidden-space-writing-page--compact .hidden-space-writing-reading-shell {
+  grid-template-columns: minmax(180px, 230px) minmax(0, 1fr);
+  gap: 12px;
+}
+
+.hidden-space-writing-page--compact .hidden-space-writing-reader-stage {
+  min-height: 300px;
+}
+
+.hidden-space-writing-page--compact .hidden-space-writing-reader-page-body {
+  min-height: 260px;
+}
+@media (max-width: 1260px) {
+  .hidden-space-writing-page--compact .hidden-space-writing-layout,
+  .hidden-space-writing-page--compact .hidden-space-writing-reading-shell {
+    grid-template-columns: 1fr;
+  }
+}
+
 @media (max-width: 1100px) {
   .hidden-space-writing-layout,
   .hidden-space-writing-reading-shell {

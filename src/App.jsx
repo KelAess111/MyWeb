@@ -300,12 +300,16 @@ function MusicPlayerProvider({ children }) {
         return 0
       }
 
+      if (playbackMode === 'shuffle' && direction > 0) {
+        return getRandomTrackIndex(current, musicTracks.length)
+      }
+
       const nextIndex = (current + direction + musicTracks.length) % musicTracks.length
       return nextIndex
     })
     setCurrentTime(0)
     setIsPlaying(true)
-  }, [])
+  }, [playbackMode])
 
   const handleProgressChange = useCallback((event) => {
     const nextTime = Number(event.target.value)
