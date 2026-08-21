@@ -210,9 +210,11 @@ export function useWritingWorkspace({ workspace, fallbackTree }) {
       return
     }
 
+    const normalizedNode = normalizeWritingNode(nextNode)
+
     const replaceNode = (node) => {
-      if (node.id === nextNode.id) {
-        return nextNode
+      if (node.id === normalizedNode.id) {
+        return normalizedNode
       }
 
       if (node.type !== 'folder' || !Array.isArray(node.children)) {

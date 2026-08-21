@@ -219,10 +219,12 @@ function ReadingPane({
       <article className="hidden-space-writing-reader-panel">
         <header className="hidden-space-writing-reader-page-header">
           <div>
-            <p className="hidden-space-writing-count">{entry.template || '条目'}</p>
             <h2>{entry.title}</h2>
             <p className="hidden-space-writing-detail-intro">{entry.detail || entry.intro || '这条内容还没有简介。'}</p>
             {entry.date ? <p className="hidden-space-writing-count">日期：{entry.date}</p> : null}
+            <p className="hidden-space-writing-count">
+              状态：{entry.status === 'completed' ? '已完成' : '未完成'}
+            </p>
           </div>
         </header>
 

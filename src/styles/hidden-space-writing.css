@@ -121,6 +121,7 @@
   grid-template-columns: minmax(0, 2fr) minmax(320px, 1fr);
   gap: 18px;
   align-items: start;
+  border-radius: 28px;
 }
 
 .hidden-space-writing-explorer,
@@ -304,8 +305,14 @@
 .hidden-space-writing-editor-modal input,
 .hidden-space-writing-editor-modal textarea,
 .hidden-space-writing-editor-modal select {
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  background: rgba(255, 255, 255, 0.04) !important;
+  background-color: rgba(255, 255, 255, 0.04) !important;
+  color: var(--writing-shell-text) !important;
+}
+
+.hidden-space-writing-editor-modal select option {
+  background: var(--writing-shell-bg);
   color: var(--writing-shell-text);
 }
 
@@ -345,25 +352,36 @@
   position: fixed;
   inset: 0;
   z-index: 200;
-  display: grid;
-  place-items: center;
-  padding: 20px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 40px 20px;
   background: rgba(5, 7, 12, 0.62);
+  overflow-y: auto;
 }
 
 .hidden-space-writing-editor-modal {
   width: min(980px, 100%);
-  max-height: min(92vh, 1000px);
-  overflow: auto;
+  max-height: none;
+  overflow: visible;
   border-radius: 30px;
   padding: 20px 20px 60px;
+  margin: 0 auto;
 }
 
-.hidden-space-writing-editor-fields,
 .hidden-space-writing-editor-panel,
 .hidden-space-writing-editor-raw-paste,
 .hidden-space-writing-editor-annotations,
 .hidden-space-writing-editor-block-card {
+  display: grid;
+  gap: 12px;
+  border-radius: 20px;
+  padding: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.hidden-space-writing-editor-fields {
   display: grid;
   gap: 12px;
 }

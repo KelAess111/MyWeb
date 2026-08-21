@@ -76,6 +76,7 @@ function WritingCard({ node, selected, onSelect, onOpen, editorMode }) {
       <div className="hidden-space-writing-card-meta">
         <span>{node.type === 'folder' ? `${getVisibleChildren(node).length} 项` : `${Array.isArray(node.blocks) ? node.blocks.length : 0} 段`}</span>
         {node.date ? <span>{node.date}</span> : null}
+        {node.type === 'entry' ? <span>{node.status === 'completed' ? '已完成' : '未完成'}</span> : null}
         {editorMode ? <span>可编辑</span> : <span>只读</span>}
       </div>
     </button>
@@ -267,7 +268,8 @@ function WritingContainer({
   const showCreateButtons = editorMode && canCreateAtCurrentLevel && !isReading
   const showEditButton = editorMode && Boolean(selectedNode) && !isReading
   const showDeleteButton = editorMode && Boolean(selectedNode) && !isReading && typeof onDeleteNode === 'function'
-  const parentTitle = selectedFolder?.title || rootLabel
+  const parentOfActiveFolder = activeFolder?.parentId ? resolveFolderNode(index, activeFolder.parentId) : null
+  const parentTitle = parentOfActiveFolder?.title || rootLabel
 
   return (
     <section className={`hidden-space-writing-page ${layoutVariant === 'compact' ? 'hidden-space-writing-page--compact' : ''}`}>
@@ -374,6 +376,11 @@ function WritingContainer({
               <h2>{detailNode?.title || root.title}</h2>
               <p className="hidden-space-writing-detail-intro">{detailNode?.detail || detailNode?.intro || '请选择一个栏位来查看详情。'}</p>
               {detailNode?.date ? <p className="hidden-space-writing-count">日期：{detailNode.date}</p> : null}
+              {detailNode?.type === 'entry' ? (
+                <p className="hidden-space-writing-count">
+                  状态：{detailNode.status === 'completed' ? '已完成' : '未完成'}
+                </p>
+              ) : null}
             </section>
           )}
         </main>

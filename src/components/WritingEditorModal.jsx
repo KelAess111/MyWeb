@@ -65,6 +65,7 @@ function createFolderDraft(entry, { createNew = false } = {}) {
     intro: source.intro ?? '',
     detail: source.detail ?? source.intro ?? '',
     date: source.date ?? '',
+    status: source.status ?? 'incomplete',
     excerptLabel: source.excerptLabel ?? '目录',
     meta: source.meta && typeof source.meta === 'object' ? source.meta : {},
     children: createNew ? [] : (Array.isArray(source.children) ? source.children : []),
@@ -93,6 +94,7 @@ function cleanEntry(entry) {
     intro: normalized.intro.trim(),
     detail: String(normalized.detail ?? normalized.intro ?? '').trim(),
     date: String(normalized.date ?? '').trim(),
+    status: normalized.type === 'entry' ? (normalized.status ?? 'incomplete') : undefined,
     annotations: cleanAnnotations(normalized.annotations),
     blocks: normalized.blocks.map((block) => {
       if (block.type === 'list') {
@@ -158,15 +160,12 @@ function WritingEditorModal({
       setEditorMode('node')
     }
 
-    const previousOverflow = document.body.style.overflow
-    document.body.style.overflow = 'hidden'
     const focusTimer = window.setTimeout(() => {
       dialogRef.current?.querySelector('input, textarea, select, button')?.focus()
     }, 0)
 
     return () => {
       window.clearTimeout(focusTimer)
-      document.body.style.overflow = previousOverflow
       if (returnFocusRef.current instanceof HTMLElement) {
         returnFocusRef.current.focus()
       }
@@ -392,6 +391,18 @@ function WritingEditorModal({
                   placeholder='例如：2024年1月，或输入"不知道"'
                 />
               </label>
+              {draft.type === 'entry' ? (
+                <label className="hidden-space-writing-editor-field">
+                  <span>完成状态</span>
+                  <select
+                    value={draft.status ?? 'incomplete'}
+                    onChange={(event) => updateField('status', event.target.value)}
+                  >
+                    <option value="incomplete">未完成</option>
+                    <option value="completed">已完成</option>
+                  </select>
+                </label>
+              ) : null}
             </section>
           ) : null}
 
