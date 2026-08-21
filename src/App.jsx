@@ -489,6 +489,7 @@ function AppShell() {
     lastInteractedAt: 0,
   })
   const isHomePage = location.pathname === '/'
+  const isHiddenSpace = location.pathname.startsWith('/hidden')
 
   useEffect(() => {
     if (typeof window === 'undefined') {
@@ -500,7 +501,7 @@ function AppShell() {
 
   return (
     <div className="site">
-      <BackgroundLayer mode="base" />
+      {!isHiddenSpace && <BackgroundLayer mode="base" />}
       <SiteHeader replayIntroEnabled={replayIntroEnabled} setReplayIntroEnabled={setReplayIntroEnabled} />
       <AppRoutes
         replayIntroEnabled={replayIntroEnabled}
