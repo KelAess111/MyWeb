@@ -1,14 +1,15 @@
-import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
-import { Navigate, Outlet, Route, Routes, useLocation } from 'react-router-dom'
-import HomePage from './pages/HomePage'
-import CategoryPage from './pages/CategoryPage'
-import HiddenArchivePage from './pages/HiddenArchivePage'
-import HiddenSpaceGamesPage from './pages/HiddenSpaceGamesPage'
-import HiddenSpacePaintingPage from './pages/HiddenSpacePaintingPage'
-import HiddenSpaceWritingPage from './pages/HiddenSpaceWritingPage'
-import PublicWritingPage from './pages/PublicWritingPage'
-import HiddenSpaceJournalPage from './pages/HiddenSpaceJournalPage'
-import HiddenSpacePersonalPage from './pages/HiddenSpacePersonalPage'
+import { lazy, Suspense, createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
+import { Navigate, Route, Routes, useLocation } from 'react-router-dom'
+
+const HomePage = lazy(() => import('./pages/HomePage'))
+const CategoryPage = lazy(() => import('./pages/CategoryPage'))
+const HiddenArchivePage = lazy(() => import('./pages/HiddenArchivePage'))
+const HiddenSpaceGamesPage = lazy(() => import('./pages/HiddenSpaceGamesPage'))
+const HiddenSpacePaintingPage = lazy(() => import('./pages/HiddenSpacePaintingPage'))
+const HiddenSpaceWritingPage = lazy(() => import('./pages/HiddenSpaceWritingPage'))
+const PublicWritingPage = lazy(() => import('./pages/PublicWritingPage'))
+const HiddenSpaceJournalPage = lazy(() => import('./pages/HiddenSpaceJournalPage'))
+const HiddenSpacePersonalPage = lazy(() => import('./pages/HiddenSpacePersonalPage'))
 import HiddenSpaceLayout from './components/HiddenSpaceLayout'
 import BackgroundLayer from './components/BackgroundLayer'
 import SiteHeader from './components/SiteHeader'
@@ -438,36 +439,38 @@ function MusicPlayerProvider({ children }) {
 
 function AppRoutes({ musicUiState, onOcAreaChange, replayIntroEnabled }) {
   return (
-    <Routes>
-      <Route
-        path="/"
-        element={
-          <HomePage
-            initialReplayIntroEnabled={replayIntroEnabled}
-            musicUiState={musicUiState}
-            onOcAreaChange={onOcAreaChange}
-          />
-        }
-      />
-      <Route path="/works/writing" element={<PublicWritingPage />} />
-      <Route path="/works/writing/*" element={<PublicWritingPage />} />
-      <Route path="/writing" element={<PublicWritingPage />} />
-      <Route
-        path="/works/:categoryId"
-        element={
-          <CategoryPage />
-        }
-      />
-      <Route path="/hidden" element={<HiddenSpaceLayout />}>
-        <Route index element={<HiddenArchivePage />} />
-        <Route path="games" element={<HiddenSpaceGamesPage />} />
-        <Route path="painting" element={<HiddenSpacePaintingPage />} />
-        <Route path="writing" element={<HiddenSpaceWritingPage />} />
-        <Route path="journal" element={<HiddenSpaceJournalPage />} />
-        <Route path="personal" element={<HiddenSpacePersonalPage />} />
-      </Route>
-      <Route path="*" element={<Navigate to="/" replace />} />
-    </Routes>
+    <Suspense fallback={<div className="route-loading-shell" role="status">页面加载中…</div>}>
+      <Routes>
+        <Route
+          path="/"
+          element={
+            <HomePage
+              initialReplayIntroEnabled={replayIntroEnabled}
+              musicUiState={musicUiState}
+              onOcAreaChange={onOcAreaChange}
+            />
+          }
+        />
+        <Route path="/works/writing" element={<PublicWritingPage />} />
+        <Route path="/works/writing/*" element={<PublicWritingPage />} />
+        <Route path="/writing" element={<PublicWritingPage />} />
+        <Route
+          path="/works/:categoryId"
+          element={
+            <CategoryPage />
+          }
+        />
+        <Route path="/hidden" element={<HiddenSpaceLayout />}>
+          <Route index element={<HiddenArchivePage />} />
+          <Route path="games" element={<HiddenSpaceGamesPage />} />
+          <Route path="painting" element={<HiddenSpacePaintingPage />} />
+          <Route path="writing" element={<HiddenSpaceWritingPage />} />
+          <Route path="journal" element={<HiddenSpaceJournalPage />} />
+          <Route path="personal" element={<HiddenSpacePersonalPage />} />
+        </Route>
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </Suspense>
   )
 }
 
