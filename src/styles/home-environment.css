@@ -1,0 +1,12 @@
+
+.home-clock-weather {
+  color: #b9dff0;
+  font-size: 13px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .home-launcher-item,
+  .home-launcher-band-slot {
+    transition-duration: 1ms;
+  }
+}

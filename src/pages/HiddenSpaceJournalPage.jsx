@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { Link, useOutletContext, useSearchParams } from 'react-router-dom'
 import AfterlightAttachmentGrid from '../components/AfterlightAttachmentGrid'
-import AfterlightEditor, { createEmptyJournalDraft } from '../components/AfterlightEditor'
+import AfterlightEditor from '../components/AfterlightEditor'
+import { createEmptyJournalDraft } from '../utils/journalDrafts'
 import AnnotatedText from '../components/AnnotatedText'
 import {
   createJournalEntry,

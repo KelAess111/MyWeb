@@ -1,8 +1,9 @@
 .speech-bubble {
   position: absolute;
-  top: 28px;
-  left: 0;
-  z-index: 2;
+  top: 116px;
+  left: 8%;
+  z-index: 3;
+  width: min(270px, 38%);
   max-width: 270px;
   min-height: 128px;
   padding: 18px 18px 20px;
@@ -12,41 +13,21 @@
   box-shadow: 0 18px 40px rgba(0, 0, 0, 0.25);
   backdrop-filter: blur(12px);
 }
-
 .speech-bubble::after {
   content: '';
   position: absolute;
-  left: 26px;
-  bottom: -12px;
+  right: -12px;
+  bottom: 28px;
   width: 24px;
   height: 24px;
   background: rgba(255, 255, 255, 0.08);
   border-right: 1px solid rgba(255, 255, 255, 0.12);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
   transform: rotate(45deg);
 }
-
-.speech-bubble p {
-  color: #f5f7fb;
-  font-size: 15px;
-  line-height: 1.7;
-}
-
-@media (max-width: 1024px) {
-  .speech-bubble {
-    top: 10px;
-  }
-}
-
+.speech-bubble p { color: #f5f7fb; font-size: 15px; line-height: 1.7; }
+@media (max-width: 1024px) { .speech-bubble { top: 96px; left: 4%; } }
 @media (max-width: 768px) {
-  .speech-bubble {
-    position: static;
-    max-width: 100%;
-    min-height: 0;
-    margin-bottom: 18px;
-  }
-
-  .speech-bubble::after {
-    display: none;
-  }
+  .speech-bubble { position: relative; inset: auto; width: 100%; max-width: 100%; min-height: 0; margin-bottom: 18px; order: 1; }
+  .speech-bubble::after { display: none; }
 }

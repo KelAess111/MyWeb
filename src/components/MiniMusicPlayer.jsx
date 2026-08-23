@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { useMusicPlayer } from '../App'
+import { useMusicPlayer } from '../contexts/MusicPlayerContext'
 import '../styles/mini-music-player.css'
 
 function MiniMusicPlayer({ isHomePage = false, ocArea = null, onUiStateChange }) {
@@ -11,7 +11,6 @@ function MiniMusicPlayer({ isHomePage = false, ocArea = null, onUiStateChange })
     activeTrackIndex,
     audioStatus,
     autoplayNext,
-    currentTime,
     duration,
     formatTime,
     handleMessageSubmit,

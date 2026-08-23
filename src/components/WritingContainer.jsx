@@ -5,7 +5,6 @@ import WritingEditorModal from './WritingEditorModal'
 import {
   createWritingIndex,
   getNodeBreadcrumbs,
-  getNodePreview,
   resolveFolderNode,
   resolveNode,
   resolveSelectedNode,
@@ -61,7 +60,6 @@ function createRootNodeDraft() {
 }
 
 function WritingCard({ node, selected, onSelect, onOpen, editorMode }) {
-  const preview = getNodePreview(node)
   return (
     <button
       type="button"
@@ -128,14 +126,6 @@ function WritingContainer({
     return activeFolder
   }, [activeFolder, index, queryState.selected])
 
-  const selectedFolder = useMemo(() => {
-    if (isFolder(selectedNode)) {
-      return selectedNode
-    }
-
-    return resolveFolderNode(index, selectedNode?.parentId) ?? activeFolder
-  }, [activeFolder, index, selectedNode])
-
   const openEntry = useMemo(() => {
     if (!queryState.entry) {
       return null
@@ -164,7 +154,6 @@ function WritingContainer({
     return (parent?.children ?? []).filter((child) => child.type === 'entry')
   }, [index, openEntry])
   const canCreateAtCurrentLevel = activeFolder?.id === root?.id
-  const selectedIsEntry = isEntry(selectedNode)
   const isReading = Boolean(openEntry)
 
   useEffect(() => {

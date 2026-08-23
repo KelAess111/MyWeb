@@ -44,25 +44,33 @@ function HiddenSpaceLayout() {
     }
 
     if (hasSeenIntro) {
-      setActiveScene(defaultScene)
-      return undefined
+      const timer = window.setTimeout(() => setActiveScene(defaultScene), 0)
+      return () => window.clearTimeout(timer)
     }
 
-    setActiveScene(hiddenSpaceOcScenes.firstVisit[introIndex])
+    const introTimer = window.setTimeout(() => {
+      setActiveScene(hiddenSpaceOcScenes.firstVisit[introIndex])
+    }, 0)
 
     if (introIndex >= hiddenSpaceOcScenes.firstVisit.length - 1) {
       window.localStorage.setItem(secretRoom.introSeenStorageKey, 'true')
       const finalTimer = window.setTimeout(() => {
         setActiveScene(defaultScene)
       }, 2600)
-      return () => window.clearTimeout(finalTimer)
+      return () => {
+        window.clearTimeout(introTimer)
+        window.clearTimeout(finalTimer)
+      }
     }
 
     const timer = window.setTimeout(() => {
       setIntroIndex((current) => current + 1)
     }, 2800)
 
-    return () => window.clearTimeout(timer)
+    return () => {
+      window.clearTimeout(introTimer)
+      window.clearTimeout(timer)
+    }
   }, [defaultScene, hasSeenIntro, introIndex, isUnlocked])
 
   if (!isUnlocked) {

@@ -1,0 +1,5 @@
+.public-journal-page { min-height: 100%; }
+.public-journal-shell { width: min(920px, calc(100% - 40px)); margin: 0 auto; }
+.public-journal-actions { display: flex; flex-wrap: wrap; gap: 12px; margin: 20px 0 28px; }
+.public-journal-entry-list { display: grid; gap: 18px; }
+.public-journal-entry-list .afterlight-entry-card { gap: 20px; }

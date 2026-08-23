@@ -30,7 +30,8 @@ function CategoryPage() {
   const [openAnnotationId, setOpenAnnotationId] = useState(null)
 
   useEffect(() => {
-    setOpenAnnotationId(null)
+    const timer = window.setTimeout(() => setOpenAnnotationId(null), 0)
+    return () => window.clearTimeout(timer)
   }, [categoryId])
 
   useEffect(() => {
@@ -69,8 +70,8 @@ function CategoryPage() {
         </div>
 
         <div className="category-page-actions">
-          <Link to="/#works" className="btn secondary">
-            返回作品总览
+          <Link to="/interests" className="btn secondary">
+            返回个人兴趣
           </Link>
         </div>
 

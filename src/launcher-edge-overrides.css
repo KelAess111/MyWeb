@@ -1,0 +1,273 @@
+
+.home-launcher-center,
+.home-launcher-controls {
+  display: none !important;
+}
+
+.home-focus-layout {
+  display: block;
+  padding: 0 32px 48px 104px;
+}
+
+.home-sidebar {
+  left: 0;
+  top: 50%;
+  width: 292px;
+  height: min(620px, calc(100vh - 150px));
+  display: block;
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+.home-sidebar .home-launcher {
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.home-launcher-stage {
+  width: 336px;
+  height: 100%;
+  min-height: 480px;
+  margin-left: -112px;
+  overflow: visible;
+  pointer-events: auto;
+}
+
+.home-launcher-arc {
+  inset: -36px auto -36px -220px;
+  width: 470px;
+  border-radius: 50%;
+  border-color: rgba(162, 210, 255, 0.48);
+  background:
+    radial-gradient(ellipse at 82% 50%, rgba(162, 210, 255, 0.2), transparent 57%),
+    linear-gradient(90deg, rgba(8, 11, 20, 0.98), rgba(15, 23, 38, 0.62));
+  box-shadow: inset -18px 0 36px rgba(162, 210, 255, 0.1), 12px 0 32px rgba(0, 0, 0, 0.24);
+}
+
+.home-launcher-band-slot,
+.home-launcher-item {
+  left: 122px;
+  width: 238px;
+}
+
+.home-launcher-band-slot--upper-2,
+.home-launcher-item--upper-2 {
+  top: 4%;
+  opacity: 0.28;
+  transform: translate3d(-34px, 0, 0) scale(0.64);
+}
+
+.home-launcher-band-slot--upper-1,
+.home-launcher-item--upper-1 {
+  top: 21%;
+  opacity: 0.54;
+  transform: translate3d(-24px, 0, 0) scale(0.72);
+}
+
+.home-launcher-band-slot--center,
+.home-launcher-item--center {
+  top: 39%;
+  opacity: 1;
+  transform: translate3d(18px, 0, 0) scale(1);
+}
+
+.home-launcher-item--center {
+  pointer-events: auto;
+}
+
+.home-launcher-band-slot--lower-1,
+.home-launcher-item--lower-1 {
+  top: 57%;
+  opacity: 0.68;
+  transform: translate3d(-4px, 0, 0) scale(0.8);
+}
+
+.home-launcher-band-slot--lower-2,
+.home-launcher-item--lower-2 {
+  top: 74%;
+  opacity: 0.3;
+  transform: translate3d(12px, 0, 0) scale(0.66);
+}
+
+.home-launcher-item {
+  z-index: 3;
+}
+
+.home-launcher-item.is-active {
+  z-index: 5;
+}
+
+.home-launcher-center {
+  left: 58px;
+  top: 43%;
+  z-index: 2;
+  width: 98px;
+  padding: 10px 9px;
+  opacity: 0.82;
+}
+
+.home-launcher-controls {
+  position: absolute;
+  left: 118px;
+  right: 0;
+  bottom: 8px;
+  z-index: 6;
+  pointer-events: auto;
+}
+
+@media (max-width: 1024px) {
+  .home-focus-layout {
+    padding-left: 76px;
+  }
+
+  .home-sidebar {
+    width: 250px;
+    height: min(560px, calc(100vh - 142px));
+  }
+
+  .home-launcher-stage {
+    width: 300px;
+    min-height: 430px;
+    margin-left: -126px;
+  }
+
+  .home-launcher-arc {
+    inset: -28px auto -28px -184px;
+    width: 400px;
+  }
+
+  .home-launcher-band-slot,
+  .home-launcher-item {
+    left: 108px;
+    width: 214px;
+  }
+
+  .home-launcher-band-slot--upper-2,
+  .home-launcher-item--upper-2 {
+    top: 2%;
+  }
+
+  .home-launcher-band-slot--upper-1,
+  .home-launcher-item--upper-1 {
+    top: 19%;
+  }
+
+  .home-launcher-band-slot--center,
+  .home-launcher-item--center {
+    top: 38%;
+  }
+
+  .home-launcher-band-slot--lower-1,
+  .home-launcher-item--lower-1 {
+    top: 57%;
+  }
+
+  .home-launcher-band-slot--lower-2,
+  .home-launcher-item--lower-2 {
+    top: 75%;
+  }
+}
+
+@media (max-width: 720px) {
+  .home-focus-layout {
+    padding: 0 16px 32px;
+  }
+
+  .home-sidebar {
+    position: relative;
+    top: auto;
+    width: 100%;
+    height: auto;
+    transform: none;
+    margin-bottom: 12px;
+    pointer-events: auto;
+  }
+
+  .home-sidebar .home-launcher {
+    height: auto;
+  }
+
+  .home-launcher-stage {
+    width: 100%;
+    height: auto;
+    min-height: 0;
+    margin-left: 0;
+    padding: 14px 0 8px;
+    overflow: hidden;
+    display: grid;
+    gap: 8px;
+  }
+
+  .home-launcher-arc {
+    inset: 0 auto 0 -42%;
+    width: 78%;
+    min-width: 260px;
+    border-radius: 0 50% 50% 0;
+  }
+
+  .home-launcher-band,
+  .home-launcher-center {
+    display: none;
+  }
+
+  .home-launcher-items {
+    position: relative;
+    inset: auto;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+    z-index: 2;
+  }
+
+  .home-launcher-band-slot,
+  .home-launcher-item,
+  .home-launcher-item--upper-2,
+  .home-launcher-item--upper-1,
+  .home-launcher-item--center,
+  .home-launcher-item--lower-1,
+  .home-launcher-item--lower-2 {
+    position: relative;
+    inset: auto;
+    left: auto;
+    top: auto;
+    width: auto;
+    min-height: 84px;
+    opacity: 1;
+    transform: none;
+    filter: none;
+    padding: 10px 9px;
+    border-radius: 16px;
+  }
+
+  .home-launcher-item-label {
+    font-size: 16px;
+  }
+
+  .home-launcher-item-desc {
+    font-size: 11px;
+  }
+
+  .home-launcher-controls {
+    position: relative;
+    left: auto;
+    right: auto;
+    bottom: auto;
+    margin-top: 4px;
+  }
+}
+
+@media (max-width: 360px) {
+  .home-launcher-items {
+    grid-template-columns: 1fr;
+  }
+
+  .home-launcher-item,
+  .home-launcher-item--upper-2,
+  .home-launcher-item--upper-1,
+  .home-launcher-item--center,
+  .home-launcher-item--lower-1,
+  .home-launcher-item--lower-2 {
+    min-height: 64px;
+  }
+}

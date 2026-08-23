@@ -147,30 +147,34 @@ function WritingEditorModal({
     }
 
     returnFocusRef.current = document.activeElement
-    setDraft(initialMode === 'child' ? createFolderDraft(entry, { createNew: true }) : cloneEntry(entry))
-    setValidationError('')
 
-    if (initialMode === 'child' && entry?.type === 'folder') {
-      setEditorMode('child')
-    } else if (initialMode === 'content' && entry?.type === 'entry') {
-      setEditorMode('content')
-    } else if (initialMode === 'root') {
-      setEditorMode('root')
-    } else {
-      setEditorMode('node')
-    }
+    const initTimer = window.setTimeout(() => {
+      setDraft(initialMode === 'child' ? createFolderDraft(entry, { createNew: true }) : cloneEntry(entry))
+      setValidationError('')
+
+      if (initialMode === 'child' && entry?.type === 'folder') {
+        setEditorMode('child')
+      } else if (initialMode === 'content' && entry?.type === 'entry') {
+        setEditorMode('content')
+      } else if (initialMode === 'root') {
+        setEditorMode('root')
+      } else {
+        setEditorMode('node')
+      }
+    }, 0)
 
     const focusTimer = window.setTimeout(() => {
       dialogRef.current?.querySelector('input, textarea, select, button')?.focus()
     }, 0)
 
     return () => {
+      window.clearTimeout(initTimer)
       window.clearTimeout(focusTimer)
       if (returnFocusRef.current instanceof HTMLElement) {
         returnFocusRef.current.focus()
       }
     }
-  }, [entry, isOpen])
+  }, [entry, initialMode, isOpen])
 
   useEffect(() => {
     if (!isOpen) {
@@ -228,16 +232,6 @@ function WritingEditorModal({
     }
 
     setEditorMode(nextMode)
-    setValidationError('')
-  }
-
-  const startChildCreation = () => {
-    if (!allowsChildCreation) {
-      return
-    }
-
-    setDraft(createFolderDraft(entry, { createNew: true }))
-    setEditorMode('child')
     setValidationError('')
   }
 

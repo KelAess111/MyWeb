@@ -1,27 +1,36 @@
-import { lazy, Suspense, createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
+import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Navigate, Route, Routes, useLocation } from 'react-router-dom'
+import HiddenSpaceLayout from './components/HiddenSpaceLayout'
+import BackgroundLayer from './components/BackgroundLayer'
+import SiteHeader from './components/SiteHeader'
+import MiniMusicPlayer from './components/MiniMusicPlayer'
+import PageTransition from './components/PageTransition'
+import ClickEffects from './components/ClickEffects'
+import { MusicPlayerContext } from './contexts/MusicPlayerContext'
+import { musicTracks } from './data/musicTracks'
+import './App.css'
+import './launcher-edge-overrides.css'
+import './home-utility-overrides.css'
+import './styles/public-journal.css'
 
 const HomePage = lazy(() => import('./pages/HomePage'))
+const ProfilePage = lazy(() => import('./pages/ProfilePage'))
+const PortfolioPage = lazy(() => import('./pages/PortfolioPage'))
+const InterestsPage = lazy(() => import('./pages/InterestsPage'))
+const SharePage = lazy(() => import('./pages/SharePage'))
 const CategoryPage = lazy(() => import('./pages/CategoryPage'))
 const HiddenArchivePage = lazy(() => import('./pages/HiddenArchivePage'))
 const HiddenSpaceGamesPage = lazy(() => import('./pages/HiddenSpaceGamesPage'))
 const HiddenSpacePaintingPage = lazy(() => import('./pages/HiddenSpacePaintingPage'))
 const HiddenSpaceWritingPage = lazy(() => import('./pages/HiddenSpaceWritingPage'))
 const PublicWritingPage = lazy(() => import('./pages/PublicWritingPage'))
+const PublicJournalPage = lazy(() => import('./pages/PublicJournalPage'))
 const HiddenSpaceJournalPage = lazy(() => import('./pages/HiddenSpaceJournalPage'))
 const HiddenSpacePersonalPage = lazy(() => import('./pages/HiddenSpacePersonalPage'))
-import HiddenSpaceLayout from './components/HiddenSpaceLayout'
-import BackgroundLayer from './components/BackgroundLayer'
-import SiteHeader from './components/SiteHeader'
-import MiniMusicPlayer from './components/MiniMusicPlayer'
-import { musicTracks } from './data/musicTracks'
-import './App.css'
 
 const PLAYBACK_STORAGE_KEY = 'kel-music-player-playback'
 const MESSAGE_STORAGE_KEY = 'kel-music-player-messages'
 const INTRO_REPLAY_STORAGE_KEY = 'kel-home-replay-intro-enabled'
-
-const MusicPlayerContext = createContext(null)
 
 function formatTime(seconds) {
   if (!Number.isFinite(seconds) || seconds < 0) {
@@ -130,16 +139,6 @@ function resolveNextTrackIndex(currentIndex, totalTracks, playbackMode) {
   return null
 }
 
-export function useMusicPlayer() {
-  const context = useContext(MusicPlayerContext)
-
-  if (!context) {
-    throw new Error('useMusicPlayer must be used within MusicPlayerProvider')
-  }
-
-  return context
-}
-
 function MusicPlayerProvider({ children }) {
   const playbackState = useMemo(() => readStoredPlaybackState(), [])
   const [activeTrackIndex, setActiveTrackIndex] = useState(playbackState.activeTrackIndex)
@@ -220,18 +219,24 @@ function MusicPlayerProvider({ children }) {
     if (!activeTrack?.src) {
       audio.removeAttribute('src')
       audio.load()
-      setDuration(0)
-      setCurrentTime(0)
-      setAudioStatus('missing')
-      setIsPlaying(false)
-      return
+      const timer = window.setTimeout(() => {
+        setDuration(0)
+        setCurrentTime(0)
+        setAudioStatus('missing')
+        setIsPlaying(false)
+      }, 0)
+      return () => window.clearTimeout(timer)
     }
 
     audio.src = normaliseTrackSource(activeTrack.src)
     audio.load()
-    setDuration(0)
-    setCurrentTime(0)
-    setAudioStatus('loading')
+    const timer = window.setTimeout(() => {
+      setDuration(0)
+      setCurrentTime(0)
+      setAudioStatus('loading')
+    }, 0)
+
+    return () => window.clearTimeout(timer)
   }, [activeTrack?.id, activeTrack?.src])
 
   useEffect(() => {
@@ -437,10 +442,11 @@ function MusicPlayerProvider({ children }) {
   return <MusicPlayerContext.Provider value={contextValue}>{children}</MusicPlayerContext.Provider>
 }
 
-function AppRoutes({ musicUiState, onOcAreaChange, replayIntroEnabled }) {
+function AppRoutes({ musicUiState, onOcAreaChange, replayIntroEnabled, locationKey }) {
   return (
     <Suspense fallback={<div className="route-loading-shell" role="status">页面加载中…</div>}>
-      <Routes>
+      <PageTransition transitionKey={locationKey} className="site-route-shell">
+        <Routes>
         <Route
           path="/"
           element={
@@ -451,9 +457,14 @@ function AppRoutes({ musicUiState, onOcAreaChange, replayIntroEnabled }) {
             />
           }
         />
+        <Route path="/profile" element={<ProfilePage />} />
+        <Route path="/interests" element={<InterestsPage />} />
+        <Route path="/portfolio" element={<PortfolioPage />} />
+        <Route path="/share" element={<SharePage />} />
         <Route path="/works/writing" element={<PublicWritingPage />} />
         <Route path="/works/writing/*" element={<PublicWritingPage />} />
         <Route path="/writing" element={<PublicWritingPage />} />
+        <Route path="/journal" element={<PublicJournalPage />} />
         <Route
           path="/works/:categoryId"
           element={
@@ -469,7 +480,8 @@ function AppRoutes({ musicUiState, onOcAreaChange, replayIntroEnabled }) {
           <Route path="personal" element={<HiddenSpacePersonalPage />} />
         </Route>
         <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
+        </Routes>
+      </PageTransition>
     </Suspense>
   )
 }
@@ -505,9 +517,11 @@ function AppShell() {
   return (
     <div className="site">
       {!isHiddenSpace && <BackgroundLayer mode="base" />}
+      <ClickEffects />
       <SiteHeader replayIntroEnabled={replayIntroEnabled} setReplayIntroEnabled={setReplayIntroEnabled} />
       <AppRoutes
         replayIntroEnabled={replayIntroEnabled}
+        locationKey={location.pathname + location.hash}
         musicUiState={{ ...musicUiState, isMusicSceneActive: !isHomePage }}
         onOcAreaChange={setOcArea}
       />

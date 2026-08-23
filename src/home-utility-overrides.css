@@ -1,0 +1,47 @@
+
+.home-utility-dock {
+  position: fixed;
+  top: 90px;
+  left: 104px;
+  z-index: 119;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  pointer-events: none;
+}
+
+.home-utility-dock .home-clock {
+  width: 212px;
+  padding: 10px 12px;
+  border-radius: 18px;
+  pointer-events: auto;
+}
+
+.global-music-player-shell.is-expanded ~ * .home-utility-dock,
+.site:has(.global-music-player-shell.is-expanded) .home-utility-dock {
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(-8px);
+}
+
+@media (max-width: 720px) {
+  .home-utility-dock {
+    top: 82px;
+    left: 82px;
+    right: 10px;
+  }
+
+  .home-utility-dock .home-clock {
+    width: min(190px, calc(100vw - 92px));
+  }
+}
+
+@media (max-width: 420px) {
+  .home-utility-dock {
+    left: 76px;
+  }
+
+  .home-utility-dock .home-clock-time {
+    font-size: 1.35rem;
+  }
+}

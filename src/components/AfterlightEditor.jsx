@@ -3,22 +3,8 @@ import {
   deleteJournalAttachment,
   uploadJournalAttachment,
 } from '../services/afterlightEntries'
+import { emptyAnnotation, emptyEntry } from '../utils/journalDrafts'
 
-const emptyAnnotation = () => ({
-  id: `annotation-${crypto.randomUUID()}`,
-  term: '',
-  occurrence: 1,
-  content: '',
-})
-
-const emptyEntry = {
-  title: '',
-  entryDate: '',
-  body: '',
-  published: false,
-  annotations: [emptyAnnotation()],
-  attachments: [],
-}
 
 function normalizeAttachment(attachment, index = 0) {
   return {
@@ -295,7 +281,7 @@ function AfterlightEditor({
         }))
 
         setPendingUploads((current) => current.filter((item) => item.localId !== queueItem.localId))
-      } catch (error) {
+      } catch {
         setPendingUploads((current) => current.map((item) => (item.localId === queueItem.localId ? { ...item, status: 'error', progress: 0, errorMessage: '上传失败，请检查 bucket、RLS 和登录状态。' } : item)))
       }
     }
@@ -467,14 +453,6 @@ function AfterlightEditor({
       </div>
     </form>
   )
-}
-
-export function createEmptyJournalDraft() {
-  return {
-    ...emptyEntry,
-    annotations: [emptyAnnotation()],
-    attachments: [],
-  }
 }
 
 export default AfterlightEditor

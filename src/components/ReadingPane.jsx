@@ -126,10 +126,10 @@ function ReaderBlock({ block, annotations, entryId }) {
     return (
       <div className="hidden-space-writing-reader-dialogue">
         {(block.lines ?? []).map((line, index) => (
-          <p key={line.id ?? `${block.id}-line-${index}`} className="hidden-space-writing-reader-dialogue-line">
+          <div key={line.id ?? `${block.id}-line-${index}`} className="hidden-space-writing-reader-dialogue-line">
             {line.speaker ? <strong>{line.speaker}：</strong> : null}
             <AnnotatedText body={line.text ?? ''} annotations={annotations} idPrefix={`${entryId}-${block.id}-line-${index}`} />
-          </p>
+          </div>
         ))}
       </div>
     )
@@ -156,8 +156,12 @@ function ReadingPane({
   const [pageIndex, setPageIndex] = useState(0)
 
   useEffect(() => {
-    setPageIndex(0)
-    pageRef.current?.scrollTo?.({ top: 0, behavior: 'auto' })
+    const timer = window.setTimeout(() => {
+      setPageIndex(0)
+      pageRef.current?.scrollTo?.({ top: 0, behavior: 'auto' })
+    }, 0)
+
+    return () => window.clearTimeout(timer)
   }, [entry?.id])
 
   const annotations = useMemo(() => getEntryAnnotations(entry), [entry])

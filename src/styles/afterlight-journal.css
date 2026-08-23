@@ -331,10 +331,8 @@
 }
 
 .annotated-text {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.15em;
-  align-items: baseline;
+  display: block;
+  margin: 0;
   text-align: left;
 }
 
