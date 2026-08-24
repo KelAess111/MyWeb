@@ -12,6 +12,7 @@ import './App.css'
 import './launcher-edge-overrides.css'
 import './home-utility-overrides.css'
 import './styles/public-journal.css'
+import './styles/public-gallery.css'
 
 const HomePage = lazy(() => import('./pages/HomePage'))
 const ProfilePage = lazy(() => import('./pages/ProfilePage'))
@@ -25,6 +26,7 @@ const HiddenSpacePaintingPage = lazy(() => import('./pages/HiddenSpacePaintingPa
 const HiddenSpaceWritingPage = lazy(() => import('./pages/HiddenSpaceWritingPage'))
 const PublicWritingPage = lazy(() => import('./pages/PublicWritingPage'))
 const PublicJournalPage = lazy(() => import('./pages/PublicJournalPage'))
+const PublicGalleryPage = lazy(() => import('./pages/PublicGalleryPage'))
 const HiddenSpaceJournalPage = lazy(() => import('./pages/HiddenSpaceJournalPage'))
 const HiddenSpacePersonalPage = lazy(() => import('./pages/HiddenSpacePersonalPage'))
 
@@ -465,6 +467,7 @@ function AppRoutes({ musicUiState, onOcAreaChange, replayIntroEnabled, locationK
         <Route path="/works/writing/*" element={<PublicWritingPage />} />
         <Route path="/writing" element={<PublicWritingPage />} />
         <Route path="/journal" element={<PublicJournalPage />} />
+        <Route path="/works/painting" element={<PublicGalleryPage />} />
         <Route
           path="/works/:categoryId"
           element={
