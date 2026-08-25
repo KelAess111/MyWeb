@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Link, useOutletContext, useSearchParams } from 'react-router-dom'
 import AfterlightAttachmentGrid from '../components/AfterlightAttachmentGrid'
 import AfterlightEditor from '../components/AfterlightEditor'
@@ -8,7 +8,6 @@ import {
   createJournalEntry,
   deleteJournalEntry,
   listEditableJournalEntries,
-  listPublishedJournalEntries,
   updateJournalEntry,
 } from '../services/afterlightEntries'
 import { isSupabaseConfigured } from '../lib/supabase'
@@ -57,7 +56,7 @@ function JournalEntryCard({ entry, onEdit, onDelete, isDeleting = false }) {
       <div className="afterlight-entry-meta">
         <span className="afterlight-entry-date">{formatEntryDate(entry.entryDate)}</span>
         <span className={`afterlight-entry-badge ${entry.published ? 'is-published' : 'is-draft'}`}>
-          {entry.published ? '已公开' : '草稿'}
+          {entry.published ? '已公开' : '未公开'}
         </span>
       </div>
 
@@ -150,7 +149,7 @@ function HiddenSpaceJournalPage() {
 
     const bootstrap = async () => {
       try {
-        const nextEntries = isAuthor ? await listEditableJournalEntries() : await listPublishedJournalEntries()
+        const nextEntries = await listEditableJournalEntries()
 
         if (!isCancelled) {
           setEntries(nextEntries)
@@ -176,16 +175,10 @@ function HiddenSpaceJournalPage() {
     }
   }, [isAuthor, modeKey])
 
-  const visibleEntries = useMemo(() => {
-    if (isAuthor) {
-      return entries
-    }
-
-    return entries.filter((entry) => entry.published)
-  }, [entries, isAuthor])
+  const visibleEntries = entries
 
   const refreshEntries = async () => {
-    const nextEntries = isAuthor ? await listEditableJournalEntries() : await listPublishedJournalEntries()
+    const nextEntries = await listEditableJournalEntries()
     setEntries(nextEntries)
     setResolvedModeKey(modeKey)
   }
@@ -245,7 +238,7 @@ function HiddenSpaceJournalPage() {
       if (editingEntryId) {
         const updatedEntry = await updateJournalEntry(editingEntryId, draft)
         setActiveDraft(getEntryDraft(updatedEntry))
-        setStatusMessage(draft.published ? '日志与附件已更新，并保持为公开状态。' : '日志草稿与附件已更新。')
+        setStatusMessage(draft.published ? '日志与附件已更新，并保持为公开状态。' : '日志与附件已更新，当前仅在隐藏空间可见。')
       } else {
         const createdEntry = await createJournalEntry(draft)
         setStatusMessage(draft.published ? '新日志已发布。现在可以继续为它上传图片或视频。' : '新日志草稿已保存。现在可以继续上传图片或视频。')

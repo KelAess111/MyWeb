@@ -2,15 +2,22 @@ import { Navigate, Outlet, useLocation } from 'react-router-dom'
 import { useEffect, useMemo, useState } from 'react'
 import rainyBg from '../assets/background/Reset_Rainy.png'
 import OCShowcase from './OCShowcase'
-import PageTransition from './PageTransition'
 import SpeechBubbleRotator from './SpeechBubbleRotator'
 import { hiddenSpaceOcScenes } from '../data/hiddenSpaceOcLines'
 import { secretRoom } from '../data/secretRoom'
 
+function readStorageFlag(key) {
+  if (typeof window === 'undefined') {
+    return false
+  }
+
+  return window.localStorage.getItem(key) === 'true'
+}
+
 function HiddenSpaceLayout() {
   const location = useLocation()
-  const isUnlocked = window.localStorage.getItem(secretRoom.unlockStorageKey) === 'true'
-  const hasSeenIntro = window.localStorage.getItem(secretRoom.introSeenStorageKey) === 'true'
+  const [isUnlocked] = useState(() => readStorageFlag(secretRoom.unlockStorageKey))
+  const [hasSeenIntro] = useState(() => readStorageFlag(secretRoom.introSeenStorageKey))
   const [introIndex, setIntroIndex] = useState(0)
   const [activeScene, setActiveScene] = useState(hasSeenIntro ? hiddenSpaceOcScenes.returnGreeting : hiddenSpaceOcScenes.firstVisit[0])
 
@@ -48,7 +55,7 @@ function HiddenSpaceLayout() {
       return () => window.clearTimeout(timer)
     }
 
-    const introTimer = window.setTimeout(() => {
+    const sceneTimer = window.setTimeout(() => {
       setActiveScene(hiddenSpaceOcScenes.firstVisit[introIndex])
     }, 0)
 
@@ -58,7 +65,7 @@ function HiddenSpaceLayout() {
         setActiveScene(defaultScene)
       }, 2600)
       return () => {
-        window.clearTimeout(introTimer)
+        window.clearTimeout(sceneTimer)
         window.clearTimeout(finalTimer)
       }
     }
@@ -68,7 +75,7 @@ function HiddenSpaceLayout() {
     }, 2800)
 
     return () => {
-      window.clearTimeout(introTimer)
+      window.clearTimeout(sceneTimer)
       window.clearTimeout(timer)
     }
   }, [defaultScene, hasSeenIntro, introIndex, isUnlocked])
@@ -92,9 +99,7 @@ function HiddenSpaceLayout() {
         </aside>
 
         <section className="hidden-space-main">
-          <PageTransition transitionKey={location.pathname} className="hidden-space-route-transition">
-            <Outlet context={{ activeScene, setActiveScene, defaultScene }} />
-          </PageTransition>
+          <Outlet context={{ activeScene, setActiveScene, defaultScene }} />
         </section>
       </div>
     </main>

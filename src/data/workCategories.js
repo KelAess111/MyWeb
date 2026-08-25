@@ -1,43 +1,54 @@
+import gamesImage from '../assets/photo/游戏爱好.jpg'
+import animeImage from '../assets/photo/动漫推荐.jpg'
+import paintingImage from '../assets/photo/美图分享 .jpg'
+import modelingImage from '../assets/photo/推荐书目.jpg'
+import musicImage from '../assets/photo/音乐喜好.jpg'
+import writingImage from '../assets/photo/小作文.jpg'
+
 export const workCategories = [
   {
     id: 'games',
     path: '/works/games',
     title: '游戏爱好',
     navLabel: '游戏爱好',
-    summary: '展示我的游戏项目、玩法构想、截图与开发记录。',
+    summary: '展示我的游戏爱好、喜欢的玩法、游戏截图。',
     intro:
-      '这里会整理我的游戏设计、世界观尝试与开发过程，也会放一些仍在成长中的原型与想法。',
+      '这里会整理我的最近玩的游戏、喜欢的世界观与玩法，也会放一些游玩后的评价与感受。',
     accent: 'violet',
+    image: gamesImage,
   },
   {
     id: 'painting',
     path: '/works/painting',
     title: '美图分享',
     navLabel: '美图分享',
-    summary: '展示插画、角色设定、练习作品与风格探索。',
+    summary: '展示喜欢的插画、画师以及风格。',
     intro:
-      '这里会收集我在角色形象、氛围画面与色彩尝试上的积累，也会记录风格变化。',
+      '这里会收集我在各平台收集的插画，展示审美积累，也会记录风格变化。',
     accent: 'rose',
+    image: paintingImage,
   },
   {
     id: 'music',
     path: '/works/music',
     title: '音乐喜好',
     navLabel: '音乐喜好',
-    summary: '展示原创曲目、氛围实验与配乐片段。',
+    summary: '展示喜欢的曲目、风格与制作人。',
     intro:
-      '这里将会放置我做过的原创音乐、配乐实验和一些只存在于某个情绪阶段的声音。',
+      '这里将会放置我喜欢的音乐以及一些不错的填词，欣赏不同的音乐风格，感受其中的情绪。',
     accent: 'cyan',
+    image: musicImage,
   },
   {
     id: 'modeling',
     path: '/works/modeling',
     title: '推荐书目',
     navLabel: '推荐书目',
-    summary: '展示 3D 模型、场景设计与角色尝试。',
+    summary: '展示喜欢的书目、分享一些感想。',
     intro:
-      '这里会记录我对角色、道具和场景结构的立体化尝试，也会放一些未完成但值得保留的过程。',
+      '这里会记录我对书籍的理解与感受，也会分享一些读后感与思考。',
     accent: 'amber',
+    image: modelingImage,
   },
   {
     id: 'writing',
@@ -48,6 +59,18 @@ export const workCategories = [
     intro:
       '这里会是故事碎片、角色笔记与世界观草稿的集中地，也是注释模块最常发挥作用的区域之一。',
     accent: 'emerald',
+    image: writingImage,
+  },
+  {
+    id: 'anime',
+    path: '/works/anime',
+    title: '动漫推荐',
+    navLabel: '动漫推荐',
+    summary: '整理我喜欢的动漫作品、角色与观看推荐。',
+    intro:
+      '这里会收集值得推荐的动漫作品、观看感受和个人偏好，也会逐步补充主题分类与作品笔记。',
+    accent: 'sky',
+    image: animeImage,
   },
 ]
 

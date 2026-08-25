@@ -10,13 +10,16 @@ function SpeechBubbleRotator({ scene, overrideText = '', isActive = true }) {
   useEffect(() => {
     if (!isActive || !fullText) return undefined
     let currentIndex = 0
-    window.setTimeout(() => setDisplayText(''), 0)
+    const resetTimer = window.setTimeout(() => setDisplayText(''), 0)
     const typeTimer = window.setInterval(() => {
       currentIndex += 1
       setDisplayText(fullText.slice(0, currentIndex))
       if (currentIndex >= fullText.length) window.clearInterval(typeTimer)
     }, TYPE_INTERVAL)
-    return () => window.clearInterval(typeTimer)
+    return () => {
+      window.clearTimeout(resetTimer)
+      window.clearInterval(typeTimer)
+    }
   }, [fullText, isActive])
 
   return <div className="speech-bubble" aria-live="polite"><p>{displayText || ' '}</p></div>

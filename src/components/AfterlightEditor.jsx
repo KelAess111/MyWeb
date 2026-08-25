@@ -433,7 +433,7 @@ function AfterlightEditor({
           checked={draft.published}
           onChange={(event) => updateDraft({ published: event.target.checked })}
         />
-        <span>保存后立即公开给访客</span>
+        <span>公开到博客（不勾选则仅在隐藏空间可见）</span>
       </label>
 
       <div className="category-page-actions afterlight-editor-actions">

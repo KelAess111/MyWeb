@@ -27,6 +27,7 @@ const HiddenSpaceWritingPage = lazy(() => import('./pages/HiddenSpaceWritingPage
 const PublicWritingPage = lazy(() => import('./pages/PublicWritingPage'))
 const PublicJournalPage = lazy(() => import('./pages/PublicJournalPage'))
 const PublicGalleryPage = lazy(() => import('./pages/PublicGalleryPage'))
+const PublicGalleryAlbumPage = lazy(() => import('./pages/PublicGalleryAlbumPage'))
 const HiddenSpaceJournalPage = lazy(() => import('./pages/HiddenSpaceJournalPage'))
 const HiddenSpacePersonalPage = lazy(() => import('./pages/HiddenSpacePersonalPage'))
 
@@ -468,6 +469,7 @@ function AppRoutes({ musicUiState, onOcAreaChange, replayIntroEnabled, locationK
         <Route path="/writing" element={<PublicWritingPage />} />
         <Route path="/journal" element={<PublicJournalPage />} />
         <Route path="/works/painting" element={<PublicGalleryPage />} />
+        <Route path="/works/painting/:year" element={<PublicGalleryAlbumPage />} />
         <Route
           path="/works/:categoryId"
           element={

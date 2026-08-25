@@ -64,6 +64,18 @@ function InterestsPage() {
                 onFocus={() => handleFocus(category.id)}
                 onBlur={handleBlur}
               >
+                <div className="interest-accordion-media" aria-hidden="true">
+                  <img
+                    src={category.image}
+                    alt=""
+                    loading="lazy"
+                    decoding="async"
+                  />
+                </div>
+                <div className="interest-accordion-caption" aria-hidden="true">
+                  <span className="interest-accordion-caption-title">{category.title}</span>
+                  <span className="interest-accordion-caption-summary">{category.summary}</span>
+                </div>
                 <h2 className="interest-accordion-heading">
                   <button
                     id={buttonId}
