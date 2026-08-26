@@ -1,4 +1,4 @@
-import { useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Gallery, Item } from 'react-photoswipe-gallery'
 import 'photoswipe/dist/photoswipe.css'
 import { Link, useNavigate, useParams } from 'react-router-dom'
@@ -8,7 +8,58 @@ function PublicGalleryAlbumPage() {
   const { year } = useParams()
   const navigate = useNavigate()
   const lastOpenAtRef = useRef(0)
+  const [imageSizes, setImageSizes] = useState({})
   const entry = publicGalleryData.find((item) => item.year === year)
+
+  useEffect(() => {
+    if (!entry?.images.length) {
+      return undefined
+    }
+
+    let isMounted = true
+    const loaders = entry.images.map((image) => {
+      const loader = new Image()
+      loader.onload = () => {
+        if (isMounted && loader.naturalWidth && loader.naturalHeight) {
+          setImageSizes((current) => ({
+            ...current,
+            [image.src]: {
+              width: loader.naturalWidth,
+              height: loader.naturalHeight,
+            },
+          }))
+        }
+      }
+      loader.src = image.src
+      return loader
+    })
+
+    return () => {
+      isMounted = false
+      loaders.forEach((loader) => {
+        loader.onload = null
+      })
+    }
+  }, [entry])
+
+  const handleImageLoad = (image) => (event) => {
+    const { naturalWidth, naturalHeight } = event.currentTarget
+    if (!naturalWidth || !naturalHeight) {
+      return
+    }
+
+    setImageSizes((current) => {
+      const previous = current[image.src]
+      if (previous?.width === naturalWidth && previous?.height === naturalHeight) {
+        return current
+      }
+
+      return {
+        ...current,
+        [image.src]: { width: naturalWidth, height: naturalHeight },
+      }
+    })
+  }
 
   const handleOpen = (open) => (event) => {
     event.preventDefault()
@@ -84,22 +135,32 @@ function PublicGalleryAlbumPage() {
                   key={image.src}
                   original={image.src}
                   thumbnail={image.src}
-                  width={1600}
-                  height={2200}
+                  width={imageSizes[image.src]?.width}
+                  height={imageSizes[image.src]?.height}
                   alt={image.alt}
                 >
-                  {({ ref, open }) => (
-                    <button
-                      type="button"
-                      ref={ref}
-                      onClick={handleOpen(open)}
-                      onDoubleClick={(event) => event.preventDefault()}
-                      className="public-gallery-album-tile"
-                      aria-label={`查看图片 ${index + 1}: ${image.alt}`}
-                    >
-                      <img src={image.src} alt={image.alt} loading="lazy" decoding="async" draggable="false" />
-                    </button>
-                  )}
+                  {({ ref, open }) => {
+                    const size = imageSizes[image.src]
+                    return (
+                      <button
+                        type="button"
+                        ref={ref}
+                        onClick={handleOpen(open)}
+                        onDoubleClick={(event) => event.preventDefault()}
+                        className="public-gallery-album-tile"
+                        aria-label={`查看图片 ${index + 1}: ${image.alt}`}
+                      >
+                        <img
+                          src={image.src}
+                          alt={image.alt}
+                          onLoad={handleImageLoad(image)}
+                          loading="lazy"
+                          decoding="async"
+                          draggable="false"
+                        />
+                      </button>
+                    )
+                  }}
                 </Item>
               ))}
             </div>

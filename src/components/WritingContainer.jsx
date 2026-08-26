@@ -261,7 +261,7 @@ function WritingContainer({
   const parentTitle = parentOfActiveFolder?.title || rootLabel
 
   return (
-    <section className={`hidden-space-writing-page ${layoutVariant === 'compact' ? 'hidden-space-writing-page--compact' : ''}`}>
+    <section className={`hidden-space-writing-page hidden-space-writing-page--${layoutVariant}`}>
       <header className="hidden-space-writing-page-header">
         <div>
           <p className="hidden-space-writing-count">{titlePrefix}</p>

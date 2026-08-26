@@ -2,10 +2,23 @@ import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { publicGalleryData } from '../data/publicGalleryData'
 
+const OBSERVER_OPTIONS = {
+  rootMargin: '-22% 0px -28% 0px',
+  threshold: [0.15, 0.35, 0.6],
+}
+
 function PublicGalleryPage() {
   const [activeYear, setActiveYear] = useState(publicGalleryData[0]?.year ?? '')
   const entryRefs = useRef(new Map())
+  const activeYearRef = useRef(activeYear)
   const activeEntry = publicGalleryData.find((entry) => entry.year === activeYear) ?? publicGalleryData[0]
+  const timelineRange = publicGalleryData.length
+    ? `${publicGalleryData[0].year} → ${publicGalleryData[publicGalleryData.length - 1].year}`
+    : ''
+
+  useEffect(() => {
+    activeYearRef.current = activeYear
+  }, [activeYear])
 
   useEffect(() => {
     const entries = [...entryRefs.current.entries()]
@@ -13,21 +26,38 @@ function PublicGalleryPage() {
       return undefined
     }
 
-    const observer = new IntersectionObserver(
-      (observations) => {
-        const visible = observations
-          .filter((observation) => observation.isIntersecting)
-          .sort((a, b) => b.intersectionRatio - a.intersectionRatio)
-        const nextEntry = visible[0]
-        if (nextEntry) {
-          setActiveYear(nextEntry.target.dataset.year)
-        }
-      },
-      { rootMargin: '-25% 0px -35% 0px', threshold: [0.15, 0.35, 0.6] },
-    )
+    let frameId = null
+    const updateActiveYear = () => {
+      frameId = null
+      const viewportCenter = window.innerHeight / 2
+      const nextYear = entries
+        .map(([entryYear, node]) => ({
+          entryYear,
+          distance: Math.abs(node.getBoundingClientRect().top + node.offsetHeight / 2 - viewportCenter),
+        }))
+        .sort((left, right) => left.distance - right.distance)[0]?.entryYear
+
+      if (nextYear && nextYear !== activeYearRef.current) {
+        activeYearRef.current = nextYear
+        setActiveYear(nextYear)
+      }
+    }
+
+    const observer = new IntersectionObserver((observations) => {
+      if (!observations.some((observation) => observation.isIntersecting) || frameId !== null) {
+        return
+      }
+
+      frameId = window.requestAnimationFrame(updateActiveYear)
+    }, OBSERVER_OPTIONS)
 
     entries.forEach(([, node]) => observer.observe(node))
-    return () => observer.disconnect()
+    return () => {
+      observer.disconnect()
+      if (frameId !== null) {
+        window.cancelAnimationFrame(frameId)
+      }
+    }
   }, [])
 
   return (
@@ -49,11 +79,11 @@ function PublicGalleryPage() {
 
         <div className="public-gallery-context" aria-live="polite">
           <span className="public-gallery-context-label">年份图册</span>
-          <strong>2030 → 2026</strong>
+          <strong>{timelineRange}</strong>
           <span>点击任意节点进入对应图册</span>
         </div>
 
-        <ol className="public-gallery-timeline" aria-label="美图分享年份时间线，顶部 2030，底部 2026">
+        <ol className="public-gallery-timeline" aria-label={`美图分享年份时间线，顶部 ${publicGalleryData[0]?.year ?? ''}，底部 ${publicGalleryData[publicGalleryData.length - 1]?.year ?? ''}`}>
           {publicGalleryData.map((entry) => (
             <li
               key={entry.id}
@@ -65,15 +95,16 @@ function PublicGalleryPage() {
                 }
               }}
               data-year={entry.year}
-              className={`public-gallery-entry public-gallery-entry-${entry.side} ${activeYear === entry.year ? 'is-active' : ''}`}
-              data-text={entry.title}            >
+              className={`public-gallery-entry public-gallery-entry-${entry.side} public-gallery-entry--${entry.status} ${activeYear === entry.year ? 'is-active' : ''}`}
+              data-text={entry.title}
+            >
               <div className="public-gallery-marker" aria-hidden="true">
                 <span />
               </div>
               <article className="public-gallery-card">
                 <Link to={`/works/painting/${entry.year}`} className="public-gallery-card-link" aria-label={`打开 ${entry.year} 图册`}>
                   <div className="public-gallery-art">
-                    <img src={entry.cover} alt={`${entry.year} 图册封面`} loading="lazy" decoding="async" />
+                    <img src={entry.cover} alt={`${entry.year} 图册封面`} loading={entry.year === publicGalleryData[0]?.year ? 'eager' : 'lazy'} fetchPriority={entry.year === publicGalleryData[0]?.year ? 'high' : 'auto'} decoding="async" />
                     <span className="public-gallery-art-caption">{entry.year}</span>
                   </div>
                   <div className="public-gallery-card-body">

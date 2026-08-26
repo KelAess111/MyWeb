@@ -26,6 +26,22 @@
   padding: 0 20px 28px;
 }
 
+.hidden-space-writing-page--public {
+  --writing-shell-bg: rgba(10, 12, 20, 0.32);
+  --writing-shell-border: rgba(174, 203, 255, 0.2);
+  --writing-shell-shadow: 0 14px 32px rgba(0, 0, 0, 0.16);
+}
+
+.hidden-space-writing-page--public .hidden-space-writing-page-header,
+.hidden-space-writing-page--public .hidden-space-writing-toolbar,
+.hidden-space-writing-page--public .hidden-space-writing-layout,
+.hidden-space-writing-page--public .hidden-space-writing-detail-panel,
+.hidden-space-writing-page--public .hidden-space-writing-explorer,
+.hidden-space-writing-page--public .hidden-space-writing-reading-shell,
+.hidden-space-writing-page--public .hidden-space-writing-reader-page {
+  backdrop-filter: blur(10px);
+}
+
 .hidden-space-writing-page-header-actions .btn.secondary,
 .hidden-space-writing-page .btn.secondary,
 .hidden-space-writing-toolbar .btn.secondary,

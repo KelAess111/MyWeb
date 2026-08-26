@@ -1,6 +1,6 @@
 .public-gallery-page {
   --public-gallery-bg: #0d1018;
-  --public-gallery-panel: rgba(18, 20, 28, 0.82);
+  --public-gallery-panel: rgba(18, 20, 28, 0.34);
   --public-gallery-text: #f7f3ee;
   --public-gallery-muted: rgba(247, 243, 238, 0.72);
   --public-gallery-line: rgba(244, 239, 232, 0.2);
@@ -11,7 +11,7 @@
   isolation: isolate;
   overflow: hidden;
   color: var(--public-gallery-text);
-  background: linear-gradient(135deg, #0b0f16, var(--public-gallery-bg));
+  background: transparent;
 }
 
 .public-gallery-page::before {
@@ -22,10 +22,11 @@
   background-image: var(--public-gallery-active-cover);
   background-position: center;
   background-size: cover;
-  filter: blur(26px) saturate(0.7);
-  opacity: 0.34;
+  filter: blur(22px) saturate(0.88) brightness(1.18);
+  opacity: 0.46;
   transform: scale(1.08);
-  transition: background-image 500ms ease, opacity 500ms ease, filter 500ms ease;
+  transition: opacity 420ms ease, filter 420ms ease;
+  pointer-events: none;
 }
 
 .public-gallery-page::after {
@@ -33,8 +34,16 @@
   position: fixed;
   inset: 0;
   z-index: -1;
-  background: rgba(8, 11, 17, 0.78);
+  background: transparent;
   pointer-events: none;
+}
+
+.pswp {
+  --pswp-bg: transparent;
+}
+
+.pswp__bg {
+  background: transparent;
 }
 
 .public-gallery-shell {
@@ -98,7 +107,7 @@
 .public-gallery-timeline {
   position: relative;
   display: grid;
-  gap: 76px;
+  gap: 96px;
   margin: 0;
   padding: 24px 0 36px;
   list-style: none;
@@ -120,10 +129,10 @@
   display: grid;
   grid-template-columns: 1fr 1fr;
   min-height: 310px;
-  opacity: 0.38;
-  filter: blur(1.6px);
-  transform: translateY(-46px);
-  transition: opacity 480ms ease, filter 480ms ease, transform 520ms ease;
+  opacity: 0.42;
+  filter: blur(1.2px);
+  transform: translateY(-24px);
+  transition: opacity 360ms ease, filter 360ms ease, transform 420ms ease;
 }
 
 .public-gallery-entry::before {
@@ -253,6 +262,12 @@
 
 @media (max-width: 420px) { .public-gallery-album-grid { grid-template-columns: 1fr; } }
 @media (prefers-reduced-motion: reduce) {
-  .public-gallery-card, .public-gallery-album-tile { transition: none; }
+  .public-gallery-page::before,
+  .public-gallery-entry,
+  .public-gallery-entry::before,
+  .public-gallery-card,
+  .public-gallery-album-tile { transition: none; }
+  .public-gallery-entry { filter: none; transform: none; }
+  .public-gallery-entry::before { transform: none; }
   .public-gallery-album-tile:nth-child(6n + 2), .public-gallery-album-tile:nth-child(6n + 4), .public-gallery-album-tile:nth-child(6n + 5) { transform: none; }
 }

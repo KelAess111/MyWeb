@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import AnnouncementRotator from './AnnouncementRotator'
 import OCShowcase from './OCShowcase'
 import SpeechBubbleRotator from './SpeechBubbleRotator'
+import HotspotCarousel from './HotspotCarousel'
 import { homepageDefaultScenes, homepageMusicScenes } from '../data/ocPhrases'
 import useRotator from '../hooks/useRotator'
 import '../styles/hero-section.css'
@@ -69,11 +70,11 @@ function HeroSection({ isVisible = true, dayPeriod = 'day', musicUiState, onOcAr
               <SpeechBubbleRotator scene={activeScene} overrideText={clickResponse} isActive={isSpeechActive} />
               <OCShowcase scene={activeScene} onClick={handleOcClick} />
             </div>
-            <div className="hero-hotspot-grid" aria-hidden="true">
-              <div className="hero-hotspot-card hero-hotspot-card--one" />
-              <div className="hero-hotspot-card hero-hotspot-card--two" />
-              <div className="hero-hotspot-card hero-hotspot-card--three" />
-              <div className="hero-hotspot-card hero-hotspot-card--four" />
+            <div className="hero-hotspot-grid">
+              <div className="hero-hotspot-card hero-hotspot-card--one"><HotspotCarousel folderId="1" variant="fade" /></div>
+              <div className="hero-hotspot-card hero-hotspot-card--two"><HotspotCarousel folderId="2" variant="fade" /></div>
+              <div className="hero-hotspot-card hero-hotspot-card--three"><HotspotCarousel folderId="3" variant="slide-x" /></div>
+              <div className="hero-hotspot-card hero-hotspot-card--four"><HotspotCarousel folderId="4" variant="slide-y" /></div>
               <div className={`hero-hotspot-card hero-hotspot-card--day ${dayPeriod === 'night' ? 'is-night' : 'is-day'}`}>
                 <span aria-hidden="true">☀︎</span><span aria-hidden="true">☾</span>
               </div>

@@ -44,6 +44,7 @@ function PublicWritingPage() {
         onToggleEditorMode={isAuthorMode ? exitEditorMode : undefined}
         onRequestEditorAccess={isAuthorMode ? () => setAuthorDrawerOpen((current) => !current) : undefined}
         isSaving={isSaving}
+        layoutVariant="public"
       />
 
       {isAuthorMode ? (

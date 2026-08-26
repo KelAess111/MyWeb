@@ -54,15 +54,15 @@
 .home-launcher-band-slot--upper-2,
 .home-launcher-item--upper-2 {
   top: 4%;
-  opacity: 0.28;
-  transform: translate3d(-34px, 0, 0) scale(0.64);
+  opacity: 0.3;
+  transform: translate3d(12px, 0, 0) scale(0.66);
 }
 
 .home-launcher-band-slot--upper-1,
 .home-launcher-item--upper-1 {
   top: 21%;
-  opacity: 0.54;
-  transform: translate3d(-24px, 0, 0) scale(0.72);
+  opacity: 0.68;
+  transform: translate3d(-4px, 0, 0) scale(0.8);
 }
 
 .home-launcher-band-slot--center,
@@ -88,6 +88,15 @@
   top: 74%;
   opacity: 0.3;
   transform: translate3d(12px, 0, 0) scale(0.66);
+}
+
+.home-launcher-item,
+.home-launcher-band-slot {
+  transition:
+    top 4200ms cubic-bezier(0.22, 1, 0.36, 1),
+    transform 4200ms cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 3600ms ease,
+    filter 3600ms ease;
 }
 
 .home-launcher-item {
