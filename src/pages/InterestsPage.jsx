@@ -1,8 +1,30 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { workCategories } from '../data/workCategories'
+import { useImageLoadState } from '../hooks/useImageLoadState'
 
 const CLICK_DELAY = 250
+
+function InterestAccordionImage({ category }) {
+  const { status, handleError, handleLoad } = useImageLoadState(category.image)
+
+  return (
+    <div className={`interest-accordion-media interest-accordion-media--${status}`} aria-hidden="true">
+      {category.image ? (
+        <img
+          src={category.image}
+          alt=""
+          loading="lazy"
+          decoding="async"
+          onLoad={handleLoad}
+          onError={handleError}
+        />
+      ) : null}
+      {status === 'loading' ? <span className="interest-accordion-media-status">图片加载中…</span> : null}
+      {status === 'error' || status === 'empty' ? <span className="interest-accordion-media-status">图片暂不可用</span> : null}
+    </div>
+  )
+}
 
 function InterestsPage() {
   const navigate = useNavigate()
@@ -64,14 +86,7 @@ function InterestsPage() {
                 onFocus={() => handleFocus(category.id)}
                 onBlur={handleBlur}
               >
-                <div className="interest-accordion-media" aria-hidden="true">
-                  <img
-                    src={category.image}
-                    alt=""
-                    loading="lazy"
-                    decoding="async"
-                  />
-                </div>
+                <InterestAccordionImage category={category} />
                 <div className="interest-accordion-caption" aria-hidden="true">
                   <span className="interest-accordion-caption-title">{category.title}</span>
                   <span className="interest-accordion-caption-summary">{category.summary}</span>

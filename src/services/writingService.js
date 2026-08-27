@@ -25,10 +25,34 @@ const workspaceDefinitions = {
       authorAccess: 'hidden_writing_author_access',
     },
   },
+  anime: {
+    id: 'anime',
+    treeKey: 'anime-writing-root',
+    storageKeys: {
+      tree: 'anime-writing-service:tree',
+      drafts: 'anime-writing-service:drafts',
+      authorEmail: 'anime-writing-service:author-email',
+      editorMode: 'anime_writing_admin_auth',
+      authorAccess: 'anime_writing_author_access',
+    },
+  },
+  music: {
+    id: 'music',
+    treeKey: 'music-writing-root',
+    storageKeys: {
+      tree: 'music-writing-service:tree',
+      drafts: 'music-writing-service:drafts',
+      authorEmail: 'music-writing-service:author-email',
+      editorMode: 'music_writing_admin_auth',
+      authorAccess: 'music_writing_author_access',
+    },
+  },
 }
 
 export const PUBLIC_WRITING_WORKSPACE = Object.freeze(workspaceDefinitions.public)
 export const HIDDEN_WRITING_WORKSPACE = Object.freeze(workspaceDefinitions.hidden)
+export const ANIME_WRITING_WORKSPACE = Object.freeze(workspaceDefinitions.anime)
+export const MUSIC_WRITING_WORKSPACE = Object.freeze(workspaceDefinitions.music)
 
 function resolveWritingWorkspace(workspace = PUBLIC_WRITING_WORKSPACE) {
   const workspaceId = typeof workspace === 'string' ? workspace : workspace?.id

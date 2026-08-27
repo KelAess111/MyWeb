@@ -615,20 +615,25 @@ a {
 
 .interest-accordion-media {
   z-index: -2;
+  overflow: hidden;
   background: #252039;
 }
 
-.interest-accordion-media img {
-  display: block;
-  object-fit: cover;
-  object-position: center;
-  transition: transform 0.42s ease, filter 0.42s ease;
+.interest-accordion-media--loading img,
+.interest-accordion-media--error img {
+  opacity: 0;
 }
 
-.interest-accordion-item:hover .interest-accordion-media img,
-.interest-accordion-item.is-active .interest-accordion-media img {
-  transform: scale(1.04);
-  filter: saturate(1.08) contrast(1.03);
+.interest-accordion-media-status {
+  position: absolute;
+  inset: 12px;
+  display: grid;
+  place-items: center;
+  border: 1px dashed rgba(255, 255, 255, 0.28);
+  border-radius: 4px;
+  color: rgba(255, 255, 255, 0.76);
+  font-size: 0.75rem;
+  background: rgba(16, 14, 28, 0.32);
 }
 
 .interest-accordion-caption {
@@ -640,12 +645,26 @@ a {
   display: grid;
   gap: 4px;
   padding: 10px 12px;
-  border: 1px solid rgba(255, 255, 255, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 4px;
-  background: rgba(255, 255, 255, 0.78);
-  color: #171321;
+  background: rgba(16, 14, 28, 0.78);
+  color: #eef2ff;
   pointer-events: none;
 }
+
+.interest-accordion-media img {
+  display: block;
+  object-fit: cover;
+  object-position: center;
+  transition: opacity 0.24s ease, transform 0.42s ease, filter 0.42s ease;
+}
+
+.interest-accordion-item:hover .interest-accordion-media img,
+.interest-accordion-item.is-active .interest-accordion-media img {
+  transform: scale(1.04);
+  filter: saturate(1.08) contrast(1.03);
+}
+
 
 .interest-accordion-caption-title {
   overflow: hidden;
