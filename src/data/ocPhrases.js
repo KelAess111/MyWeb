@@ -45,6 +45,14 @@ export const homepageDefaultScenes = [
     alt: 'KelAess 的 Q 版形象陷入思考，像是在回想刚才说过的话。',
     caption: '让我想想刚才有没有说漏什么。',
   },
+  {
+      id: 'oc-default-6',
+      text: '我的画风和右边不一样？那当然是因为我是ai合成图片哦。',
+      expression: 'think',
+      image: resetDrink,
+      alt: 'KelAess 的 Q 版形象陷入思考，像是在回想刚才说过的话。',
+      caption: '以后会变成手绘的。',
+    },
 ]
 
 export const homepageMusicScenes = [

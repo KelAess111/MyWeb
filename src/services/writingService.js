@@ -604,10 +604,6 @@ export async function loadWritingTree(fallback = null, workspace = PUBLIC_WRITIN
     }
   }
 
-  if (isHiddenWorkspace && !await hasWritingAuthorSession()) {
-    return fallback
-  }
-
   const localTree = parseJson(readStorage(resolvedWorkspace.storageKeys.tree), null)
   return localTree ? normalizeWritingTree(localTree) : fallback
 }

@@ -533,7 +533,10 @@ function AppShell() {
       <AppRoutes
         replayIntroEnabled={replayIntroEnabled}
         locationKey={location.pathname + location.hash}
-        musicUiState={{ ...musicUiState, isMusicSceneActive: !isHomePage }}
+        musicUiState={{
+          ...musicUiState,
+          isMusicSceneActive: isHomePage && musicUiState.isExpanded,
+        }}
         onOcAreaChange={setOcArea}
       />
       <MiniMusicPlayer isHomePage={isHomePage} ocArea={ocArea} onUiStateChange={setMusicUiState} />
