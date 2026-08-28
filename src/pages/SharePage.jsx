@@ -1,85 +1,95 @@
-import { useMemo, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { useEffect, useRef, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { articles } from '../data/articleData'
 
 function SharePage() {
-  const [status, setStatus] = useState('idle')
-  const shareUrl = useMemo(() => {
-    if (typeof window === 'undefined') return ''
-    return window.location.href
+  const navigate = useNavigate()
+  const [hoveredId, setHoveredId] = useState(null)
+  const clickTimerRef = useRef(null)
+  const rippleRefs = useRef(new Map())
+
+  useEffect(() => () => {
+    if (clickTimerRef.current) window.clearTimeout(clickTimerRef.current)
   }, [])
 
-  const shareData = {
-    title: 'Kel 的个人网站',
-    text: '来看看这个个人网站。',
-    url: shareUrl,
+  const handleCardClick = () => {
+    if (clickTimerRef.current) window.clearTimeout(clickTimerRef.current)
+    clickTimerRef.current = window.setTimeout(() => {
+      clickTimerRef.current = null
+    }, 300)
   }
 
-  const handleShare = async () => {
-    if (!shareUrl) {
-      setStatus('unavailable')
-      return
-    }
+  const handleCardDoubleClick = (article, event) => {
+    if (clickTimerRef.current) window.clearTimeout(clickTimerRef.current)
+    clickTimerRef.current = null
 
-    if (typeof navigator !== 'undefined' && typeof navigator.share === 'function') {
-      try {
-        await navigator.share(shareData)
-        setStatus('shared')
-      } catch (error) {
-        if (error?.name === 'AbortError') {
-          setStatus('cancelled')
-          return
-        }
-        setStatus('error')
-      }
-      return
-    }
+    const card = event.currentTarget
+    const rect = card.getBoundingClientRect()
+    const x = event.clientX - rect.left
+    const y = event.clientY - rect.top
 
-    if (typeof navigator !== 'undefined' && navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
-      try {
-        await navigator.clipboard.writeText(shareUrl)
-        setStatus('copied')
-      } catch {
-        setStatus('error')
-      }
-      return
-    }
+    const ripple = document.createElement('span')
+    ripple.className = 'article-card-ripple'
+    ripple.style.left = `${x}px`
+    ripple.style.top = `${y}px`
+    card.appendChild(ripple)
 
-    setStatus('unavailable')
+    rippleRefs.current.set(article.id, ripple)
+
+    window.setTimeout(() => {
+      navigate(`/share/${article.slug}`)
+    }, 400)
   }
-
-  const statusText = {
-    shared: '已打开系统分享面板。',
-    cancelled: '已取消分享。',
-    copied: '链接已复制到剪贴板。',
-    error: '分享失败，请稍后重试。',
-    unavailable: '当前浏览器不支持分享或复制链接。',
-  }[status]
 
   return (
     <main className="share-page">
       <section className="section share-section">
         <div className="section-heading">
-          <span className="section-kicker">Share This Space</span>
-          <h1>分享</h1>
-          <p>把这个网站或当前页面分享给朋友。分享操作不会收集账号、凭据或保存任何外部数据。</p>
+          <span className="section-kicker">Article Library / 文章分享</span>
+          <h1>资料分享</h1>
+          <p>双击卡片即可阅读完整文章。这里收录值得分享的文字、资料与思考片段。</p>
         </div>
 
-        <div className="share-card">
-          <p className="share-url" aria-label="当前页面链接">{shareUrl || '当前页面链接不可用'}</p>
-          <button type="button" className="btn primary" onClick={handleShare}>分享当前页面</button>
-          {statusText && <p className="share-status" role="status">{statusText}</p>}
-        </div>
+        {articles.length ? (
+          <div className="article-grid">
+            {articles.map((article, index) => {
+              const isHovered = hoveredId === article.id
 
-        <nav className="share-links" aria-label="快速分享入口">
-          <Link to="/interests" className="card card-link">
-            <h2>个人兴趣</h2>
-            <p>浏览兴趣分区。</p>
-          </Link>
-          <Link to="/journal" className="card card-link">
-            <h2>博客日志</h2>
-            <p>阅读公开日志。</p>
-          </Link>
-        </nav>
+              return (
+                <article
+                  key={article.id}
+                  className={`article-card${isHovered ? ' is-hovered' : ''}`}
+                  style={{ '--article-index': index }}
+                  onClick={handleCardClick}
+                  onDoubleClick={(event) => handleCardDoubleClick(article, event)}
+                  onMouseEnter={() => setHoveredId(article.id)}
+                  onMouseLeave={() => setHoveredId(null)}
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={(event) => {
+                    if (event.key === 'Enter') {
+                      event.preventDefault()
+                      navigate(`/share/${article.slug}`)
+                    }
+                  }}
+                >
+                  <div className="article-card-content">
+                    <h2 className="article-card-title">{article.title}</h2>
+                    {article.excerpt ? (
+                      <p className="article-card-excerpt">{article.excerpt}</p>
+                    ) : null}
+                    <span className="article-card-hint" aria-hidden="true">双击阅读 →</span>
+                  </div>
+                </article>
+              )
+            })}
+          </div>
+        ) : (
+          <div className="article-empty-state">
+            <strong>暂无文章</strong>
+            <p>文章资料将在这里展示。</p>
+          </div>
+        )}
       </section>
     </main>
   )

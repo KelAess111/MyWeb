@@ -17,6 +17,7 @@ import './styles/anime.css'
 import './styles/book.css'
 import './styles/game.css'
 import './styles/music.css'
+import './styles/share.css'
 
 const HomePage = lazy(() => import('./pages/HomePage'))
 const ProfilePage = lazy(() => import('./pages/ProfilePage'))
@@ -33,6 +34,7 @@ const PublicJournalPage = lazy(() => import('./pages/PublicJournalPage'))
 const PublicGalleryPage = lazy(() => import('./pages/PublicGalleryPage'))
 const PublicGalleryAlbumPage = lazy(() => import('./pages/PublicGalleryAlbumPage'))
 const AnimePage = lazy(() => import('./pages/AnimePage'))
+const ArticleDetailPage = lazy(() => import('./pages/ArticleDetailPage'))
 const BookPage = lazy(() => import('./pages/BookPage'))
 const GamePage = lazy(() => import('./pages/GamePage'))
 const MusicPage = lazy(() => import('./pages/MusicPage'))
@@ -472,6 +474,7 @@ function AppRoutes({ musicUiState, onOcAreaChange, replayIntroEnabled, locationK
         <Route path="/interests" element={<InterestsPage />} />
         <Route path="/portfolio" element={<PortfolioPage />} />
         <Route path="/share" element={<SharePage />} />
+        <Route path="/share/:slug" element={<ArticleDetailPage />} />
         <Route path="/works/writing" element={<PublicWritingPage />} />
         <Route path="/works/writing/*" element={<PublicWritingPage />} />
         <Route path="/writing" element={<PublicWritingPage />} />

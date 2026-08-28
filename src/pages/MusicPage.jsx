@@ -99,6 +99,7 @@ function MusicPage() {
   const [makerTransition, setMakerTransition] = useState(null)
   const [reducedMotion, setReducedMotion] = useState(false)
   const [lockedAlbum, setLockedAlbum] = useState(null)
+  const [albumsExpanded, setAlbumsExpanded] = useState(false)
   const [editingEntry, setEditingEntry] = useState(null)
   const dragRef = useRef(null)
   const activeMakerRef = useRef(0)
@@ -259,7 +260,12 @@ function MusicPage() {
 
   const getMakerSlot = (index) => {
     if (index === makerIndex) return 'feature'
-    if (makerTransition?.fromIndex === index) return `exiting-${makerTransition.direction}`
+    if (makerTransition?.fromIndex === index) {
+      return `exiting-${makerTransition.direction}`
+    }
+    if (makerTransition?.toIndex === index) {
+      return 'entering'
+    }
     return 'queue'
   }
 
@@ -320,19 +326,33 @@ function MusicPage() {
     </section>
 
     <section className="music-albums" aria-labelledby="music-albums-title">
-      <div className="music-section-heading"><span className="section-kicker">Records / 专辑</span><h2 id="music-albums-title">唱片盒</h2></div>
-      {musicAlbums.length ? musicAlbums.map((album) => {
-        const entry = albumEntries.get(album.assetKey)
-        const open = lockedAlbum === album.assetKey
-        return <article className={`music-record-box ${open ? 'is-open' : ''}`} key={album.assetKey}>
-          <button type="button" className="music-record-toggle" onClick={() => setLockedAlbum((current) => current === album.assetKey ? null : album.assetKey)} aria-expanded={open}>
-            <MusicImage item={album} />
-            <span className="music-record-disc-stack" aria-hidden="true"><span className="music-record-disc" /></span>
-            <span className="music-record-meta"><span className="music-record-title">{album.track}</span><span className="music-record-label"><small>{open ? '收起乐评' : '查看乐评'}</small></span></span>
+      <div className="music-section-heading">
+        <span className="section-kicker">Records / 专辑</span>
+        <h2 id="music-albums-title">唱片盒</h2>
+        {musicAlbums.length > 1 ? (
+          <button
+            type="button"
+            className="music-albums-toggle"
+            onClick={() => setAlbumsExpanded((current) => !current)}
+          >
+            {albumsExpanded ? '收起唱片' : '展开唱片'}
           </button>
-          {open ? <div className="music-record-review"><div className="music-record-review-content">{renderMusicText(entry)}{workspace.canEdit && entry ? <button type="button" onClick={() => setEditingEntry(entry)}>编辑乐评</button> : null}</div></div> : null}
-        </article>
-      }) : <div className="music-empty-state"><strong>还没有专辑图片</strong><p>将图片放入 src/assets/music_share/music 后，这里会自动生成唱片盒。</p></div>}
+        ) : null}
+      </div>
+      <div className={`music-albums-grid ${albumsExpanded ? 'is-expanded' : ''}`}>
+        {musicAlbums.length ? musicAlbums.map((album, index) => {
+          const entry = albumEntries.get(album.assetKey)
+          const open = lockedAlbum === album.assetKey
+          return <article className={`music-record-box ${open ? 'is-open' : ''}`} key={album.assetKey} style={{ '--album-index': index }}>
+            <button type="button" className="music-record-toggle" onClick={() => setLockedAlbum((current) => current === album.assetKey ? null : album.assetKey)} aria-expanded={open}>
+              <MusicImage item={album} />
+              <span className="music-record-disc-stack" aria-hidden="true"><span className="music-record-disc" /></span>
+              <span className="music-record-meta"><span className="music-record-title">{album.track}</span><span className="music-record-label"><small>{open ? '收起乐评' : '查看乐评'}</small></span></span>
+            </button>
+            {open ? <div className="music-record-review"><div className="music-record-review-content">{renderMusicText(entry)}{workspace.canEdit && entry ? <button type="button" onClick={() => setEditingEntry(entry)}>编辑乐评</button> : null}</div></div> : null}
+          </article>
+        }) : <div className="music-empty-state"><strong>还没有专辑图片</strong><p>将图片放入 src/assets/music_share/music 后，这里会自动生成唱片盒。</p></div>}
+      </div>
     </section>
 
     <MusicReviewEditor entry={editingEntry} isOpen={Boolean(editingEntry)} onSave={handleSave} onClose={() => setEditingEntry(null)} isSaving={workspace.isSaving} error={workspace.editorError} />
