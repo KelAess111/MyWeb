@@ -157,12 +157,12 @@ export function useWritingWorkspace({ workspace, fallbackTree }) {
 
   const saveNode = async (nextNode, options = {}) => {
     if (!writingTree || !nextNode) {
-      return
+      return false
     }
 
     if (options.mode === 'root') {
       if (writingTree.type !== 'folder') {
-        return
+        return false
       }
 
       const rootNode = normalizeWritingNode({
@@ -170,17 +170,16 @@ export function useWritingWorkspace({ workspace, fallbackTree }) {
         parentId: undefined,
       })
 
-      await persistTree({
+      return await persistTree({
         ...writingTree,
         children: [...(writingTree.children ?? []), rootNode],
       })
-      return
     }
 
     if (options.mode === 'child') {
       const parentId = options.parentId
       if (!parentId) {
-        return
+        return false
       }
 
       const childNode = normalizeWritingNode({
@@ -206,8 +205,7 @@ export function useWritingWorkspace({ workspace, fallbackTree }) {
         }
       }
 
-      await persistTree(appendToParent(writingTree))
-      return
+      return await persistTree(appendToParent(writingTree))
     }
 
     const normalizedNode = normalizeWritingNode(nextNode)
@@ -227,7 +225,7 @@ export function useWritingWorkspace({ workspace, fallbackTree }) {
       }
     }
 
-    await persistTree(replaceNode(writingTree))
+    return await persistTree(replaceNode(writingTree))
   }
 
   const deleteNode = async (node) => {

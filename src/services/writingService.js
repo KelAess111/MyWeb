@@ -47,12 +47,36 @@ const workspaceDefinitions = {
       authorAccess: 'music_writing_author_access',
     },
   },
+  book: {
+    id: 'book',
+    treeKey: 'book-writing-root',
+    storageKeys: {
+      tree: 'book-writing-service:tree',
+      drafts: 'book-writing-service:drafts',
+      authorEmail: 'book-writing-service:author-email',
+      editorMode: 'book_writing_admin_auth',
+      authorAccess: 'book_writing_author_access',
+    },
+  },
+  game: {
+    id: 'game',
+    treeKey: 'game-writing-root',
+    storageKeys: {
+      tree: 'game-writing-service:tree',
+      drafts: 'game-writing-service:drafts',
+      authorEmail: 'game-writing-service:author-email',
+      editorMode: 'game_writing_admin_auth',
+      authorAccess: 'game_writing_author_access',
+    },
+  },
 }
 
 export const PUBLIC_WRITING_WORKSPACE = Object.freeze(workspaceDefinitions.public)
 export const HIDDEN_WRITING_WORKSPACE = Object.freeze(workspaceDefinitions.hidden)
 export const ANIME_WRITING_WORKSPACE = Object.freeze(workspaceDefinitions.anime)
 export const MUSIC_WRITING_WORKSPACE = Object.freeze(workspaceDefinitions.music)
+export const BOOK_WRITING_WORKSPACE = Object.freeze(workspaceDefinitions.book)
+export const GAME_WRITING_WORKSPACE = Object.freeze(workspaceDefinitions.game)
 
 function resolveWritingWorkspace(workspace = PUBLIC_WRITING_WORKSPACE) {
   const workspaceId = typeof workspace === 'string' ? workspace : workspace?.id

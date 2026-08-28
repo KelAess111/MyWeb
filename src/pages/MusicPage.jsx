@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { musicAlbums, musicMakers, musicRecommendationsTree } from '../data/musicRecommendations'
 import { useImageLoadState } from '../hooks/useImageLoadState'
@@ -7,6 +7,8 @@ import { MUSIC_WRITING_WORKSPACE } from '../services/writingService'
 
 const EMPTY_COPY = '作者待补充'
 const MAKER_ROTATION_INTERVAL = 5200
+const MAKER_MANUAL_RESUME_DELAY = 6500
+const MAKER_TRANSITION_DURATION = 1250
 const MAKER_SWIPE_THRESHOLD = 40
 
 function MusicImage({ item, className = '' }) {
@@ -94,43 +96,119 @@ function MusicReviewEditor({ entry, isOpen, onSave, onClose, isSaving = false, e
 function MusicPage() {
   const workspace = useWritingWorkspace({ workspace: MUSIC_WRITING_WORKSPACE, fallbackTree: musicRecommendationsTree })
   const [makerIndex, setMakerIndex] = useState(0)
+  const [makerTransition, setMakerTransition] = useState(null)
+  const [reducedMotion, setReducedMotion] = useState(false)
   const [lockedAlbum, setLockedAlbum] = useState(null)
   const [editingEntry, setEditingEntry] = useState(null)
   const dragRef = useRef(null)
+  const activeMakerRef = useRef(0)
+  const autoplayTimerRef = useRef(null)
+  const manualResumeTimerRef = useRef(null)
+  const transitionTimerRef = useRef(null)
+  const hoveredRef = useRef(false)
+  const hiddenRef = useRef(false)
+  const navigateRef = useRef(null)
+
   const makerEntries = useMemo(() => new Map((workspace.writingTree?.children ?? []).filter((entry) => entry.meta?.kind === 'maker').map((entry) => [entry.meta.assetKey, entry])), [workspace.writingTree])
   const fallbackMakerEntries = useMemo(() => new Map(musicRecommendationsTree.children.filter((entry) => entry.meta?.kind === 'maker').map((entry) => [entry.meta.assetKey, entry])), [])
   const albumEntries = useMemo(() => new Map((workspace.writingTree?.children ?? []).filter((entry) => entry.meta?.kind === 'album').map((entry) => [entry.meta.assetKey, entry])), [workspace.writingTree])
   const activeMaker = musicMakers[makerIndex] ?? null
-  const activeMakerEntry = activeMaker ? makerEntries.get(activeMaker.assetKey) ?? fallbackMakerEntries.get(activeMaker.assetKey) ?? null : null
 
-  const selectMaker = (index) => {
-    if (!musicMakers.length) return
-    setMakerIndex((index + musicMakers.length) % musicMakers.length)
-  }
+  const clearAutoplay = useCallback(() => {
+    if (autoplayTimerRef.current) window.clearTimeout(autoplayTimerRef.current)
+    autoplayTimerRef.current = null
+  }, [])
 
-  const moveMaker = (direction) => {
-    if (!musicMakers.length) return
-    setMakerIndex((current) => (current + direction + musicMakers.length) % musicMakers.length)
-  }
+  const clearManualResume = useCallback(() => {
+    if (manualResumeTimerRef.current) window.clearTimeout(manualResumeTimerRef.current)
+    manualResumeTimerRef.current = null
+  }, [])
+
+  const clearTransition = useCallback(() => {
+    if (transitionTimerRef.current) window.clearTimeout(transitionTimerRef.current)
+    transitionTimerRef.current = null
+    setMakerTransition(null)
+  }, [])
+
+  const startAutoplay = useCallback((delay = MAKER_ROTATION_INTERVAL) => {
+    clearAutoplay()
+    if (reducedMotion || musicMakers.length < 2 || hoveredRef.current || hiddenRef.current) return
+    autoplayTimerRef.current = window.setTimeout(() => {
+      autoplayTimerRef.current = null
+      if (!hoveredRef.current && !hiddenRef.current && !reducedMotion) {
+        navigateRef.current?.(1)
+      }
+    }, delay)
+  }, [clearAutoplay, reducedMotion])
+
+  const resumeAfterManualInput = useCallback(() => {
+    clearManualResume()
+    clearAutoplay()
+    if (reducedMotion || musicMakers.length < 2 || hoveredRef.current || hiddenRef.current) return
+    manualResumeTimerRef.current = window.setTimeout(() => {
+      manualResumeTimerRef.current = null
+      startAutoplay()
+    }, MAKER_MANUAL_RESUME_DELAY)
+  }, [clearAutoplay, clearManualResume, reducedMotion, startAutoplay])
+
+  const navigate = useCallback((direction, { resetAutoplay = false } = {}) => {
+    if (musicMakers.length < 2) return
+    const fromIndex = activeMakerRef.current
+    const toIndex = (fromIndex + direction + musicMakers.length) % musicMakers.length
+    activeMakerRef.current = toIndex
+    clearTransition()
+    if (!reducedMotion) {
+      setMakerTransition({ fromIndex, toIndex, direction: direction > 0 ? 'next' : 'previous' })
+      transitionTimerRef.current = window.setTimeout(() => {
+        transitionTimerRef.current = null
+        setMakerTransition(null)
+      }, MAKER_TRANSITION_DURATION)
+    }
+    setMakerIndex(toIndex)
+    if (resetAutoplay) resumeAfterManualInput()
+    else startAutoplay()
+  }, [clearTransition, reducedMotion, resumeAfterManualInput, startAutoplay])
 
   useEffect(() => {
-    if (musicMakers.length < 2) return undefined
+    navigateRef.current = navigate
+  }, [navigate])
+
+  useEffect(() => {
+    activeMakerRef.current = Math.min(makerIndex, Math.max(0, musicMakers.length - 1))
+  }, [makerIndex])
+
+  useEffect(() => {
     const mediaQuery = window.matchMedia?.('(prefers-reduced-motion: reduce)')
-    const updateAutoplay = () => {
-      if (mediaQuery?.matches) return undefined
-      return window.setInterval(() => setMakerIndex((current) => (current + 1) % musicMakers.length), MAKER_ROTATION_INTERVAL)
+    const updateMotion = () => {
+      const nextReduced = Boolean(mediaQuery?.matches)
+      setReducedMotion(nextReduced)
+      if (nextReduced) clearTransition()
+      else startAutoplay()
     }
-    let timer = updateAutoplay()
-    const handleMotionChange = () => {
-      if (timer) window.clearInterval(timer)
-      timer = updateAutoplay()
+    updateMotion()
+    mediaQuery?.addEventListener?.('change', updateMotion)
+    return () => mediaQuery?.removeEventListener?.('change', updateMotion)
+  }, [clearTransition, startAutoplay])
+
+  useEffect(() => {
+    startAutoplay()
+    const handleVisibility = () => {
+      hiddenRef.current = document.hidden
+      if (document.hidden) {
+        clearAutoplay()
+        clearManualResume()
+      } else {
+        startAutoplay()
+      }
     }
-    mediaQuery?.addEventListener?.('change', handleMotionChange)
+    document.addEventListener('visibilitychange', handleVisibility)
     return () => {
-      if (timer) window.clearInterval(timer)
-      mediaQuery?.removeEventListener?.('change', handleMotionChange)
+      clearAutoplay()
+      clearManualResume()
+      clearTransition()
+      document.removeEventListener('visibilitychange', handleVisibility)
     }
-  }, [])
+  }, [clearAutoplay, clearManualResume, clearTransition, startAutoplay])
 
   useEffect(() => {
     const onKeyDown = (event) => {
@@ -138,12 +216,24 @@ function MusicPage() {
       const isTextEntry = target instanceof HTMLElement && (target.isContentEditable || ['INPUT', 'TEXTAREA', 'SELECT'].includes(target.tagName))
       if (isTextEntry) return
       if (event.key === 'Escape') setLockedAlbum(null)
-      if (event.key === 'ArrowRight') moveMaker(1)
-      if (event.key === 'ArrowLeft') moveMaker(-1)
+      if (event.key === 'ArrowRight') navigateRef.current?.(1, { resetAutoplay: true })
+      if (event.key === 'ArrowLeft') navigateRef.current?.(-1, { resetAutoplay: true })
     }
     document.addEventListener('keydown', onKeyDown)
     return () => document.removeEventListener('keydown', onKeyDown)
   }, [])
+
+  const selectMaker = (index) => {
+    if (!musicMakers.length || index === makerIndex) return
+    const direction = (index - makerIndex + musicMakers.length) % musicMakers.length <= musicMakers.length / 2 ? 1 : -1
+    const target = (index + musicMakers.length) % musicMakers.length
+    navigateRef.current?.(direction, { resetAutoplay: true })
+    if (target !== (makerIndex + direction + musicMakers.length) % musicMakers.length) {
+      activeMakerRef.current = target
+      clearTransition()
+      setMakerIndex(target)
+    }
+  }
 
   const handlePointerDown = (event) => {
     const target = event.target instanceof Element ? event.target : null
@@ -156,8 +246,9 @@ function MusicPage() {
     const drag = dragRef.current
     dragRef.current = null
     if (!drag || drag.id !== event.pointerId) return
+    if (event.currentTarget.hasPointerCapture?.(event.pointerId)) event.currentTarget.releasePointerCapture(event.pointerId)
     const delta = event.clientX - drag.x
-    if (Math.abs(delta) > MAKER_SWIPE_THRESHOLD) moveMaker(delta < 0 ? 1 : -1)
+    if (Math.abs(delta) > MAKER_SWIPE_THRESHOLD) navigateRef.current?.(delta < 0 ? 1 : -1, { resetAutoplay: true })
   }
 
   const handleSave = async (nextEntry) => {
@@ -165,6 +256,22 @@ function MusicPage() {
     await workspace.saveNode({ ...nextEntry, id: editingEntry.id, slug: editingEntry.slug, type: 'entry', title: editingEntry.title, meta: editingEntry.meta }, { mode: 'node' })
     setEditingEntry(null)
   }
+
+  const getMakerSlot = (index) => {
+    if (index === makerIndex) return 'feature'
+    if (makerTransition?.fromIndex === index) return `exiting-${makerTransition.direction}`
+    return 'queue'
+  }
+
+  const getMakerQueuePosition = (index) => {
+    if (index === makerIndex || !musicMakers.length) return 0
+    return (index - makerIndex + musicMakers.length) % musicMakers.length - 1
+  }
+
+  const getMakerItemStyle = (index) => ({
+    '--maker-queue-index': getMakerQueuePosition(index),
+    '--maker-queue-center': Math.max(0, musicMakers.length - 2) / 2,
+  })
 
   if (!workspace.writingTree && workspace.isLoadingTree) return <main className="music-page-loading" role="status">音乐喜好加载中…</main>
 
@@ -181,29 +288,33 @@ function MusicPage() {
 
     <section className="music-maker-section" aria-labelledby="music-makers-title">
       <div className="music-section-heading"><span className="section-kicker">Makers / 制作人</span><h2 id="music-makers-title">正在听谁</h2></div>
-      {musicMakers.length && activeMaker ? <div className="music-reel" aria-live="polite">
-        <div className="music-maker-rail-wrap" onPointerDown={handlePointerDown} onPointerUp={handlePointerUp} onPointerCancel={() => { dragRef.current = null }}>
-          <span className="music-maker-selection-node" aria-hidden="true" />
-          <div className="music-maker-rail" style={{ '--maker-index': makerIndex }}>
-            {musicMakers.map((maker, index) => <button
-              type="button"
-              className={`music-maker-avatar ${index === makerIndex ? 'is-selected' : ''}`}
-              key={maker.assetKey}
-              onClick={() => selectMaker(index)}
-              aria-label={`选择制作人 ${maker.name}`}
-              aria-current={index === makerIndex ? 'true' : undefined}
-            >
-              <MusicImage item={maker} className="music-maker-avatar-image" />
-            </button>)}
+      {musicMakers.length && activeMaker ? <div className={`music-reel ${reducedMotion ? 'is-reduced-motion' : ''}`} aria-live="polite" aria-roledescription="carousel" aria-label={`制作人 ${makerIndex + 1} / ${musicMakers.length}`}>
+        <div className="music-maker-stage" onMouseEnter={() => { hoveredRef.current = true; clearAutoplay() }} onMouseLeave={() => { hoveredRef.current = false; startAutoplay() }} onPointerDown={handlePointerDown} onPointerUp={handlePointerUp} onPointerCancel={() => { dragRef.current = null }}>
+          <div className="music-maker-queue-wrap music-maker-queue-wrap--left"><span className="music-maker-queue-label">QUEUE / 制作人队列</span></div>
+          <div className="music-maker-items" aria-label="制作人选择">
+            {musicMakers.map((maker, index) => {
+              const slot = getMakerSlot(index)
+              const makerEntry = makerEntries.get(maker.assetKey) ?? fallbackMakerEntries.get(maker.assetKey) ?? null
+              const isCurrent = index === makerIndex
+              return <div className={`music-maker-item music-maker-item--${slot}`} style={getMakerItemStyle(index, slot)} key={maker.assetKey}>
+                <button type="button" className={`music-maker-avatar ${isCurrent ? 'is-selected' : ''}`} onClick={() => selectMaker(index)} aria-label={`选择制作人 ${maker.name}`} aria-current={isCurrent ? 'true' : undefined}>
+                  <MusicImage item={maker} className="music-maker-avatar-image" />
+                </button>
+                {isCurrent ? <div className="music-maker-info">
+                  <span className="section-kicker">当前制作人 / NOW PLAYING</span>
+                  <h3>{maker.name}</h3>
+                  <div className="music-maker-review">{renderMusicText(makerEntry)}</div>
+                  {(workspace.canEdit || workspace.isAuthorMode) && makerEntry ? <button type="button" data-no-reel-drag onPointerDown={(event) => event.stopPropagation()} onClick={() => { if (workspace.canEdit) setEditingEntry(makerEntry); else workspace.setAuthorDrawerOpen(true) }}>{workspace.canEdit ? '编辑制作人评价' : '验证后编辑制作人评价'}</button> : null}
+                </div> : null}
+              </div>
+            })}
           </div>
+          <div className="music-maker-queue-wrap music-maker-queue-wrap--right" aria-hidden="true"><span className="music-maker-queue-label">NEXT / 稍后播放</span></div>
         </div>
         <div className="music-reel-controls">
-          <button type="button" className="music-reel-control" onClick={() => moveMaker(-1)} aria-label="上一位制作人" disabled={musicMakers.length < 2}>‹</button>
+          <button type="button" className="music-reel-control" onClick={() => navigateRef.current?.(-1, { resetAutoplay: true })} aria-label="上一位制作人" disabled={musicMakers.length < 2}>‹</button>
           <span className="music-maker-counter">{String(makerIndex + 1).padStart(2, '0')} / {String(musicMakers.length).padStart(2, '0')}</span>
-          <button type="button" className="music-reel-control" onClick={() => moveMaker(1)} aria-label="下一位制作人" disabled={musicMakers.length < 2}>›</button>
-        </div>
-        <div className="music-maker-info">
-          <div><span className="section-kicker">当前制作人</span><h3>{activeMaker.name}</h3>{renderMusicText(activeMakerEntry)}{(workspace.canEdit || workspace.isAuthorMode) && activeMakerEntry ? <button type="button" data-no-reel-drag onPointerDown={(event) => event.stopPropagation()} onClick={() => { if (workspace.canEdit) setEditingEntry(activeMakerEntry); else workspace.setAuthorDrawerOpen(true) }}>{workspace.canEdit ? '编辑制作人评价' : '验证后编辑制作人评价'}</button> : null}</div>
+          <button type="button" className="music-reel-control" onClick={() => navigateRef.current?.(1, { resetAutoplay: true })} aria-label="下一位制作人" disabled={musicMakers.length < 2}>›</button>
         </div>
       </div> : <div className="music-empty-state"><strong>还没有制作人图片</strong><p>将图片放入 src/assets/music_share/maker 后，这里会自动生成胶卷展示。</p></div>}
     </section>
@@ -216,13 +327,8 @@ function MusicPage() {
         return <article className={`music-record-box ${open ? 'is-open' : ''}`} key={album.assetKey}>
           <button type="button" className="music-record-toggle" onClick={() => setLockedAlbum((current) => current === album.assetKey ? null : album.assetKey)} aria-expanded={open}>
             <MusicImage item={album} />
-            <span className="music-record-disc-stack" aria-hidden="true">
-              <span className="music-record-disc" />
-            </span>
-            <span className="music-record-meta">
-              <span className="music-record-title">{album.track}</span>
-              <span className="music-record-label"><small>{open ? '收起乐评' : '查看乐评'}</small></span>
-            </span>
+            <span className="music-record-disc-stack" aria-hidden="true"><span className="music-record-disc" /></span>
+            <span className="music-record-meta"><span className="music-record-title">{album.track}</span><span className="music-record-label"><small>{open ? '收起乐评' : '查看乐评'}</small></span></span>
           </button>
           {open ? <div className="music-record-review"><div className="music-record-review-content">{renderMusicText(entry)}{workspace.canEdit && entry ? <button type="button" onClick={() => setEditingEntry(entry)}>编辑乐评</button> : null}</div></div> : null}
         </article>

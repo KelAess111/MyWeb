@@ -14,6 +14,8 @@ import './home-utility-overrides.css'
 import './styles/public-journal.css'
 import './styles/public-gallery.css'
 import './styles/anime.css'
+import './styles/book.css'
+import './styles/game.css'
 import './styles/music.css'
 
 const HomePage = lazy(() => import('./pages/HomePage'))
@@ -31,6 +33,8 @@ const PublicJournalPage = lazy(() => import('./pages/PublicJournalPage'))
 const PublicGalleryPage = lazy(() => import('./pages/PublicGalleryPage'))
 const PublicGalleryAlbumPage = lazy(() => import('./pages/PublicGalleryAlbumPage'))
 const AnimePage = lazy(() => import('./pages/AnimePage'))
+const BookPage = lazy(() => import('./pages/BookPage'))
+const GamePage = lazy(() => import('./pages/GamePage'))
 const MusicPage = lazy(() => import('./pages/MusicPage'))
 const HiddenSpaceJournalPage = lazy(() => import('./pages/HiddenSpaceJournalPage'))
 const HiddenSpacePersonalPage = lazy(() => import('./pages/HiddenSpacePersonalPage'))
@@ -475,6 +479,9 @@ function AppRoutes({ musicUiState, onOcAreaChange, replayIntroEnabled, locationK
         <Route path="/works/painting" element={<PublicGalleryPage />} />
         <Route path="/works/painting/:year" element={<PublicGalleryAlbumPage />} />
         <Route path="/works/anime" element={<AnimePage />} />
+        <Route path="/works/modeling" element={<BookPage />} />
+        <Route path="/works/games" element={<GamePage />} />
+        <Route path="/works/game" element={<GamePage />} />
         <Route path="/works/music" element={<MusicPage />} />
         <Route
           path="/works/:categoryId"

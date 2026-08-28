@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
-import WritingEditorModal from '../components/WritingEditorModal'
+import BookReviewEditor from '../components/BookReviewEditor'
 import { animeRecommendations, animeRecommendationsTree } from '../data/animeRecommendations'
 import { useImageLoadState } from '../hooks/useImageLoadState'
 import { useWritingWorkspace } from '../hooks/useWritingWorkspace'
@@ -108,19 +108,28 @@ function AnimePage() {
     setLockedEntryId((current) => (current === entryId ? null : entryId))
   }
 
-  const handleSaveEntry = async (nextEntry, options) => {
+  const handleSaveEntry = async (detail) => {
     const sourceEntry = editingEntry
-    await saveNode({
-      ...nextEntry,
-      id: sourceEntry?.id ?? nextEntry.id,
-      slug: sourceEntry?.slug ?? nextEntry.slug,
+    if (!sourceEntry) return
+
+    const didSave = await saveNode({
+      id: sourceEntry.id,
+      slug: sourceEntry.slug,
       type: 'entry',
-      meta: {
-        ...(nextEntry.meta ?? {}),
-        assetKey: sourceEntry?.meta?.assetKey ?? nextEntry.meta?.assetKey,
-      },
-    }, options)
-    setEditingEntry(null)
+      title: sourceEntry.title,
+      intro: '',
+      detail,
+      date: sourceEntry.date,
+      status: sourceEntry.status,
+      template: sourceEntry.template,
+      excerptLabel: sourceEntry.excerptLabel,
+      meta: { ...(sourceEntry.meta ?? {}) },
+      blocks: sourceEntry.blocks ?? [],
+      annotations: sourceEntry.annotations ?? [],
+      ocHoverLine: sourceEntry.ocHoverLine,
+    }, { mode: 'node' })
+
+    if (didSave) setEditingEntry(null)
   }
 
   if (!writingTree && isLoadingTree) {
@@ -223,16 +232,16 @@ function AnimePage() {
         )}
       </section>
 
-      <WritingEditorModal
+      <BookReviewEditor
         entry={editingEntry}
         isOpen={Boolean(editingEntry)}
         onSave={handleSaveEntry}
         onClose={() => setEditingEntry(null)}
         isSaving={isSaving}
         error={editorError}
+        subject="这部动漫"
+        kicker="Anime note / 动漫评价"
         title="编辑动漫评价"
-        saveLabel="保存评价"
-        initialMode="node"
       />
     </main>
   )
