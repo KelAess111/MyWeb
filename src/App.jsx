@@ -387,10 +387,42 @@ function MusicPlayerProvider({ children }) {
         }),
       }
 
+      // 保存到本地
       setMessages((current) => [nextMessage, ...current].slice(0, 20))
-      setMessageText('')
-      setMessageName('')
-      setMessageStatus('saved_only')
+
+      // 如果配置了 Formspree，发送到服务器
+      const formspreeId = import.meta.env.VITE_FORMSPREE_FORM_ID
+      if (formspreeId) {
+        try {
+          const response = await fetch(`https://formspree.io/f/${formspreeId}`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              name: nextMessage.name,
+              message: nextMessage.text,
+              timestamp: nextMessage.createdAt,
+            }),
+          })
+
+          if (response.ok) {
+            setMessageStatus('sent')
+            setMessageText('')
+            setMessageName('')
+          } else {
+            setMessageStatus('saved_only')
+          }
+        } catch (error) {
+          console.error('Failed to send message to Formspree:', error)
+          setMessageStatus('saved_only')
+        }
+      } else {
+        // 没有配置 Formspree，仅本地保存
+        setMessageText('')
+        setMessageName('')
+        setMessageStatus('saved_only')
+      }
     },
     [messageName, messageText],
   )
