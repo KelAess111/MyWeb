@@ -392,6 +392,7 @@ function MusicPlayerProvider({ children }) {
 
       // 如果配置了 Formspree，发送到服务器
       const formspreeId = import.meta.env.VITE_FORMSPREE_FORM_ID
+      console.log('[Formspree Debug] VITE_FORMSPREE_FORM_ID:', formspreeId)
       if (formspreeId) {
         try {
           const response = await fetch(`https://formspree.io/f/${formspreeId}`, {
