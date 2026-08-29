@@ -15,6 +15,87 @@ const EDIT_TOKEN = 'K'
 const EDIT_PARAM = 'edit'
 const AUTHOR_EMAIL = '2597631359@qq.com'
 
+// 检查是否为本地编辑模式
+function isLocalEditMode() {
+  if (typeof window === 'undefined') {
+    return false
+  }
+
+  console.log('[isLocalEditMode] Function called')
+
+  const urlParams = new URLSearchParams(window.location.search)
+  const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+
+  console.log('[isLocalEditMode] URL:', window.location.href)
+  console.log('[isLocalEditMode] search:', window.location.search)
+
+  // 检查是否是预览模式 - 最高优先级
+  // 1. 先检查 URL 参数
+  const hasPreviewParam = urlParams.get('preview') === 'true'
+
+  // 2. 如果 URL 有 preview=true，保存到 sessionStorage
+  if (hasPreviewParam) {
+    try {
+      window.sessionStorage.setItem('previewMode', 'true')
+      window.localStorage.removeItem('localEditMode')
+      console.log('[Preview Mode] Activated - editing disabled for this session')
+    } catch (e) {
+      console.error('[Preview Mode] Failed to set sessionStorage:', e)
+    }
+    return false
+  }
+
+  // 3. 检查 sessionStorage 中的预览模式标记
+  try {
+    const isPreviewSession = window.sessionStorage.getItem('previewMode') === 'true'
+    console.log('[isLocalEditMode] sessionStorage.previewMode:', window.sessionStorage.getItem('previewMode'))
+    if (isPreviewSession) {
+      console.log('[Preview Mode] Active from sessionStorage - editing disabled')
+      return false
+    }
+  } catch (e) {
+    // ignore
+  }
+
+  const hasLocalParam = urlParams.get('editMode') === 'local'
+  const hasEditMode = import.meta.env.VITE_EDIT_MODE === 'true'
+
+  console.log('[isLocalEditMode] Debug:')
+  console.log('  hasLocalParam:', hasLocalParam)
+  console.log('  isLocalhost:', isLocalhost)
+  console.log('  hasEditMode:', hasEditMode)
+  console.log('  VITE_EDIT_MODE:', import.meta.env.VITE_EDIT_MODE)
+
+  // 如果URL有editMode=local参数，保存到localStorage，并清除预览模式
+  if (hasLocalParam && isLocalhost && hasEditMode) {
+    try {
+      window.localStorage.setItem('localEditMode', 'true')
+      window.sessionStorage.removeItem('previewMode')
+      console.log('[Local Edit Mode] Activated and saved to localStorage')
+    } catch (e) {
+      console.error('[Local Edit Mode] Failed to save to localStorage:', e)
+    }
+    return true
+  }
+
+  // 检查localStorage中是否有本地编辑模式标记
+  if (isLocalhost && hasEditMode) {
+    try {
+      const stored = window.localStorage.getItem('localEditMode') === 'true'
+      if (stored) {
+        console.log('[Local Edit Mode] Active from localStorage')
+      } else {
+        console.log('[Local Edit Mode] Not active - localStorage is', window.localStorage.getItem('localEditMode'))
+      }
+      return stored
+    } catch {
+      return false
+    }
+  }
+
+  return false
+}
+
 function readStoredFlag(key) {
   if (typeof window === 'undefined') {
     return false
@@ -56,8 +137,18 @@ export function useWritingWorkspace({ workspace, fallbackTree }) {
   const [isSaving, setIsSaving] = useState(false)
 
   const isAuthorMode = useMemo(() => searchParams.get(EDIT_PARAM) === EDIT_TOKEN, [searchParams])
+
+  // 检查本地编辑模式 - 使用 useState 让它能够响应变化
+  const [isLocalEdit, setIsLocalEdit] = useState(() => isLocalEditMode())
+
+  // 监听 URL 参数变化，重新检查编辑模式
+  useEffect(() => {
+    const newLocalEditState = isLocalEditMode()
+    setIsLocalEdit(newLocalEditState)
+  }, [searchParams])
+
   const hasAuthorAccess = readStoredFlag(storageKeys.authorAccess)
-  const canEdit = isAuthorMode && editorEnabled && hasAuthorAccess
+  const canEdit = (isAuthorMode && editorEnabled && hasAuthorAccess) || isLocalEdit
 
   useEffect(() => {
     let cancelled = false
@@ -87,6 +178,17 @@ export function useWritingWorkspace({ workspace, fallbackTree }) {
   }, [fallbackTree, workspace])
 
   useEffect(() => {
+    // 如果是本地编辑模式，自动启用编辑器并授予权限
+    if (isLocalEdit) {
+      writeStoredFlag(storageKeys.editorMode, true)
+      writeStoredFlag(storageKeys.authorAccess, true)
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setEditorEnabled(true)
+      setAuthorDrawerOpen(false)
+      setAuthorNotice('')
+      return
+    }
+
     if (isAuthorMode) {
       writeStoredFlag(storageKeys.editorMode, true)
       // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -102,7 +204,7 @@ export function useWritingWorkspace({ workspace, fallbackTree }) {
     setEditorError('')
     writeStoredFlag(storageKeys.editorMode, false)
     writeStoredFlag(storageKeys.authorAccess, false)
-  }, [isAuthorMode, storageKeys])
+  }, [isAuthorMode, isLocalEdit, storageKeys])
 
   const refreshWritingTree = async () => {
     const loadedTree = await loadWritingTree(null, workspace)

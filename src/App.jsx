@@ -509,6 +509,40 @@ function AppRoutes({ musicUiState, onOcAreaChange, replayIntroEnabled, locationK
 
 function AppShell() {
   const location = useLocation()
+
+  // 在应用最顶层检查预览模式和编辑模式
+  useEffect(() => {
+    if (typeof window === 'undefined') {
+      return
+    }
+
+    const urlParams = new URLSearchParams(window.location.search)
+    const hasPreviewParam = urlParams.get('preview') === 'true'
+    const hasEditParam = urlParams.get('editMode') === 'local'
+
+    // 如果 URL 有 preview=true，设置 sessionStorage 并清除 localStorage
+    if (hasPreviewParam) {
+      try {
+        window.sessionStorage.setItem('previewMode', 'true')
+        window.localStorage.removeItem('localEditMode')
+        console.log('[App] Preview mode activated - editing disabled for this session')
+      } catch (e) {
+        console.error('[App] Failed to set preview mode:', e)
+      }
+    }
+
+    // 如果 URL 有 editMode=local，设置 localStorage 并清除预览模式
+    if (hasEditParam) {
+      try {
+        window.localStorage.setItem('localEditMode', 'true')
+        window.sessionStorage.removeItem('previewMode')
+        console.log('[App] Edit mode activated - localStorage set to true')
+      } catch (e) {
+        console.error('[App] Failed to set edit mode:', e)
+      }
+    }
+  }, [location.search])
+
   const [replayIntroEnabled, setReplayIntroEnabled] = useState(() => {
     if (typeof window === 'undefined') {
       return false

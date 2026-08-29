@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Starting Preview Mode...</title>
+    <script>
+        // Clear localStorage and set sessionStorage for preview mode
+        localStorage.removeItem('localEditMode');
+        sessionStorage.setItem('previewMode', 'true');
+
+        console.log('Preview mode initialization:');
+        console.log('- localStorage.localEditMode =', localStorage.getItem('localEditMode'));
+        console.log('- sessionStorage.previewMode =', sessionStorage.getItem('previewMode'));
+
+        // Redirect with preview parameter
+        setTimeout(function() {
+            window.location.href = 'http://localhost:5173/?preview=true';
+        }, 200);
+    </script>
+</head>
+<body>
+    <p>Starting preview mode...</p>
+    <p>Clearing edit permissions...</p>
+</body>
+</html>

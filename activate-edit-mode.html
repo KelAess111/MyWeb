@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Initializing Edit Mode...</title>
+    <script>
+        // Set edit mode and clear preview mode
+        localStorage.setItem('localEditMode', 'true');
+        sessionStorage.removeItem('previewMode');
+        console.log('Edit mode activated');
+        console.log('- localStorage.localEditMode =', localStorage.getItem('localEditMode'));
+        console.log('- sessionStorage.previewMode =', sessionStorage.getItem('previewMode'));
+        // Redirect to homepage with edit parameter
+        window.location.href = 'http://localhost:5173/?editMode=local';
+    </script>
+</head>
+<body>
+    <p>Initializing edit mode...</p>
+</body>
+</html>
