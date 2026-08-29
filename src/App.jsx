@@ -6,6 +6,7 @@ import SiteHeader from './components/SiteHeader'
 import MiniMusicPlayer from './components/MiniMusicPlayer'
 import PageTransition from './components/PageTransition'
 import ClickEffects from './components/ClickEffects'
+import MobileNotice from './components/MobileNotice'
 import { MusicPlayerContext } from './contexts/MusicPlayerContext'
 import { musicTracks } from './data/musicTracks'
 import './App.css'
@@ -604,6 +605,7 @@ function AppShell() {
 
   return (
     <div className="site">
+      <MobileNotice />
       {!isHiddenSpace && <BackgroundLayer mode="base" />}
       <ClickEffects />
       <SiteHeader replayIntroEnabled={replayIntroEnabled} setReplayIntroEnabled={setReplayIntroEnabled} />
