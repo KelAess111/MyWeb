@@ -1,4 +1,9 @@
 import { Link, useParams } from 'react-router-dom'
+import ReactMarkdown from 'react-markdown'
+import remarkMath from 'remark-math'
+import remarkGfm from 'remark-gfm'
+import rehypeKatex from 'rehype-katex'
+import 'katex/dist/katex.min.css'
 import { findArticleBySlug } from '../data/articleData'
 
 function ArticleDetailPage() {
@@ -26,9 +31,18 @@ function ArticleDetailPage() {
         </header>
 
         <div className="article-detail-body">
-          {article.content.split(/\n{2,}/).map((paragraph, index) => (
-            <p key={`paragraph-${index}`}>{paragraph}</p>
-          ))}
+          {article.isMarkdown ? (
+            <ReactMarkdown
+              remarkPlugins={[remarkGfm, remarkMath]}
+              rehypePlugins={[rehypeKatex]}
+            >
+              {article.content}
+            </ReactMarkdown>
+          ) : (
+            article.content.split(/\n{2,}/).map((paragraph, index) => (
+              <p key={`paragraph-${index}`}>{paragraph}</p>
+            ))
+          )}
         </div>
       </article>
     </main>

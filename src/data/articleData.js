@@ -1,8 +1,17 @@
-const articleModules = import.meta.glob('../assets/article/*.txt', {
+// 同时读取 .txt 和 .md 文件
+const txtModules = import.meta.glob('../assets/article/*.txt', {
   eager: true,
   query: '?raw',
   import: 'default',
 })
+
+const mdModules = import.meta.glob('../assets/article/*.md', {
+  eager: true,
+  query: '?raw',
+  import: 'default',
+})
+
+const articleModules = { ...txtModules, ...mdModules }
 
 const articleCollator = new Intl.Collator('zh-Hans-CN', {
   numeric: true,
@@ -14,7 +23,12 @@ function getFileName(path) {
 }
 
 function getTitle(path) {
-  return getFileName(path).replace(/\.txt$/, '').trim()
+  return getFileName(path).replace(/\.(txt|md)$/, '').trim()
+}
+
+// 判断文件是否为 Markdown 格式
+function isMarkdownFile(path) {
+  return path.endsWith('.md')
 }
 
 function getSlug(title, index) {
@@ -39,6 +53,7 @@ export const articles = Object.entries(articleModules)
   .map(([path, rawContent]) => {
     const fileName = getTitle(path)
     const parsed = parseArticleContent(rawContent)
+    const isMarkdown = isMarkdownFile(path)
 
     return {
       path,
@@ -46,6 +61,7 @@ export const articles = Object.entries(articleModules)
       title: parsed.title || fileName,
       content: parsed.content,
       rawContent,
+      isMarkdown,
     }
   })
   .filter((item) => item.title)
