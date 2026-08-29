@@ -148,11 +148,6 @@ function AnimePage() {
           <Link to="/interests" className="anime-back-link">
             <span aria-hidden="true">←</span> 返回个人兴趣
           </Link>
-          {canEdit ? (
-            <button type="button" className="anime-edit-exit" onClick={exitEditorMode}>
-              退出编辑模式
-            </button>
-          ) : null}
         </div>
       </section>
 

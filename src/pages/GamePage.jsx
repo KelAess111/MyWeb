@@ -69,7 +69,7 @@ function GamePage() {
   return <main className="game-page">
     <section className="game-hero" aria-labelledby="game-page-title">
       <div><span className="section-kicker">Works / 游戏推荐</span><h1 id="game-page-title">游戏推荐</h1><p>游戏图片来自本地 game 文件夹，评价由作者在编辑模式中补充。</p></div>
-      <div className="game-hero-actions"><Link to="/interests" className="game-back-link">← 返回个人兴趣</Link>{workspace.canEdit ? <button type="button" className="game-edit-exit" onClick={workspace.exitEditorMode}>退出编辑模式</button> : null}</div>
+      <div className="game-hero-actions"><Link to="/interests" className="game-back-link">← 返回个人兴趣</Link></div>
     </section>
     {workspace.isAuthorMode ? <aside className={`writing-author-drawer game-author-drawer ${workspace.authorDrawerOpen ? 'is-open' : ''}`} aria-label="作者验证">
       <button type="button" className="writing-author-drawer-toggle" onClick={() => workspace.setAuthorDrawerOpen((value) => !value)} aria-expanded={workspace.authorDrawerOpen}><span>作者验证</span><span>{workspace.authorDrawerOpen ? '收起' : '展开'}</span></button>

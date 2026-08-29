@@ -284,7 +284,7 @@ function MusicPage() {
   return <main className="music-page">
     <section className="music-hero" aria-labelledby="music-page-title">
       <div><span className="section-kicker">Works / 音乐喜好</span><h1 id="music-page-title">音乐喜好</h1><p>本页只读取本地 music_share 图片。制作人介绍和专辑乐评由作者在编辑模式中补充。</p></div>
-      <div className="music-actions"><Link to="/interests" className="music-back-link">← 返回个人兴趣</Link>{workspace.canEdit ? <button type="button" onClick={workspace.exitEditorMode}>退出编辑模式</button> : null}</div>
+      <div className="music-actions"><Link to="/interests" className="music-back-link">← 返回个人兴趣</Link></div>
     </section>
 
     {workspace.isAuthorMode ? <aside className={`writing-author-drawer music-author-drawer ${workspace.authorDrawerOpen ? 'is-open' : ''}`} aria-label="作者验证">

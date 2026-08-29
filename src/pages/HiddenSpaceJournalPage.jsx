@@ -89,7 +89,14 @@ function HiddenSpaceJournalPage() {
   const [searchParams, setSearchParams] = useSearchParams()
   const editToken = searchParams.get('edit')
   const storedAuthorAuth = readJournalAdminAuth()
-  const isAuthor = editToken === EDIT_TOKEN
+
+  // 检查本地编辑模式
+  const isLocalEditMode = typeof window !== 'undefined' &&
+    window.sessionStorage.getItem('previewMode') !== 'true' &&
+    window.localStorage.getItem('localEditMode') === 'true'
+
+  // 只允许本地编辑模式，禁用 ?edit=KelAess 远程认证
+  const isAuthor = isLocalEditMode
   const modeKey = isAuthor ? 'author' : 'public'
 
   const [entries, setEntries] = useState([])
@@ -106,26 +113,6 @@ function HiddenSpaceJournalPage() {
   useEffect(() => {
     setActiveScene(defaultScene)
   }, [defaultScene, setActiveScene])
-
-  useEffect(() => {
-    if (editToken === EDIT_TOKEN) {
-      try {
-        window.localStorage.setItem(JOURNAL_ADMIN_AUTH_STORAGE_KEY, 'true')
-      } catch {
-        // Ignore storage failures; the URL token still authorizes this session.
-      }
-
-      return
-    }
-
-    try {
-      if (storedAuthorAuth) {
-        window.localStorage.removeItem(JOURNAL_ADMIN_AUTH_STORAGE_KEY)
-      }
-    } catch {
-      // Ignore storage failures while syncing author mode to the URL.
-    }
-  }, [editToken, storedAuthorAuth])
 
   useEffect(() => {
     const previousModeKey = previousModeKeyRef.current

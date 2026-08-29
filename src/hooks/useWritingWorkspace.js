@@ -148,7 +148,9 @@ export function useWritingWorkspace({ workspace, fallbackTree }) {
   }, [searchParams])
 
   const hasAuthorAccess = readStoredFlag(storageKeys.authorAccess)
-  const canEdit = (isAuthorMode && editorEnabled && hasAuthorAccess) || isLocalEdit
+
+  // 只允许本地编辑模式，禁用远程 SMS 验证
+  const canEdit = isLocalEdit
 
   useEffect(() => {
     let cancelled = false

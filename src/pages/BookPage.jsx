@@ -66,7 +66,7 @@ function BookPage() {
   return <main className="book-page">
     <section className="book-hero" aria-labelledby="book-page-title">
       <div><span className="section-kicker">Works / 推荐书目</span><h1 id="book-page-title">推荐书目</h1><p>书封来自本地 book 文件夹，书评由作者在编辑模式中补充。</p></div>
-      <div className="book-hero-actions"><Link to="/interests" className="book-back-link">← 返回个人兴趣</Link>{workspace.canEdit ? <button type="button" className="book-edit-exit" onClick={workspace.exitEditorMode}>退出编辑模式</button> : null}</div>
+      <div className="book-hero-actions"><Link to="/interests" className="book-back-link">← 返回个人兴趣</Link></div>
     </section>
     {workspace.isAuthorMode ? <aside className={`writing-author-drawer book-author-drawer ${workspace.authorDrawerOpen ? 'is-open' : ''}`} aria-label="作者验证">
       <button type="button" className="writing-author-drawer-toggle" onClick={() => workspace.setAuthorDrawerOpen((value) => !value)} aria-expanded={workspace.authorDrawerOpen}><span>作者验证</span><span>{workspace.authorDrawerOpen ? '收起' : '展开'}</span></button>
