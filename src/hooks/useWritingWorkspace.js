@@ -21,59 +21,42 @@ function isLocalEditMode() {
     return false
   }
 
-  console.log('[isLocalEditMode] Function called')
-
   const urlParams = new URLSearchParams(window.location.search)
   const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
 
-  console.log('[isLocalEditMode] URL:', window.location.href)
-  console.log('[isLocalEditMode] search:', window.location.search)
-
   // 检查是否是预览模式 - 最高优先级
-  // 1. 先检查 URL 参数
   const hasPreviewParam = urlParams.get('preview') === 'true'
 
-  // 2. 如果 URL 有 preview=true，保存到 sessionStorage
+  // 如果 URL 有 preview=true，保存到 sessionStorage
   if (hasPreviewParam) {
     try {
       window.sessionStorage.setItem('previewMode', 'true')
       window.localStorage.removeItem('localEditMode')
-      console.log('[Preview Mode] Activated - editing disabled for this session')
-    } catch (e) {
-      console.error('[Preview Mode] Failed to set sessionStorage:', e)
+    } catch {
+      // ignore
     }
     return false
   }
 
-  // 3. 检查 sessionStorage 中的预览模式标记
+  // 检查 sessionStorage 中的预览模式标记
   try {
-    const isPreviewSession = window.sessionStorage.getItem('previewMode') === 'true'
-    console.log('[isLocalEditMode] sessionStorage.previewMode:', window.sessionStorage.getItem('previewMode'))
-    if (isPreviewSession) {
-      console.log('[Preview Mode] Active from sessionStorage - editing disabled')
+    if (window.sessionStorage.getItem('previewMode') === 'true') {
       return false
     }
-  } catch (e) {
+  } catch {
     // ignore
   }
 
   const hasLocalParam = urlParams.get('editMode') === 'local'
   const hasEditMode = import.meta.env.VITE_EDIT_MODE === 'true'
 
-  console.log('[isLocalEditMode] Debug:')
-  console.log('  hasLocalParam:', hasLocalParam)
-  console.log('  isLocalhost:', isLocalhost)
-  console.log('  hasEditMode:', hasEditMode)
-  console.log('  VITE_EDIT_MODE:', import.meta.env.VITE_EDIT_MODE)
-
   // 如果URL有editMode=local参数，保存到localStorage，并清除预览模式
   if (hasLocalParam && isLocalhost && hasEditMode) {
     try {
       window.localStorage.setItem('localEditMode', 'true')
       window.sessionStorage.removeItem('previewMode')
-      console.log('[Local Edit Mode] Activated and saved to localStorage')
-    } catch (e) {
-      console.error('[Local Edit Mode] Failed to save to localStorage:', e)
+    } catch {
+      // ignore
     }
     return true
   }
@@ -81,13 +64,7 @@ function isLocalEditMode() {
   // 检查localStorage中是否有本地编辑模式标记
   if (isLocalhost && hasEditMode) {
     try {
-      const stored = window.localStorage.getItem('localEditMode') === 'true'
-      if (stored) {
-        console.log('[Local Edit Mode] Active from localStorage')
-      } else {
-        console.log('[Local Edit Mode] Not active - localStorage is', window.localStorage.getItem('localEditMode'))
-      }
-      return stored
+      return window.localStorage.getItem('localEditMode') === 'true'
     } catch {
       return false
     }

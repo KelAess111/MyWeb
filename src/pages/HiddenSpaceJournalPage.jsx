@@ -235,12 +235,14 @@ function HiddenSpaceJournalPage() {
 
       await refreshEntries()
     } catch (error) {
+      console.error('[日志保存失败] 详细错误:', error)
       if (error?.message === 'missing-supabase-config') {
         setErrorMessage('还没有配置 Supabase，暂时不能保存日志。请先补上环境变量。')
       } else if (error?.message === 'missing-author-session') {
         setErrorMessage('当前页面作者模式只负责显示编辑入口；要真正写入 Supabase，仍需要可用的后端写权限。请检查 RLS / Auth 配置。')
       } else {
-        setErrorMessage('保存失败了。请检查 Supabase 表结构、存储桶和写入权限。')
+        const detail = error?.message ? `（${error.message}）` : ''
+        setErrorMessage(`保存失败了${detail}。请稍后重试，或检查网络连接和 Supabase 状态。`)
       }
     } finally {
       setIsSaving(false)

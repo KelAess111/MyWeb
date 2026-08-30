@@ -13,6 +13,44 @@ function ensureSupabase() {
   return supabase
 }
 
+// 本地编辑：用 .env.local 里的作者账号密码静默登录，拿到写入会话。
+// 仅在本地（localhost + VITE_EDIT_MODE=true）且配置了账号密码时生效；
+// 部署站点没有这两个变量，这段不会执行，写入权限依旧受 Supabase 会话 + RLS 保护。
+let authorSignInPromise = null
+
+export async function ensureAuthorSession() {
+  const client = ensureSupabase()
+
+  // 已有会话直接用
+  const { data: sessionData } = await client.auth.getSession()
+  if (sessionData?.session) {
+    return sessionData.session
+  }
+
+  const email = import.meta.env.VITE_AUTHOR_EMAIL
+  const password = import.meta.env.VITE_AUTHOR_PASSWORD
+  if (!email || !password) {
+    // 没配自动登录凭据：交回原有报错流程（session missing）
+    return null
+  }
+
+  // 避免并发触发多次登录
+  if (!authorSignInPromise) {
+    authorSignInPromise = client.auth
+      .signInWithPassword({ email, password })
+      .finally(() => {
+        authorSignInPromise = null
+      })
+  }
+
+  const { data, error } = await authorSignInPromise
+  if (error) {
+    throw error
+  }
+
+  return data?.session ?? null
+}
+
 function inferAttachmentKind(mimeType = '') {
   if (mimeType.startsWith('video/')) {
     return 'video'
@@ -204,6 +242,9 @@ export async function deleteJournalEntry(id) {
 }
 
 async function getRequiredAuthorId(client) {
+  // 本地编辑模式下，若还没有会话，尝试用作者账号密码静默登录
+  await ensureAuthorSession()
+
   const { data, error } = await client.auth.getUser()
 
   if (error) {

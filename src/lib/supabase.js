@@ -21,3 +21,10 @@ export const supabase = isSupabaseConfigured
       },
     })
   : null
+
+// 仅本地开发环境暴露到 window，方便一次性设置作者密码：
+//   await supabase.auth.updateUser({ password: 'Rayset-IX' })
+// 部署环境（import.meta.env.DEV 为 false）不会暴露。
+if (import.meta.env.DEV && typeof window !== 'undefined' && supabase) {
+  window.supabase = supabase
+}

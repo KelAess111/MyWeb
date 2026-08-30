@@ -393,7 +393,6 @@ function MusicPlayerProvider({ children }) {
 
       // 如果配置了 Formspree，发送到服务器
       const formspreeId = import.meta.env.VITE_FORMSPREE_FORM_ID
-      console.log('[Formspree Debug] VITE_FORMSPREE_FORM_ID:', formspreeId)
       if (formspreeId) {
         try {
           const response = await fetch(`https://formspree.io/f/${formspreeId}`, {
@@ -559,9 +558,8 @@ function AppShell() {
       try {
         window.sessionStorage.setItem('previewMode', 'true')
         window.localStorage.removeItem('localEditMode')
-        console.log('[App] Preview mode activated - editing disabled for this session')
-      } catch (e) {
-        console.error('[App] Failed to set preview mode:', e)
+      } catch {
+        // ignore
       }
     }
 
@@ -570,9 +568,8 @@ function AppShell() {
       try {
         window.localStorage.setItem('localEditMode', 'true')
         window.sessionStorage.removeItem('previewMode')
-        console.log('[App] Edit mode activated - localStorage set to true')
-      } catch (e) {
-        console.error('[App] Failed to set edit mode:', e)
+      } catch {
+        // ignore
       }
     }
   }, [location.search])
