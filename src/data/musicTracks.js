@@ -55,4 +55,12 @@ export const musicTracks = [
     accent: 'rose',
     //note: '请将音频文件放到 public/audio/モア！ジャンプ！モア！- MORE MORE JUMP.mp3',
   },
+  {
+    id: 'Mr.\'Broken Heart\'',
+    title: 'Mr.\'Broken Heart\'',
+    artist: '松下優也',
+    src: 'public/audio/Mr.\'Broken Heart\'- 松下優也.mp3',
+    accent: 'rose',
+    //note: '请将音频文件放到 public/audio/Mr.\'Broken Heart\'- 松下優也.mp3',
+  },
 ]

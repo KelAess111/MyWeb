@@ -38,7 +38,7 @@ function getFolderAssets(folderId) {
 }
 
 const HOTSPOT_CONFIGS = {
-  1: { title: '美图分享板块完工', summary: '暂时还没有那么多图。', kicker: '热点 01', textBackClass: 'hotspot-carousel-copy--compact', delayMs: 0 },
+  1: { title: '审美积累板块完工', summary: '暂时还没有那么多图。', kicker: '热点 01', textBackClass: 'hotspot-carousel-copy--compact', delayMs: 0 },
   2: { title: '音乐喜好持续更新', summary: '你可以在左上角播放器里向作者反馈你的喜欢的音乐。', kicker: '热点 02', textBackClass: 'hotspot-carousel-copy--compact', delayMs: 2400 },
   3: { title: '名言展示栏位', summary: '我最喜欢的一句名言是：“生活就像一盒巧克力，你永远不知道下一块会是什么味道。”', kicker: '热点 03', textBackClass: 'hotspot-carousel-copy--wide', delayMs: 4800 },
   4: { title: '小作文不断刊登', summary: '看不到是因为没刊登到首页哦。', kicker: '热点 04', textBackClass: 'hotspot-carousel-copy--mid', delayMs: 7200 },

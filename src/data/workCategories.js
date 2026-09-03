@@ -1,6 +1,6 @@
 import gamesImage from '../assets/photo/游戏爱好.jpg'
 import animeImage from '../assets/photo/动漫推荐.jpg'
-import paintingImage from '../assets/photo/美图分享 .jpg'
+import paintingImage from '../assets/photo/审美积累.jpg'
 import modelingImage from '../assets/photo/推荐书目.jpg'
 import musicImage from '../assets/photo/音乐喜好.jpg'
 import writingImage from '../assets/photo/小作文.jpg'
@@ -20,8 +20,8 @@ export const workCategories = [
   {
     id: 'painting',
     path: '/works/painting',
-    title: '美图分享',
-    navLabel: '美图分享',
+    title: '审美积累',
+    navLabel: '审美积累',
     summary: '展示喜欢的插画、画师以及风格。',
     intro:
       '这里会收集我在各平台收集的插画，展示审美积累，也会记录风格变化。',

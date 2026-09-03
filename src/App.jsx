@@ -41,6 +41,7 @@ const GamePage = lazy(() => import('./pages/GamePage'))
 const MusicPage = lazy(() => import('./pages/MusicPage'))
 const HiddenSpaceJournalPage = lazy(() => import('./pages/HiddenSpaceJournalPage'))
 const HiddenSpacePersonalPage = lazy(() => import('./pages/HiddenSpacePersonalPage'))
+const QAAdminPage = lazy(() => import('./pages/QAAdminPage'))
 
 const PLAYBACK_STORAGE_KEY = 'kel-music-player-playback'
 const MESSAGE_STORAGE_KEY = 'kel-music-player-messages'
@@ -504,6 +505,7 @@ function AppRoutes({ musicUiState, onOcAreaChange, replayIntroEnabled, locationK
           }
         />
         <Route path="/profile" element={<ProfilePage />} />
+        <Route path="/qa-admin" element={<QAAdminPage />} />
         <Route path="/interests" element={<InterestsPage />} />
         <Route path="/portfolio" element={<PortfolioPage />} />
         <Route path="/share" element={<SharePage />} />

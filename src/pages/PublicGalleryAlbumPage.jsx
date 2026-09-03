@@ -178,7 +178,7 @@ function PublicGalleryAlbumPage() {
         <section className="public-gallery-shell" aria-labelledby="public-gallery-album-title">
           <header className="public-gallery-heading">
             <div>
-              <span className="section-kicker">Works / 美图分享</span>
+              <span className="section-kicker">Works / 审美积累</span>
               <h1 id="public-gallery-album-title">图册未找到</h1>
               <p>这个年份暂时没有对应的图册入口，先返回时间轴查看其他年份。</p>
             </div>
@@ -202,7 +202,7 @@ function PublicGalleryAlbumPage() {
       <section className="public-gallery-shell" aria-labelledby="public-gallery-album-title">
         <header className="public-gallery-heading">
           <div>
-            <span className="section-kicker">Works / 美图分享</span>
+            <span className="section-kicker">Works / 审美积累</span>
             <h1 id="public-gallery-album-title">{entry.title}</h1>
             <p>{entry.summary}</p>
           </div>

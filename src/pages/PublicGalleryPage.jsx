@@ -80,14 +80,14 @@ function PublicGalleryPage() {
       <section className="public-gallery-shell" aria-labelledby="public-gallery-title">
         <header className="public-gallery-heading">
           <div>
-            <span className="section-kicker">Works / 美图分享</span>
-            <h1 id="public-gallery-title">美图分享</h1>
-            <p>从 2026 开始向未来延伸，把每一年的图片整理成一条可以逐年打开的图册时间线。</p>
+            <span className="section-kicker">Works / 审美积累</span>
+            <h1 id="public-gallery-title">审美积累</h1>
+            <p>从现在开始向未来延伸，把每一年的图片整理成一条可以逐年打开的图册时间线。</p>
           </div>
           <Link to="/interests" className="public-gallery-back-link"><span aria-hidden="true">←</span> 返回个人兴趣</Link>
         </header>
         <div className="public-gallery-context" aria-live="polite"><span className="public-gallery-context-label">年份图册</span><strong>{timelineRange}</strong><span>点击任意节点进入对应图册</span></div>
-        <ol className="public-gallery-timeline" aria-label={`美图分享年份时间线，顶部 ${publicGalleryData[0]?.year ?? ''}，底部 ${publicGalleryData[publicGalleryData.length - 1]?.year ?? ''}`}>
+        <ol className="public-gallery-timeline" aria-label={`审美积累年份时间线，顶部 ${publicGalleryData[0]?.year ?? ''}，底部 ${publicGalleryData[publicGalleryData.length - 1]?.year ?? ''}`}>
           {publicGalleryData.map((entry) => {
             const hasCover = Boolean(entry.cover)
             const isLoaded = loadedCovers.has(entry.year)
