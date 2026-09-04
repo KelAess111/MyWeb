@@ -1577,6 +1577,7 @@ a {
   box-shadow: 0 4px 16px rgba(162, 210, 255, 0.4);
   transition: all 0.3s ease;
   animation: interests-toggle-pop 0.4s ease-out 0.6s both;
+  z-index: 10;
 }
 
 @keyframes interests-toggle-pop {
@@ -1596,55 +1597,55 @@ a {
   transform: scale(1.05);
 }
 
+/* 关闭状态：三条横杠 ≡ */
 .interests-toggle span {
-  width: 60%;
+  width: 18px;
   height: 2px;
   position: absolute;
   background-color: white;
   top: 50%;
-  left: 20%;
-  transform: translateY(-50%);
-  transition: transform 0.3s ease;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  transition: all 0.3s ease;
 }
 
 .interests-toggle span::before,
 .interests-toggle span::after {
   content: '';
-  width: 100%;
+  width: 18px;
   height: 2px;
   position: absolute;
   background-color: white;
+  left: 0;
   transition: all 0.3s ease;
-  transform: rotate(0deg);
-  right: 0;
 }
 
 .interests-toggle span::before {
-  top: -7px;
+  top: -6px;
 }
 
 .interests-toggle span::after {
-  top: 7px;
+  top: 6px;
 }
 
+/* 打开状态：向左箭头 ← */
 .interests-toggle.active span {
-  transform: translateY(-50%) rotate(180deg);
-}
-
-.interests-toggle.active span::before,
-.interests-toggle.active span::after {
-  width: 60%;
-  right: -1px;
+  width: 14px;
+  background-color: white;
 }
 
 .interests-toggle.active span::before {
-  transform: rotate(45deg);
-  top: 0;
+  width: 10px;
+  transform: rotate(-45deg);
+  top: -3px;
+  left: 0;
 }
 
 .interests-toggle.active span::after {
-  transform: rotate(-45deg);
-  top: 0;
+  width: 10px;
+  transform: rotate(45deg);
+  top: 3px;
+  left: 0;
 }
 
 .interests-links {

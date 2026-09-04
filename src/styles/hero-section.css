@@ -152,25 +152,8 @@
 .hero-hotspot-card--three { grid-column: 2; grid-row: 2; }
 .hero-hotspot-card--four { grid-column: 2; grid-row: 3; }
 .hero-hotspot-card--day {
-  position: fixed;
-  top: 62px;
-  right: -88px;
-  z-index: 12;
-  width: 86px;
-  height: 86px;
-  min-height: 86px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  font-size: 27px;
-  letter-spacing: 0;
+  display: none;
 }
-.hero-hotspot-card--day span { color: #ffe3a1; font-size: 27px; letter-spacing: 0; }
-.hero-hotspot-card--day span + span { color: #b8c9ff; font-size: 23px; }
-.hero-hotspot-card--day.is-night span:first-child { opacity: 0.42; }
-.hero-hotspot-card--day.is-day span:last-child { opacity: 0.42; }
 
 .hero-visual-stack {
   grid-column: 3;

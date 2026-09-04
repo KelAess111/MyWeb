@@ -4,6 +4,7 @@ import HiddenSpaceLayout from './components/HiddenSpaceLayout'
 import BackgroundLayer from './components/BackgroundLayer'
 import SiteHeader from './components/SiteHeader'
 import MiniMusicPlayer from './components/MiniMusicPlayer'
+import MusicVisualizer from './components/MusicVisualizer'
 import PageTransition from './components/PageTransition'
 import ClickEffects from './components/ClickEffects'
 import MobileNotice from './components/MobileNotice'
@@ -169,22 +170,30 @@ function MusicPlayerProvider({ children }) {
   const [messageText, setMessageText] = useState('')
   const [messageStatus, setMessageStatus] = useState('idle')
   const audioRef = useRef(null)
+  const [audioElement, setAudioElement] = useState(null)
   const activeTrack = musicTracks[activeTrackIndex] ?? musicTracks[0] ?? null
   const progressValue = duration > 0 ? Math.min(currentTime, duration) : currentTime
 
   useEffect(() => {
+    // 只在第一次挂载时创建audio元素
+    if (audioRef.current) {
+      console.log('Audio element already exists, skipping creation')
+      return
+    }
+
     const audio = new Audio()
     audio.preload = 'metadata'
     audioRef.current = audio
+    setAudioElement(audio)
+    console.log('Created new audio element')
 
     const handleLoadedMetadata = () => {
       setDuration(Number.isFinite(audio.duration) ? audio.duration : 0)
       setAudioStatus('ready')
 
-      if (playbackState.currentTime > 0) {
-        audio.currentTime = playbackState.currentTime
-        setCurrentTime(playbackState.currentTime)
-      }
+      // 不从保存状态恢复播放位置，始终从0开始
+      audio.currentTime = 0
+      setCurrentTime(0)
     }
 
     const handleTimeUpdate = () => {
@@ -221,9 +230,9 @@ function MusicPlayerProvider({ children }) {
       audio.removeEventListener('timeupdate', handleTimeUpdate)
       audio.removeEventListener('ended', handleEnded)
       audio.removeEventListener('error', handleError)
-      audioRef.current = null
+      // 不要清除 audioRef.current，让它持久存在
     }
-  }, [playbackState.currentTime, activeTrackIndex, autoplayNext, playbackMode])
+  }, []) // 空依赖数组，只运行一次
 
   useEffect(() => {
     const audio = audioRef.current
@@ -244,6 +253,7 @@ function MusicPlayerProvider({ children }) {
     }
 
     audio.src = normaliseTrackSource(activeTrack.src)
+    audio.currentTime = 0
     audio.load()
     const timer = window.setTimeout(() => {
       setDuration(0)
@@ -310,12 +320,20 @@ function MusicPlayerProvider({ children }) {
   }, [activeTrack?.src])
 
   const handleSelectTrack = useCallback((index) => {
+    const audio = audioRef.current
+    if (audio) {
+      audio.currentTime = 0
+    }
     setActiveTrackIndex(index)
     setCurrentTime(0)
     setIsPlaying(true)
   }, [])
 
   const handleTrackChange = useCallback((direction) => {
+    const audio = audioRef.current
+    if (audio) {
+      audio.currentTime = 0
+    }
     setActiveTrackIndex((current) => {
       if (!musicTracks.length) {
         return 0
@@ -459,6 +477,7 @@ function MusicPlayerProvider({ children }) {
       setMessageName,
       setMessageStatus,
       setMessageText,
+      audioElement,
     }),
     [
       activeTab,
@@ -483,6 +502,7 @@ function MusicPlayerProvider({ children }) {
       messages,
       playbackMode,
       progressValue,
+      audioElement,
     ],
   )
 
@@ -618,6 +638,7 @@ function AppShell() {
         onOcAreaChange={setOcArea}
       />
       <MiniMusicPlayer isHomePage={isHomePage} ocArea={ocArea} onUiStateChange={setMusicUiState} />
+      <MusicVisualizer />
     </div>
   )
 }

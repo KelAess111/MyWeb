@@ -59,8 +59,16 @@ export const musicTracks = [
     id: 'Mr.\'Broken Heart\'',
     title: 'Mr.\'Broken Heart\'',
     artist: '松下優也',
-    src: 'public/audio/Mr.\'Broken Heart\'- 松下優也.mp3',
+    src: 'public/audio/Mr.\'Broken Heart\' - 松下優也.mp3',
     accent: 'rose',
     //note: '请将音频文件放到 public/audio/Mr.\'Broken Heart\'- 松下優也.mp3',
+  },
+  {
+    id: 'It’s Going Down Now',
+    title: 'It’s Going Down Now',
+    artist: '高橋あず美',
+    src: 'public/audio/It’s Going Down Now-高橋あず美.mp3',
+    accent: 'rose',
+    //note: '请将音频文件放到 public/audio/It’s Going Down Now-高橋あず美.mp3',
   },
 ]
