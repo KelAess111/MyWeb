@@ -1,5 +1,6 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+﻿import { useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import Annotate from './Annotate'
 
 const AUTOPLAY_INTERVAL = 10400
 const INTERACTION_PAUSE = 2400

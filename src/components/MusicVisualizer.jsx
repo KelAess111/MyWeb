@@ -1,6 +1,7 @@
-import { useEffect, useRef, useState } from 'react'
+﻿import { useEffect, useRef, useState } from 'react'
 import { useMusicPlayer } from '../contexts/MusicPlayerContext'
 import '../styles/music-visualizer.css'
+import Annotate from './Annotate'
 
 function MusicVisualizer() {
   const { isPlaying, audioElement } = useMusicPlayer()

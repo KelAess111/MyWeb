@@ -1,178 +1,110 @@
 .moon-phases {
   opacity: 0;
-  transform: translateX(8px);
+  transform: translateY(calc(-50% - 250px)) translateX(8px); /* 在 -50% 基础上向上调整 250px，上端向上抬 */
   transition: opacity 0.56s cubic-bezier(0.22, 1, 0.36, 1), transform 0.56s cubic-bezier(0.22, 1, 0.36, 1);
   position: absolute;
   right: -230px;
-  top: calc(50% - 200px);
-  transform: translateY(-50%);
-  z-index: 2;
+  top: 50%;
+  z-index: 100;
+  user-select: none;
+  overflow: visible; /* 确保内容不被裁剪 */
 }
 
 .moon-phases--visible {
   opacity: 1;
-  transform: translateY(-50%);
+  transform: translateY(calc(-50% - 250px)) translateX(0); /* 在 -50% 基础上向上调整 250px，上端向上抬 */
 }
 
-.moon-phases-track {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 16px;
-  padding: 16px 8px;
+.moon-phases-wave {
+  width: 200px;
+  height: 700px; /* 从 600px 改为 700px，下端扩大 100px */
+  filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.2));
+  overflow: visible; /* 确保 SVG 内容不被裁剪 */
 }
 
-.moon-phase-item {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
+/* SVG 月相元素 */
+.moon-phase-item-svg {
+  transition: opacity 0.3s ease;
+}
+
+.moon-phase-circle {
+  filter: drop-shadow(0 0 8px rgba(162, 210, 255, 0.3));
   transition: all 0.3s ease;
-  opacity: 0.4;
 }
 
-.moon-phase-item.is-current {
+/* 当前月相的外环 */
+.moon-phase-ring {
+  animation: moon-ring-pulse 2s ease-in-out infinite;
+}
+
+@keyframes moon-ring-pulse {
+  0%, 100% {
+    opacity: 0.4;
+    stroke-width: 2;
+  }
+  50% {
+    opacity: 0.8;
+    stroke-width: 2.5;
+  }
+}
+
+.moon-phase-item-svg.is-current .moon-phase-circle {
+  filter: drop-shadow(0 0 16px rgba(162, 210, 255, 0.8));
+}
+
+.moon-phase-mask {
+  transition: all 0.3s ease;
+}
+
+.moon-phase-label-svg {
+  font-family: inherit;
+  letter-spacing: 0.05em;
+  font-weight: 400;
+  transition: all 0.3s ease;
+}
+
+.moon-phase-item-svg.is-current .moon-phase-label-svg {
+  font-weight: 600;
+}
+
+/* 交互提示 */
+.moon-phases:hover {
   opacity: 1;
 }
 
-.moon-phase-icon {
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  background: #a2d2ff;
-  position: relative;
-  overflow: hidden;
-  transition: all 0.3s ease;
-  box-shadow: 0 0 8px rgba(162, 210, 255, 0.3);
-}
-
-.moon-phase-item.is-current .moon-phase-icon {
-  width: 32px;
-  height: 32px;
-  box-shadow: 0 0 16px rgba(162, 210, 255, 0.7);
-  animation: moon-pulse 2s ease-in-out infinite;
-}
-
-/* 不同月相的形状 */
-.moon-phase-item:nth-child(1) .moon-phase-icon::after { /* 新月 - 全黑 */
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: #2a3550;
-  border-radius: 50%;
-}
-
-.moon-phase-item:nth-child(2) .moon-phase-icon::after { /* 峨眉月 - 右侧小亮 */
-  content: '';
-  position: absolute;
-  right: 0;
-  top: 0;
-  bottom: 0;
-  width: 70%;
-  background: #2a3550;
-  border-radius: 0 50% 50% 0;
-}
-
-.moon-phase-item:nth-child(3) .moon-phase-icon::after { /* 上弦月 - 右半亮 */
-  content: '';
-  position: absolute;
-  right: 0;
-  top: 0;
-  bottom: 0;
-  width: 50%;
-  background: #2a3550;
-}
-
-.moon-phase-item:nth-child(4) .moon-phase-icon::after { /* 盈凸月 - 右侧小暗 */
-  content: '';
-  position: absolute;
-  right: 0;
-  top: 0;
-  bottom: 0;
-  width: 30%;
-  background: #2a3550;
-}
-
-/* 第5个满月不需要遮罩 */
-
-.moon-phase-item:nth-child(6) .moon-phase-icon::after { /* 亏凸月 - 左侧小暗 */
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 0;
-  bottom: 0;
-  width: 30%;
-  background: #2a3550;
-}
-
-.moon-phase-item:nth-child(7) .moon-phase-icon::after { /* 下弦月 - 左半暗 */
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 0;
-  bottom: 0;
-  width: 50%;
-  background: #2a3550;
-}
-
-.moon-phase-item:nth-child(8) .moon-phase-icon::after { /* 残月 - 左侧大暗 */
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 0;
-  bottom: 0;
-  width: 70%;
-  background: #2a3550;
-  border-radius: 50% 0 0 50%;
-}
-
-@keyframes moon-pulse {
-  0%, 100% {
-    box-shadow: 0 0 16px rgba(162, 210, 255, 0.7);
-  }
-  50% {
-    box-shadow: 0 0 20px rgba(162, 210, 255, 0.9);
-  }
-}
-
-.moon-phase-label {
-  font-size: 9px;
-  color: #8a9ab8;
-  letter-spacing: 0.05em;
-  transition: all 0.3s ease;
-  writing-mode: vertical-rl;
-  text-orientation: upright;
-}
-
-.moon-phase-item.is-current .moon-phase-label {
-  color: #a2d2ff;
-  font-weight: 500;
+.moon-phases:active {
+  cursor: grabbing;
 }
 
 @media (max-width: 1024px) {
   .moon-phases {
-    right: -70px;
+    right: -100px;
   }
 
-  .moon-phases-track {
-    gap: 12px;
-    padding: 12px 6px;
-  }
-
-  .moon-phase-icon {
-    width: 24px;
-    height: 24px;
-  }
-
-  .moon-phase-item.is-current .moon-phase-icon {
-    width: 28px;
-    height: 28px;
+  .moon-phases-wave {
+    width: 150px;
+    height: 350px;
   }
 }
 
 @media (max-width: 768px) {
   .moon-phases {
     display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .moon-phase-item-svg {
+    transition: none;
+  }
+
+  .moon-phase-circle,
+  .moon-phase-mask,
+  .moon-phase-label-svg {
+    transition: none;
+  }
+
+  .moon-phase-item-svg.is-current .moon-phase-circle {
+    animation: none;
   }
 }

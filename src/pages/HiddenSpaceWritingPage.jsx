@@ -1,8 +1,9 @@
-import { useOutletContext } from 'react-router-dom'
+﻿import { useOutletContext } from 'react-router-dom'
 import WritingContainer from '../components/WritingContainer'
 import { hiddenSpaceWriting } from '../data/hiddenSpaceWriting.generated'
 import { HIDDEN_WRITING_WORKSPACE } from '../services/writingService'
 import { useWritingWorkspace } from '../hooks/useWritingWorkspace'
+import Annotate from '../components/Annotate'
 
 function HiddenSpaceWritingPage() {
   const { setActiveScene } = useOutletContext()

@@ -1,6 +1,7 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+﻿import { useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { secretRoom } from '../data/secretRoom'
+import Annotate from './Annotate'
 
 const SECRET_REVEAL_MAX = 108
 const SECRET_REVEAL_THRESHOLD = 72

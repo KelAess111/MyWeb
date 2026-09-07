@@ -1,7 +1,8 @@
-import { useEffect, useMemo, useState } from 'react'
+﻿import { useEffect, useMemo, useState } from 'react'
 import { Link, Navigate, useParams } from 'react-router-dom'
 import AnnotationTerm from '../components/AnnotationTerm'
 import { findWorkCategory, workCategories } from '../data/workCategories'
+import Annotate from '../components/Annotate'
 
 const annotationContent = {
   fragment: {

@@ -1,6 +1,7 @@
-import { useEffect, useState } from 'react'
+﻿import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { getAnsweredQuestions, submitQuestion } from '../services/qaService'
+import Annotate from './Annotate'
 
 const isEditMode = import.meta.env.VITE_EDIT_MODE === 'true'
 

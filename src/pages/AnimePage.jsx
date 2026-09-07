@@ -1,10 +1,11 @@
-import { useEffect, useMemo, useState } from 'react'
+﻿import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import BookReviewEditor from '../components/BookReviewEditor'
 import { animeRecommendations, animeRecommendationsTree } from '../data/animeRecommendations'
 import { useImageLoadState } from '../hooks/useImageLoadState'
 import { useWritingWorkspace } from '../hooks/useWritingWorkspace'
 import { ANIME_WRITING_WORKSPACE } from '../services/writingService'
+import Annotate from '../components/Annotate'
 
 function getReview(entry) {
   return [entry?.intro, entry?.detail]

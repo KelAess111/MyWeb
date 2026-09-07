@@ -1,9 +1,10 @@
-import { useMemo, useRef, useState } from 'react'
+﻿import { useMemo, useRef, useState } from 'react'
 import {
   deleteJournalAttachment,
   uploadJournalAttachment,
 } from '../services/afterlightEntries'
 import { emptyAnnotation, emptyEntry } from '../utils/journalDrafts'
+import Annotate from './Annotate'
 
 
 function normalizeAttachment(attachment, index = 0) {

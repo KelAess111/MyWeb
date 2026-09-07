@@ -1,9 +1,10 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+﻿import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { musicAlbums, musicMakers, musicRecommendationsTree } from '../data/musicRecommendations'
 import { useImageLoadState } from '../hooks/useImageLoadState'
 import { useWritingWorkspace } from '../hooks/useWritingWorkspace'
 import { MUSIC_WRITING_WORKSPACE } from '../services/writingService'
+import Annotate from '../components/Annotate'
 
 const EMPTY_COPY = '作者待补充'
 const MAKER_ROTATION_INTERVAL = 5200

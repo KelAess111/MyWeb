@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+﻿import { useEffect, useMemo, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import ReadingPane from './ReadingPane'
 import WritingEditorModal from './WritingEditorModal'
@@ -10,6 +10,7 @@ import {
   resolveSelectedNode,
 } from '../utils/writingNavigation'
 import { createOCSceneFromNode } from '../utils/writingOCScenes'
+import Annotate from './Annotate'
 
 function getTreeRoot(data) {
   if (!data) {

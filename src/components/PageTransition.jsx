@@ -1,4 +1,5 @@
-import { useEffect, useState } from 'react'
+﻿import { useEffect, useState } from 'react'
+import Annotate from './Annotate'
 
 function PageTransition({ children, transitionKey, className = '' }) {
   const [isVisible, setIsVisible] = useState(true)

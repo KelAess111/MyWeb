@@ -1,6 +1,7 @@
-import { useEffect, useState } from 'react'
+﻿import { useEffect, useState } from 'react'
 import { announcements } from '../data/announcements'
 import '../styles/announcement-rotator.css'
+import Annotate from './Annotate'
 
 const ROTATION_INTERVAL = 4800
 

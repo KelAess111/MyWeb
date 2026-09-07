@@ -1,5 +1,6 @@
-import { Gallery, Item } from 'react-photoswipe-gallery'
+﻿import { Gallery, Item } from 'react-photoswipe-gallery'
 import 'photoswipe/dist/photoswipe.css'
+import Annotate from './Annotate'
 
 function formatDuration(durationSeconds) {
   if (!Number.isFinite(durationSeconds) || durationSeconds <= 0) {

@@ -1,6 +1,7 @@
-import { useEffect, useState } from 'react'
+﻿import { useEffect, useState } from 'react'
 import { getAllQuestions, updateQuestion, deleteQuestion } from '../services/qaService'
 import { supabase } from '../lib/supabase'
+import Annotate from '../components/Annotate'
 
 function QAAdminPage() {
   const [questions, setQuestions] = useState([])

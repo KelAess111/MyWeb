@@ -85,7 +85,7 @@ function HiddenSpaceLayout() {
   }
 
   return (
-    <main className="hidden-space-layout">
+    <main className="hidden-space-layout hidden-space">
       <div className="hidden-space-background" style={{ backgroundImage: `url(${rainyBg})` }} aria-hidden="true">
         <div className="hidden-space-background-overlay" />
       </div>

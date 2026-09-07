@@ -1,9 +1,10 @@
-import { useEffect, useRef, useState } from 'react'
+﻿import { useEffect, useRef, useState } from 'react'
 import { Gallery, Item } from 'react-photoswipe-gallery'
 import 'photoswipe/dist/photoswipe.css'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { publicGalleryData } from '../data/publicGalleryData'
 import { useImageLoadState } from '../hooks/useImageLoadState'
+import Annotate from '../components/Annotate'
 
 function readImageSize(src) {
   return new Promise((resolve, reject) => {

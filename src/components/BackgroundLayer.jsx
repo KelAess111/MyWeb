@@ -1,5 +1,6 @@
-import backgroundImage from '../assets/background/Reset_graden.png'
+﻿import backgroundImage from '../assets/background/Reset_graden.png'
 import '../styles/background-layer.css'
+import Annotate from './Annotate'
 
 function BackgroundLayer({ mode = 'base' }) {
   return (

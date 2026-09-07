@@ -1,7 +1,8 @@
-import WritingContainer from '../components/WritingContainer'
+﻿import WritingContainer from '../components/WritingContainer'
 import { publicWritingData } from '../data/publicWritingData'
 import { PUBLIC_WRITING_WORKSPACE } from '../services/writingService'
 import { useWritingWorkspace } from '../hooks/useWritingWorkspace'
+import Annotate from '../components/Annotate'
 
 function PublicWritingPage() {
   const {

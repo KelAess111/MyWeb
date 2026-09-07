@@ -1,5 +1,6 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+﻿import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useImageLoadState } from '../hooks/useImageLoadState'
+import Annotate from './Annotate'
 
 const HOTSPOT_ROTATION_INTERVAL = 10000
 const HOTSPOT_MANUAL_RESUME_DELAY = 6500

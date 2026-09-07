@@ -1,7 +1,8 @@
-import { useEffect, useRef, useState } from 'react'
+﻿import { useEffect, useRef, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { workCategories } from '../data/workCategories'
 import { useImageLoadState } from '../hooks/useImageLoadState'
+import Annotate from '../components/Annotate'
 
 const CLICK_DELAY = 250
 

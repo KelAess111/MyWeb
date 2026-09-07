@@ -1,5 +1,6 @@
-import { useEffect, useState } from 'react'
+﻿import { useEffect, useState } from 'react'
 import './MobileNotice.css'
+import Annotate from './Annotate'
 
 function MobileNotice() {
   const [isVisible, setIsVisible] = useState(false)

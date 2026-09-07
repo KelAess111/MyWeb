@@ -1,10 +1,11 @@
-import { Link, useParams } from 'react-router-dom'
+﻿import { Link, useParams } from 'react-router-dom'
 import ReactMarkdown from 'react-markdown'
 import remarkMath from 'remark-math'
 import remarkGfm from 'remark-gfm'
 import rehypeKatex from 'rehype-katex'
 import 'katex/dist/katex.min.css'
 import { findArticleBySlug } from '../data/articleData'
+import Annotate from '../components/Annotate'
 
 function ArticleDetailPage() {
   const { slug } = useParams()

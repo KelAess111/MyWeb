@@ -1,12 +1,14 @@
-import { useEffect, useState } from 'react'
+﻿import { useEffect, useState } from 'react'
 import chibiPlaceholder from '../assets/oc/chibi-placeholder.png'
 import '../styles/oc-showcase.css'
+import Annotate from './Annotate'
 
 const CROSSFADE_DURATION = 420
 
-function OCShowcase({ scene, onClick, className = '' }) {
+function OCShowcase({ scene, onClick, onPauseRotation, className = '' }) {
   const [currentScene, setCurrentScene] = useState(scene)
   const [incomingScene, setIncomingScene] = useState(null)
+  const [isBounceing, setIsBounceing] = useState(false)
 
   useEffect(() => {
     if (!scene || scene.id === currentScene?.id) return undefined
@@ -23,13 +25,38 @@ function OCShowcase({ scene, onClick, className = '' }) {
     }
   }, [scene, currentScene?.id])
 
+  const handleClick = () => {
+    // 触发抖动动画
+    setIsBounceing(true)
+    const animationTimer = window.setTimeout(() => {
+      setIsBounceing(false)
+    }, 500) // 匹配 CSS 动画时长
+
+    // 暂停轮播
+    if (onPauseRotation) {
+      onPauseRotation()
+    }
+
+    // 调用原有的 onClick
+    if (onClick) {
+      onClick()
+    }
+
+    return () => window.clearTimeout(animationTimer)
+  }
+
   const renderScene = incomingScene ?? currentScene ?? scene
   const expressionName = renderScene?.expression ?? 'default'
   const caption = renderScene?.caption ?? '这里之后会放上你的原创角色形象与不同版本立绘。'
 
   return (
     <div className={`oc-showcase ${className}`.trim()}>
-      <button type="button" className={`oc-frame oc-frame--${expressionName}`} onClick={onClick} aria-label="点击 OC 与她对话">
+      <button
+        type="button"
+        className={`oc-frame oc-frame--${expressionName} ${isBounceing ? 'is-bouncing' : ''}`}
+        onClick={handleClick}
+        aria-label="点击 OC 与她对话"
+      >
         <div className="oc-glow" aria-hidden="true" />
         <div className="oc-image-stack">
           {[currentScene, incomingScene].filter(Boolean).map((item, index) => (

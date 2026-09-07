@@ -1,5 +1,6 @@
-import { useEffect, useState } from 'react'
+﻿import { useEffect, useState } from 'react'
 import '../styles/speech-bubble.css'
+import Annotate from './Annotate'
 
 const TYPE_INTERVAL = 38
 

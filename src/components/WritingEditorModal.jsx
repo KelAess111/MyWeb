@@ -1,6 +1,7 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+﻿import { useEffect, useMemo, useRef, useState } from 'react'
 import { normalizeWritingEntry } from '../services/writingService'
 import WritingBlockEditor from './WritingBlockEditor'
+import Annotate from './Annotate'
 
 const MODE_OPTIONS = [
   { value: 'node', label: '编辑当前栏位' },

@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import ContactPanel from '../components/ContactPanel'
 import QASection from '../components/QASection'
+import Annotate from '../components/Annotate'
 import avatarImage from '../assets/about/头像.jpg'
 
 function ProfilePage() {
@@ -87,18 +88,19 @@ function ProfilePage() {
               </div>
 
               <p className="profile-card-bio">
-                18 岁的多媒介创作者，正在把游戏设计、美术绘画、音乐制作、3D 建模与写作慢慢整理进同一个空间。
+                19 岁，是一位普通创作者，目前以做独立游戏为爱好，并为此掌握 Godot、Unity这些引擎以及相应编程语言，同时感兴趣于了解一些美术绘画、音乐制作、3D 建模与写作创作，还有一些相关的拙作，渴望寻找同好队友或是结识一些其他领域能够合作的大佬们。
               </p>
 
               {/* 标签云 */}
               <div className="profile-tags-section">
                 <div className="profile-tags">
                   <span className="profile-tag accent-violet">#游戏设计</span>
-                  <span className="profile-tag accent-rose">#美术绘画</span>
-                  <span className="profile-tag accent-cyan">#音乐制作</span>
-                  <span className="profile-tag accent-amber">#3D建模</span>
+                  <span className="profile-tag accent-rose">#美术绘画(爱好水平)</span>
+                  <span className="profile-tag accent-cyan">#音乐(只会听)</span>
+                  <span className="profile-tag accent-amber">#3D建模(组装mmd)</span>
                   <span className="profile-tag accent-emerald">#写作</span>
                   <span className="profile-tag accent-sky">#世界观构建</span>
+                  <span className="profile-tag accent-cyan">#galgame爱好者</span>
                 </div>
               </div>
 
@@ -106,7 +108,11 @@ function ProfilePage() {
               <div className="profile-card-meta">
                 <div className="profile-meta-item">
                   <span className="profile-meta-label">创作理念</span>
-                  <span className="profile-meta-value">用不同媒介讲述同一个世界</span>
+                  <span className="profile-meta-value">
+                    <Annotate content="听起来很可笑，像什么会倒闭但不会变质。然我不否认自己会背离初心什么的，但初心即使变化不会影响我想表达的美好愿望。" type="highlight">
+                      传达美好的愿望
+                    </Annotate>
+                  </span>
                 </div>
                 <div className="profile-meta-item">
                   <span className="profile-meta-label">当前状态</span>

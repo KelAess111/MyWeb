@@ -1,8 +1,9 @@
-import { useEffect, useState } from 'react'
+﻿import { useEffect, useState } from 'react'
 import HeroSection from '../components/HeroSection'
 import HomeLauncher from '../components/HomeLauncher'
 import HomeClock from '../components/HomeClock'
 import useHomeEnvironment from '../hooks/useHomeEnvironment'
+import Annotate from '../components/Annotate'
 
 function HomePage({ initialReplayIntroEnabled, musicUiState, onOcAreaChange }) {
   const environment = useHomeEnvironment()

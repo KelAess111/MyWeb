@@ -1,5 +1,6 @@
-import { Link, useOutletContext } from 'react-router-dom'
+﻿import { Link, useOutletContext } from 'react-router-dom'
 import { hiddenSpaceGames } from '../data/hiddenSpaceGames'
+import Annotate from '../components/Annotate'
 
 function HiddenSpaceGamesPage() {
   const { setActiveScene, defaultScene } = useOutletContext()

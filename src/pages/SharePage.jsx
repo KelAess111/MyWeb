@@ -1,6 +1,7 @@
-import { useEffect, useRef, useState } from 'react'
+﻿import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { articles } from '../data/articleData'
+import Annotate from '../components/Annotate'
 
 function SharePage() {
   const navigate = useNavigate()

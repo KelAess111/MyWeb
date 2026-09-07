@@ -13,7 +13,7 @@ const HERO_STAGGER_STEP = 140
 
 function HeroSection({ isVisible = true, dayPeriod = 'day', musicUiState, onOcAreaChange }) {
   const scenePool = musicUiState?.isMusicSceneActive ? homepageMusicScenes : homepageDefaultScenes
-  const activeSceneIndex = useRotator(scenePool, OC_ROTATION_INTERVAL)
+  const { activeIndex: activeSceneIndex, pause: pauseRotation } = useRotator(scenePool, OC_ROTATION_INTERVAL)
   const activeScene = scenePool[activeSceneIndex] ?? scenePool[0]
   const timersRef = useRef([])
   const visualColumnRef = useRef(null)
@@ -63,6 +63,10 @@ function HeroSection({ isVisible = true, dayPeriod = 'day', musicUiState, onOcAr
     window.setTimeout(() => setClickResponse(''), 3600)
   }
 
+  const handleOcPauseRotation = () => {
+    pauseRotation(5000) // 暂停 5 秒
+  }
+
   return (
     <section className={`hero ${isVisible ? 'hero--visible' : 'hero--hidden'}`} id="home">
       <div className="hero-layout">
@@ -73,7 +77,7 @@ function HeroSection({ isVisible = true, dayPeriod = 'day', musicUiState, onOcAr
             </div>
             <div className="hero-visual-stack">
               <SpeechBubbleRotator scene={activeScene} overrideText={clickResponse} isActive={isSpeechActive} />
-              <OCShowcase scene={activeScene} onClick={handleOcClick} />
+              <OCShowcase scene={activeScene} onClick={handleOcClick} onPauseRotation={handleOcPauseRotation} />
               <MoonPhases isVisible={isMoonVisible} />
             </div>
             <div className="hero-hotspot-grid">

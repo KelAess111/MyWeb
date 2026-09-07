@@ -1,4 +1,5 @@
-import { useEffect, useState } from 'react'
+﻿import { useEffect, useState } from 'react'
+import Annotate from './Annotate'
 
 const clickShapes = ['star', 'triangle', 'square', 'circle']
 const clickColors = ['#ffe6f7', '#a2d2ff', '#f8d7ff', '#c8ffe8']

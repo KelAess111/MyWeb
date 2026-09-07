@@ -1,5 +1,6 @@
-import { Link } from 'react-router-dom'
+﻿import { Link } from 'react-router-dom'
 import { hiddenSpaceModules } from '../data/hiddenSpaceModules'
+import Annotate from '../components/Annotate'
 
 function HiddenArchivePage() {
   return (

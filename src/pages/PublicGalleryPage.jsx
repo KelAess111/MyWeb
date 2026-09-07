@@ -1,6 +1,7 @@
-import { useEffect, useRef, useState } from 'react'
+﻿import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { publicGalleryData } from '../data/publicGalleryData'
+import Annotate from '../components/Annotate'
 
 const OBSERVER_OPTIONS = {
   rootMargin: '-22% 0px -28% 0px',

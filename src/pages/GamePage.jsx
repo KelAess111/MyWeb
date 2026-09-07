@@ -1,10 +1,11 @@
-import { useEffect, useMemo, useState } from 'react'
+﻿import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import BookReviewEditor from '../components/BookReviewEditor'
 import { gameRecommendations, gameRecommendationsTree } from '../data/gameRecommendations'
 import { useImageLoadState } from '../hooks/useImageLoadState'
 import { useWritingWorkspace } from '../hooks/useWritingWorkspace'
 import { GAME_WRITING_WORKSPACE } from '../services/writingService'
+import Annotate from '../components/Annotate'
 
 const PREVIEW_LENGTH = 200 // 预览字符数
 

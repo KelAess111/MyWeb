@@ -1,4 +1,5 @@
-import { useEffect, useRef, useState } from 'react'
+﻿import { useEffect, useRef, useState } from 'react'
+import Annotate from './Annotate'
 
 function BookReviewEditor({ entry, isOpen, onSave, onClose, isSaving = false, error = '', subject = '这本书', kicker = 'Book note / 书评', title = '编辑书评' }) {
   const [draft, setDraft] = useState('')

@@ -1,5 +1,6 @@
-import { Link, useOutletContext } from 'react-router-dom'
+﻿import { Link, useOutletContext } from 'react-router-dom'
 import { hiddenSpacePersonal } from '../data/hiddenSpacePersonal'
+import Annotate from '../components/Annotate'
 
 function HiddenSpacePersonalPage() {
   const { setActiveScene, defaultScene } = useOutletContext()

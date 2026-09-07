@@ -1,5 +1,6 @@
-import { useEffect, useState } from 'react'
+﻿import { useEffect, useState } from 'react'
 import '../styles/home-environment.css'
+import Annotate from './Annotate'
 
 function formatClockParts(date) {
   return {

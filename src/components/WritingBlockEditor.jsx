@@ -1,4 +1,5 @@
-import { useMemo, useState } from 'react'
+﻿import { useMemo, useState } from 'react'
+import Annotate from './Annotate'
 
 function createLineId(prefix, index) {
   if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
