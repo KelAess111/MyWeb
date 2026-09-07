@@ -45,7 +45,7 @@ function useHomeEnvironment() {
 
     async function loadWeather() {
       try {
-        const location = await fetchJson('https://ipapi.co/json/', controller.signal)
+        const location = await fetchJson('/api/ipapi/json/', controller.signal)
         if (!Number.isFinite(Number(location.latitude)) || !Number.isFinite(Number(location.longitude))) {
           throw new Error('Location unavailable')
         }
