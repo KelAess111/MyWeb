@@ -76,24 +76,17 @@
 }
 
 .game-item:hover,
-.game-item:focus-within,
-.game-item.is-open {
+.game-item:focus-within {
   border-color: rgba(247, 243, 238, 0.42);
   transform: translateY(-2px);
   box-shadow: 0 22px 48px rgba(0, 0, 0, 0.24);
 }
 
-.game-item-toggle {
+.game-item-header {
   display: grid;
   gap: 12px;
   width: 100%;
   min-width: 0;
-  padding: 0;
-  border: 0;
-  background: transparent;
-  color: inherit;
-  text-align: left;
-  cursor: pointer;
 }
 
 .game-cover {
@@ -107,6 +100,7 @@
   color: rgba(247, 243, 238, 0.62);
   font-size: 0.82rem;
   text-align: center;
+  border-radius: 6px;
 }
 
 .game-cover img {
@@ -123,8 +117,7 @@
 }
 
 .game-item:hover .game-cover img,
-.game-item:focus-within .game-cover img,
-.game-item.is-open .game-cover img {
+.game-item:focus-within .game-cover img {
   transform: scale(1.025);
 }
 
@@ -173,6 +166,27 @@
   background: rgba(255, 255, 255, 0.14);
 }
 
+.game-expand-button {
+  display: inline-block;
+  margin-top: 12px;
+  padding: 6px 14px;
+  border: 1px solid rgba(247, 243, 238, 0.3);
+  border-radius: 4px;
+  background: transparent;
+  color: rgba(247, 243, 238, 0.8);
+  font: inherit;
+  font-size: 0.88rem;
+  cursor: pointer;
+  transition: all 180ms ease;
+}
+
+.game-expand-button:hover,
+.game-expand-button:focus-visible {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(247, 243, 238, 0.5);
+  color: #f7f3ee;
+}
+
 .game-empty-state {
   padding: 22px;
   border: 1px dashed rgba(247, 243, 238, 0.22);
@@ -193,8 +207,8 @@
 
 .game-back-link:focus-visible,
 .game-edit-exit:focus-visible,
-.game-item-toggle:focus-visible,
-.game-edit-button:focus-visible {
+.game-edit-button:focus-visible,
+.game-expand-button:focus-visible {
   outline: 2px solid #fff;
   outline-offset: 4px;
 }
@@ -221,7 +235,7 @@
     padding: 16px;
   }
 
-  .game-item-toggle {
+  .game-item-header {
     grid-template-columns: minmax(100px, 34%) minmax(0, 1fr);
     align-items: end;
     gap: 16px;

@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>游戏评价存储调试工具</title>
+  <style>
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      max-width: 1200px;
+      margin: 40px auto;
+      padding: 20px;
+      background: #f5f5f5;
+    }
+    .container {
+      background: white;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    h1 {
+      margin-top: 0;
+      color: #333;
+    }
+    .section {
+      margin: 20px 0;
+      padding: 15px;
+      background: #fafafa;
+      border-radius: 4px;
+    }
+    pre {
+      background: #2d2d2d;
+      color: #f8f8f2;
+      padding: 15px;
+      border-radius: 4px;
+      overflow-x: auto;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+    }
+    .status {
+      padding: 10px;
+      margin: 10px 0;
+      border-radius: 4px;
+    }
+    .status.success {
+      background: #d4edda;
+      color: #155724;
+    }
+    .status.error {
+      background: #f8d7da;
+      color: #721c24;
+    }
+    .status.warning {
+      background: #fff3cd;
+      color: #856404;
+    }
+    button {
+      background: #007bff;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 4px;
+      cursor: pointer;
+      margin-right: 10px;
+    }
+    button:hover {
+      background: #0056b3;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🎮 游戏评价存储调试工具</h1>
+
+    <div class="section">
+      <h2>存储键检查</h2>
+      <div id="storage-keys"></div>
+    </div>
+
+    <div class="section">
+      <h2>游戏写作树数据</h2>
+      <button onclick="loadGameTree()">刷新数据</button>
+      <button onclick="clearGameTree()">清除存储</button>
+      <div id="tree-status"></div>
+      <pre id="tree-data"></pre>
+    </div>
+
+    <div class="section">
+      <h2>编辑模式状态</h2>
+      <div id="edit-mode"></div>
+    </div>
+  </div>
+
+  <script>
+    const GAME_STORAGE_KEY = 'game-writing-service:tree';
+    const GAME_EDITOR_KEY = 'game_writing_admin_auth';
+    const GAME_ACCESS_KEY = 'game_writing_author_access';
+
+    function displayStorageKeys() {
+      const container = document.getElementById('storage-keys');
+      const keys = [];
+
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key.includes('game') || key.includes('writing')) {
+          keys.push(key);
+        }
+      }
+
+      if (keys.length === 0) {
+        container.innerHTML = '<div class="status warning">未找到相关存储键</div>';
+      } else {
+        container.innerHTML = '<div class="status success">找到 ' + keys.length + ' 个相关存储键：</div><ul>' +
+          keys.map(k => '<li><code>' + k + '</code></li>').join('') + '</ul>';
+      }
+    }
+
+    function loadGameTree() {
+      const statusDiv = document.getElementById('tree-status');
+      const dataDiv = document.getElementById('tree-data');
+
+      try {
+        const rawData = localStorage.getItem(GAME_STORAGE_KEY);
+
+        if (!rawData) {
+          statusDiv.innerHTML = '<div class="status warning">⚠️ 未找到游戏评价数据（可能还没有保存过任何评价）</div>';
+          dataDiv.textContent = '无数据';
+          return;
+        }
+
+        const parsedData = JSON.parse(rawData);
+        statusDiv.innerHTML = '<div class="status success">✅ 成功加载游戏评价数据</div>';
+
+        // 格式化显示
+        const formatted = JSON.stringify(parsedData, null, 2);
+        dataDiv.textContent = formatted;
+
+        // 检查是否有评价内容
+        const children = parsedData.children || [];
+        const withReviews = children.filter(c => c.detail && c.detail.trim());
+
+        if (withReviews.length > 0) {
+          statusDiv.innerHTML += '<div class="status success">📝 找到 ' + withReviews.length + ' 个已填写评价的游戏</div>';
+        } else {
+          statusDiv.innerHTML += '<div class="status warning">📝 所有游戏的评价都是空的</div>';
+        }
+
+      } catch (error) {
+        statusDiv.innerHTML = '<div class="status error">❌ 解析数据失败: ' + error.message + '</div>';
+        dataDiv.textContent = localStorage.getItem(GAME_STORAGE_KEY) || '无数据';
+      }
+    }
+
+    function clearGameTree() {
+      if (confirm('确定要清除游戏评价存储吗？此操作不可逆！')) {
+        localStorage.removeItem(GAME_STORAGE_KEY);
+        localStorage.removeItem(GAME_EDITOR_KEY);
+        localStorage.removeItem(GAME_ACCESS_KEY);
+        alert('已清除存储');
+        loadGameTree();
+        displayStorageKeys();
+        displayEditMode();
+      }
+    }
+
+    function displayEditMode() {
+      const container = document.getElementById('edit-mode');
+      const editorEnabled = localStorage.getItem(GAME_EDITOR_KEY) === 'true';
+      const hasAccess = localStorage.getItem(GAME_ACCESS_KEY) === 'true';
+      const isLocalhost = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
+
+      let html = '';
+      html += '<div class="status ' + (editorEnabled ? 'success' : 'warning') + '">编辑器: ' + (editorEnabled ? '✅ 已启用' : '❌ 未启用') + '</div>';
+      html += '<div class="status ' + (hasAccess ? 'success' : 'warning') + '">作者权限: ' + (hasAccess ? '✅ 已授权' : '❌ 未授权') + '</div>';
+      html += '<div class="status ' + (isLocalhost ? 'success' : 'warning') + '">环境: ' + (isLocalhost ? '✅ 本地开发' : '⚠️ 非本地环境') + '</div>';
+
+      container.innerHTML = html;
+    }
+
+    // 页面加载时执行
+    displayStorageKeys();
+    loadGameTree();
+    displayEditMode();
+  </script>
+</body>
+</html>

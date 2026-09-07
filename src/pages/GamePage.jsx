@@ -6,6 +6,8 @@ import { useImageLoadState } from '../hooks/useImageLoadState'
 import { useWritingWorkspace } from '../hooks/useWritingWorkspace'
 import { GAME_WRITING_WORKSPACE } from '../services/writingService'
 
+const PREVIEW_LENGTH = 200 // 预览字符数
+
 function getReview(entry) {
   return String(entry?.detail ?? entry?.intro ?? '').trim()
 }
@@ -19,22 +21,64 @@ function GameCover({ item }) {
   </div>
 }
 
+function GameReviewDisplay({ game, onEdit, canEdit }) {
+  const [isExpanded, setIsExpanded] = useState(false)
+  const review = game.review
+  const needsTruncation = review && review.length > PREVIEW_LENGTH
+  const displayText = needsTruncation && !isExpanded
+    ? review.substring(0, PREVIEW_LENGTH) + '...'
+    : review
+
+  return (
+    <div className="game-item-copy">
+      <div className={`game-review ${review ? '' : 'is-empty'}`}>
+        {displayText || '作者待补充'}
+      </div>
+      {needsTruncation && (
+        <button
+          type="button"
+          className="game-expand-button"
+          onClick={() => setIsExpanded(!isExpanded)}
+        >
+          {isExpanded ? '收起' : '展开更多'}
+        </button>
+      )}
+      {canEdit && (
+        <button type="button" className="game-edit-button" onClick={onEdit}>
+          编辑评价
+        </button>
+      )}
+    </div>
+  )
+}
+
 function GamePage() {
   const workspace = useWritingWorkspace({ workspace: GAME_WRITING_WORKSPACE, fallbackTree: gameRecommendationsTree })
-  const [openEntryId, setOpenEntryId] = useState(null)
   const [editingEntry, setEditingEntry] = useState(null)
   const entriesByAssetKey = useMemo(() => new Map((workspace.writingTree?.children ?? []).filter((entry) => entry?.meta?.assetKey).map((entry) => [entry.meta.assetKey, entry])), [workspace.writingTree])
-  const games = useMemo(() => gameRecommendations.map((item) => {
-    const entry = entriesByAssetKey.get(item.assetKey) ?? gameRecommendationsTree.children.find((candidate) => candidate.meta?.assetKey === item.assetKey)
-    return { ...item, entry, review: getReview(entry) }
-  }), [entriesByAssetKey])
+  const games = useMemo(() => {
+    const result = gameRecommendations.map((item) => {
+      const entry = entriesByAssetKey.get(item.assetKey)
+      const finalEntry = entry ?? {
+        id: item.entryId,
+        slug: item.assetKey,
+        type: 'entry',
+        title: item.title,
+        intro: '',
+        detail: '',
+        meta: { assetKey: item.assetKey }
+      }
+      const review = getReview(finalEntry)
+      return { ...item, entry: finalEntry, review }
+    })
+    return result
+  }, [entriesByAssetKey])
 
   useEffect(() => {
     const handleKeyDown = (event) => {
       const target = event.target
       if (target instanceof HTMLElement && (target.isContentEditable || ['INPUT', 'TEXTAREA', 'SELECT'].includes(target.tagName))) return
       if (event.key === 'Escape') {
-        setOpenEntryId(null)
         setEditingEntry(null)
       }
     }
@@ -45,7 +89,8 @@ function GamePage() {
   const handleSave = async (detail) => {
     const source = editingEntry
     if (!source) return
-    const didSave = await workspace.saveNode({
+
+    const nodeToSave = {
       id: source.id,
       slug: source.slug,
       type: 'entry',
@@ -60,7 +105,9 @@ function GamePage() {
       blocks: source.blocks ?? [],
       annotations: source.annotations ?? [],
       ocHoverLine: source.ocHoverLine,
-    }, { mode: 'node' })
+    }
+
+    const didSave = await workspace.saveNode(nodeToSave, { mode: 'node' })
     if (didSave) setEditingEntry(null)
   }
 
@@ -77,11 +124,16 @@ function GamePage() {
     </aside> : null}
     <section className="game-list" aria-label="游戏推荐列表">
       {games.length ? games.map((game) => {
-        const open = openEntryId === game.entry.id
-        const reviewId = `game-review-${game.assetKey}`
-        return <article className={`game-item ${open ? 'is-open' : ''}`} key={game.assetKey}>
-          <button type="button" className="game-item-toggle" onClick={() => setOpenEntryId((current) => current === game.entry.id ? null : game.entry.id)} aria-expanded={open} aria-controls={reviewId} aria-label={`${open ? '收起' : '展开'}《${game.title}》评价`}><GameCover item={game} /><span className="game-item-title">{game.title}</span></button>
-          <div className="game-item-copy"><div id={reviewId} className={`game-review ${game.review ? '' : 'is-empty'}`} hidden={!open}>{game.review || '作者待补充'}</div>{workspace.canEdit ? <button type="button" className="game-edit-button" onClick={() => setEditingEntry(game.entry)}>编辑评价</button> : null}</div>
+        return <article className="game-item" key={game.assetKey}>
+          <div className="game-item-header">
+            <GameCover item={game} />
+            <span className="game-item-title">{game.title}</span>
+          </div>
+          <GameReviewDisplay
+            game={game}
+            canEdit={workspace.canEdit}
+            onEdit={() => setEditingEntry(game.entry)}
+          />
         </article>
       }) : <div className="game-empty-state"><strong>还没有本地游戏图片</strong><p>将图片放入 src/assets/game 后，这里会自动生成游戏推荐。</p></div>}
     </section>
