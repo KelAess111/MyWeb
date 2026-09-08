@@ -59,6 +59,7 @@
 }
 
 .nav-primary a,
+.nav-auth-btn,
 .works-menu-toggle,
 .settings-menu-toggle,
 .submenu-link,
@@ -68,10 +69,31 @@
   font-size: 15px;
 }
 
-.nav-primary a {
+.nav-primary a,
+.nav-auth-btn {
   padding: 6px 0;
+  border: none;
+  background: none;
   border-bottom: 1px solid transparent;
-  transition: color 0.3s ease, background 0.3s ease, border-color 0.3s ease, transform 0.3s ease;
+  transition: color 0.3s ease, border-color 0.3s ease;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.nav-primary a:hover,
+.nav-primary a:focus-visible,
+.nav-auth-btn:hover,
+.nav-auth-btn:focus-visible {
+  color: #ffffff;
+}
+
+.nav-logout-btn {
+  color: #e8c5e5;
+}
+
+.nav-logout-btn:hover,
+.nav-logout-btn:focus-visible {
+  color: #ffffff;
 }
 
 .nav-primary a:hover,

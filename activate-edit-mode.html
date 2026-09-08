@@ -3,18 +3,42 @@
 <head>
     <meta charset="UTF-8">
     <title>Initializing Edit Mode...</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            background: #0f1117;
+            color: #f5f7fb;
+        }
+        .message {
+            text-align: center;
+            font-size: 1.2rem;
+        }
+    </style>
     <script>
         // Set edit mode and clear preview mode
-        localStorage.setItem('localEditMode', 'true');
-        sessionStorage.removeItem('previewMode');
-        console.log('Edit mode activated');
-        console.log('- localStorage.localEditMode =', localStorage.getItem('localEditMode'));
-        console.log('- sessionStorage.previewMode =', sessionStorage.getItem('previewMode'));
-        // Redirect to homepage with edit parameter
-        window.location.href = 'http://localhost:5173/?editMode=local';
+        try {
+            localStorage.setItem('localEditMode', 'true');
+            sessionStorage.removeItem('previewMode');
+            console.log('✅ Edit mode activated');
+            console.log('- localStorage.localEditMode =', localStorage.getItem('localEditMode'));
+            console.log('- sessionStorage.previewMode =', sessionStorage.getItem('previewMode'));
+
+            // Redirect to homepage with edit parameter after a short delay
+            setTimeout(() => {
+                window.location.href = 'http://localhost:5173/?editMode=local';
+            }, 500);
+        } catch (error) {
+            console.error('Failed to activate edit mode:', error);
+            document.body.innerHTML = '<div class="message">❌ Failed to activate edit mode. Check console for details.</div>';
+        }
     </script>
 </head>
 <body>
-    <p>Initializing edit mode...</p>
+    <div class="message">🔧 Initializing edit mode...</div>
 </body>
 </html>

@@ -1,4 +1,66 @@
-import { supabase } from '../lib/supabase'
+import { supabase } from '../lib/supabaseClient'
+
+// 检查是否为本地编辑模式
+function isLocalEditMode() {
+  if (typeof window === 'undefined') {
+    return false
+  }
+  try {
+    return window.localStorage.getItem('localEditMode') === 'true'
+  } catch {
+    return false
+  }
+}
+
+// 获取当前用户（编辑模式下使用环境变量账号自动登录）
+async function getCurrentUser() {
+  if (isLocalEditMode()) {
+    // 编辑模式下使用环境变量中的账号自动登录
+    const authorEmail = import.meta.env.VITE_AUTHOR_EMAIL
+    const authorPassword = import.meta.env.VITE_AUTHOR_PASSWORD
+
+    if (authorEmail && authorPassword) {
+      try {
+        // 先检查是否已经登录
+        const { data: { user } } = await supabase.auth.getUser()
+        if (user && user.email === authorEmail) {
+          return user
+        }
+
+        // 自动登录
+        const { data, error } = await supabase.auth.signInWithPassword({
+          email: authorEmail,
+          password: authorPassword,
+        })
+
+        if (error) {
+          console.error('Edit mode auto-login failed:', error)
+          throw new Error('编辑模式自动登录失败')
+        }
+
+        return data.user
+      } catch (error) {
+        console.error('Edit mode auth error:', error)
+        throw new Error('编辑模式认证失败')
+      }
+    }
+
+    // 没有配置环境变量，返回模拟用户
+    console.warn('Edit mode: VITE_AUTHOR_EMAIL/PASSWORD not configured')
+    return { id: 'local-edit-mode', email: 'local@edit.mode' }
+  }
+
+  if (!supabase) {
+    throw new Error('Supabase未配置')
+  }
+
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) {
+    throw new Error('用户未登录')
+  }
+
+  return user
+}
 
 // ==================== 卡片管理 ====================
 
@@ -8,14 +70,8 @@ import { supabase } from '../lib/supabase'
  * @returns {Promise<Array>}
  */
 export async function getUserCards(language) {
-  if (!supabase) {
-    throw new Error('Supabase未配置')
-  }
-
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) {
-    throw new Error('用户未登录')
-  }
+  // 编辑模式下也需要能读取数据，使用环境变量中配置的账号
+  const user = await getCurrentUser()
 
   const { data, error } = await supabase
     .from('anki_cards')
@@ -37,13 +93,11 @@ export async function getUserCards(language) {
  * @returns {Promise<Object>}
  */
 export async function createCard(cardData) {
-  if (!supabase) {
-    throw new Error('Supabase未配置')
-  }
+  const user = await getCurrentUser()
 
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) {
-    throw new Error('用户未登录')
+  if (isLocalEditMode()) {
+    console.log('Edit mode: card creation skipped')
+    return { id: 'local-' + Date.now(), ...cardData }
   }
 
   const { data, error } = await supabase
@@ -74,13 +128,11 @@ export async function createCard(cardData) {
  * @returns {Promise<Object>}
  */
 export async function updateCard(cardId, updates) {
-  if (!supabase) {
-    throw new Error('Supabase未配置')
-  }
+  const user = await getCurrentUser()
 
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) {
-    throw new Error('用户未登录')
+  if (isLocalEditMode()) {
+    console.log('Edit mode: card update skipped')
+    return { id: cardId, ...updates }
   }
 
   const { data, error } = await supabase
@@ -110,13 +162,11 @@ export async function updateCard(cardId, updates) {
  * @returns {Promise<void>}
  */
 export async function deleteCard(cardId) {
-  if (!supabase) {
-    throw new Error('Supabase未配置')
-  }
+  const user = await getCurrentUser()
 
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) {
-    throw new Error('用户未登录')
+  if (isLocalEditMode()) {
+    console.log('Edit mode: card deletion skipped')
+    return
   }
 
   const { error } = await supabase
@@ -137,13 +187,10 @@ export async function deleteCard(cardId) {
  * @returns {Promise<Array>}
  */
 export async function searchCards(language, searchTerm) {
-  if (!supabase) {
-    throw new Error('Supabase未配置')
-  }
+  const user = await getCurrentUser()
 
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) {
-    throw new Error('用户未登录')
+  if (isLocalEditMode()) {
+    return []
   }
 
   const { data, error } = await supabase
@@ -168,13 +215,11 @@ export async function searchCards(language, searchTerm) {
  * @returns {Promise<Object>}
  */
 export async function savePracticeSession(sessionData) {
-  if (!supabase) {
-    throw new Error('Supabase未配置')
-  }
+  const user = await getCurrentUser()
 
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) {
-    throw new Error('用户未登录')
+  if (isLocalEditMode()) {
+    console.log('Edit mode: practice session save skipped')
+    return { id: 'local-' + Date.now(), ...sessionData }
   }
 
   const { data, error } = await supabase
@@ -202,13 +247,10 @@ export async function savePracticeSession(sessionData) {
  * @returns {Promise<Array>}
  */
 export async function getPracticeHistory(language) {
-  if (!supabase) {
-    throw new Error('Supabase未配置')
-  }
+  const user = await getCurrentUser()
 
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) {
-    throw new Error('用户未登录')
+  if (isLocalEditMode()) {
+    return []
   }
 
   const { data, error } = await supabase
@@ -257,13 +299,11 @@ export async function getOverallStats(language) {
  * @returns {Promise<void>}
  */
 export async function addToWrongCards(cardId, language) {
-  if (!supabase) {
-    throw new Error('Supabase未配置')
-  }
+  const user = await getCurrentUser()
 
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) {
-    throw new Error('用户未登录')
+  if (isLocalEditMode()) {
+    console.log('Edit mode: add to wrong cards skipped')
+    return
   }
 
   // 检查是否已存在
@@ -326,13 +366,10 @@ export async function addToWrongCards(cardId, language) {
  * @returns {Promise<Array>}
  */
 export async function getWrongCards(language) {
-  if (!supabase) {
-    throw new Error('Supabase未配置')
-  }
+  const user = await getCurrentUser()
 
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) {
-    throw new Error('用户未登录')
+  if (isLocalEditMode()) {
+    return []
   }
 
   const { data, error } = await supabase
@@ -360,13 +397,11 @@ export async function getWrongCards(language) {
  * @returns {Promise<void>}
  */
 export async function removeFromWrongCards(wrongCardId) {
-  if (!supabase) {
-    throw new Error('Supabase未配置')
-  }
+  const user = await getCurrentUser()
 
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) {
-    throw new Error('用户未登录')
+  if (isLocalEditMode()) {
+    console.log('Edit mode: remove from wrong cards skipped')
+    return
   }
 
   const { error } = await supabase

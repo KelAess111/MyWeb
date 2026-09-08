@@ -1,11 +1,35 @@
 ﻿import { useEffect, useState } from 'react'
-import { NavLink, useLocation } from 'react-router-dom'
+import { NavLink, useLocation, useNavigate } from 'react-router-dom'
+import { supabase } from '../lib/supabaseClient'
 import Annotate from './Annotate'
 
 function SiteHeader({ replayIntroEnabled, setReplayIntroEnabled }) {
   const location = useLocation()
+  const navigate = useNavigate()
   const [isSettingsOpen, setIsSettingsOpen] = useState(false)
   const [isScrolled, setIsScrolled] = useState(false)
+  const [user, setUser] = useState(null)
+
+  useEffect(() => {
+    checkUser()
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null)
+    })
+
+    return () => subscription.unsubscribe()
+  }, [])
+
+  const checkUser = async () => {
+    const { data: { user } } = await supabase.auth.getUser()
+    setUser(user)
+  }
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut()
+    setUser(null)
+    navigate('/')
+  }
 
   useEffect(() => {
     const timer = window.setTimeout(() => setIsSettingsOpen(false), 0)
@@ -35,6 +59,20 @@ function SiteHeader({ replayIntroEnabled, setReplayIntroEnabled }) {
             <NavLink to="/" end>
               首页
             </NavLink>
+            {user ? (
+              <button
+                type="button"
+                className="nav-auth-btn nav-logout-btn"
+                onClick={handleLogout}
+                title="登出"
+              >
+                登出
+              </button>
+            ) : (
+              <NavLink to="/login" className="nav-auth-btn nav-login-btn">
+                登录
+              </NavLink>
+            )}
           </nav>
 
           <div className={`settings-menu ${isSettingsOpen ? 'is-open' : ''}`}>

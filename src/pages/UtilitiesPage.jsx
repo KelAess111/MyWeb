@@ -1,53 +1,53 @@
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { useEffect, useState } from 'react'
-import { supabase } from '../lib/supabase'
+import { supabase } from '../lib/supabaseClient'
+
+// 检查是否为本地编辑模式
+function isLocalEditMode() {
+  if (typeof window === 'undefined') {
+    return false
+  }
+  try {
+    return window.localStorage.getItem('localEditMode') === 'true'
+  } catch {
+    return false
+  }
+}
 
 function UtilitiesPage() {
+  const navigate = useNavigate()
   const [user, setUser] = useState(null)
-  const [showLoginPrompt, setShowLoginPrompt] = useState(false)
+  const isEditMode = isLocalEditMode()
 
   useEffect(() => {
-    checkUser()
-  }, [])
-
-  const checkUser = async () => {
-    if (!supabase) {
+    // 编辑模式下跳过登录检查
+    if (isEditMode) {
+      setUser({ id: 'local-edit-mode' })
       return
     }
-    const { data: { user } } = await supabase.auth.getUser()
-    setUser(user)
+
+    checkUser()
+  }, [isEditMode])
+
+  const checkUser = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser()
+      setUser(user)
+    } catch (error) {
+      console.error('Check user failed:', error)
+    }
   }
 
   const handleAnkiClick = (e) => {
-    if (!user) {
-      e.preventDefault()
-      setShowLoginPrompt(true)
-    }
-  }
-
-  const handleLogin = async () => {
-    if (!supabase) {
-      alert('Supabase未配置')
+    // 编辑模式下直接允许访问
+    if (isEditMode) {
       return
     }
 
-    const email = prompt('请输入邮箱地址：')
-    if (!email) return
-
-    try {
-      const { error } = await supabase.auth.signInWithOtp({
-        email: email,
-        options: {
-          emailRedirectTo: `${window.location.origin}/utilities/anki`,
-        },
-      })
-
-      if (error) throw error
-
-      alert('验证链接已发送到您的邮箱，请查收并点击链接登录')
-      setShowLoginPrompt(false)
-    } catch (error) {
-      alert('登录失败：' + error.message)
+    // 未登录则跳转到登录页
+    if (!user) {
+      e.preventDefault()
+      navigate('/login', { state: { from: '/utilities/anki' } })
     }
   }
 
@@ -79,33 +79,6 @@ function UtilitiesPage() {
             <p className="utility-card-description">敬请期待...</p>
           </div>
         </div>
-
-        {showLoginPrompt && (
-          <div className="login-modal-overlay" onClick={() => setShowLoginPrompt(false)}>
-            <div className="login-modal" onClick={(e) => e.stopPropagation()}>
-              <h2 className="login-modal-title">需要登录</h2>
-              <p className="login-modal-text">
-                使用 Anki 学习功能需要登录账号。我们将通过邮箱验证码的方式为您创建账号。
-              </p>
-              <div className="login-modal-actions">
-                <button
-                  type="button"
-                  className="login-modal-btn login-modal-btn--primary"
-                  onClick={handleLogin}
-                >
-                  登录 / 注册
-                </button>
-                <button
-                  type="button"
-                  className="login-modal-btn login-modal-btn--secondary"
-                  onClick={() => setShowLoginPrompt(false)}
-                >
-                  取消
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
       </div>
     </main>
   )
