@@ -51,16 +51,23 @@
   width: 238px;
 }
 
+.home-launcher-band-slot--upper-3,
+.home-launcher-item--upper-3 {
+  top: 0%;
+  opacity: 0.15;
+  transform: translate3d(18px, 0, 0) scale(0.55);
+}
+
 .home-launcher-band-slot--upper-2,
 .home-launcher-item--upper-2 {
-  top: 4%;
+  top: 8%;
   opacity: 0.3;
   transform: translate3d(12px, 0, 0) scale(0.66);
 }
 
 .home-launcher-band-slot--upper-1,
 .home-launcher-item--upper-1 {
-  top: 21%;
+  top: 23%;
   opacity: 0.68;
   transform: translate3d(-4px, 0, 0) scale(0.8);
 }
@@ -78,16 +85,23 @@
 
 .home-launcher-band-slot--lower-1,
 .home-launcher-item--lower-1 {
-  top: 57%;
+  top: 55%;
   opacity: 0.68;
   transform: translate3d(-4px, 0, 0) scale(0.8);
 }
 
 .home-launcher-band-slot--lower-2,
 .home-launcher-item--lower-2 {
-  top: 74%;
+  top: 71%;
   opacity: 0.3;
   transform: translate3d(12px, 0, 0) scale(0.66);
+}
+
+.home-launcher-band-slot--lower-3,
+.home-launcher-item--lower-3 {
+  top: 83%;
+  opacity: 0.15;
+  transform: translate3d(18px, 0, 0) scale(0.55);
 }
 
 .home-launcher-item,

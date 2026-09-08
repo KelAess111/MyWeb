@@ -1,0 +1,1501 @@
+/* ==================== 登录页面 ==================== */
+.login-page {
+  min-height: 100vh;
+  padding: 2rem;
+  background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.login-container {
+  max-width: 480px;
+  width: 100%;
+}
+
+.login-card {
+  background: rgba(20, 16, 32, 0.95);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(162, 210, 255, 0.2);
+  border-radius: 20px;
+  padding: 3rem 2.5rem;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+}
+
+.login-title {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #f5f7fb;
+  text-align: center;
+  margin-bottom: 0.5rem;
+}
+
+.login-subtitle {
+  font-size: 1rem;
+  color: rgba(245, 247, 251, 0.7);
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.login-error {
+  background: rgba(239, 68, 68, 0.15);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-radius: 8px;
+  padding: 1rem;
+  color: #fca5a5;
+  margin-bottom: 1.5rem;
+  text-align: center;
+  font-size: 0.9rem;
+}
+
+.login-providers {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.login-provider-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 1rem 1.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(40, 36, 52, 0.8);
+  color: #f5f7fb;
+  border-radius: 12px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.login-provider-btn:hover:not(:disabled) {
+  background: rgba(50, 46, 62, 0.9);
+  border-color: rgba(162, 210, 255, 0.3);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.login-provider-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.login-provider-icon {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+
+.login-loading {
+  text-align: center;
+  color: rgba(245, 247, 251, 0.7);
+  font-size: 0.9rem;
+  padding: 1rem;
+}
+
+.login-footer {
+  text-align: center;
+  padding-top: 1.5rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.login-back-link {
+  color: rgba(245, 247, 251, 0.6);
+  text-decoration: none;
+  font-size: 0.9rem;
+  transition: color 0.3s ease;
+}
+
+.login-back-link:hover {
+  color: #a2d2ff;
+}
+
+/* 认证加载状态 */
+.auth-loading {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  color: #f5f7fb;
+}
+
+.auth-loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid rgba(162, 210, 255, 0.2);
+  border-top-color: #a2d2ff;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin-bottom: 1rem;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ==================== 功能区页面 ==================== */
+.utilities-page {
+  min-height: 100vh;
+  padding: 4rem 2rem;
+  background: transparent;
+  position: relative;
+}
+
+.utilities-page::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.028), transparent 18%),
+    radial-gradient(circle at 18% 14%, rgba(162, 210, 255, 0.15), transparent 26%),
+    radial-gradient(circle at 82% 60%, rgba(232, 197, 229, 0.12), transparent 26%);
+}
+
+.utilities-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  position: relative;
+  z-index: 1;
+}
+
+.utilities-header {
+  text-align: center;
+  margin-bottom: 3rem;
+  color: #f5f7fb;
+}
+
+.utilities-title {
+  font-size: 3rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+.utilities-subtitle {
+  font-size: 1.2rem;
+  opacity: 0.9;
+}
+
+.utilities-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 2rem;
+  margin-bottom: 2rem;
+}
+
+.utility-card {
+  background: transparent;
+  backdrop-filter: none;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  padding: 2rem;
+  text-decoration: none;
+  color: #f5f7fb;
+  transition: transform 0.3s ease, box-shadow 0.3s ease, background 0.3s ease;
+  position: relative;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+}
+
+.utility-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.22);
+  border-color: rgba(162, 210, 255, 0.2);
+  background: rgba(20, 16, 32, 0.2);
+}
+
+.utility-card--disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.utility-card-icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+}
+
+.utility-card-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: #f5f7fb;
+}
+
+.utility-card-description {
+  color: rgba(245, 247, 251, 0.7);
+  line-height: 1.6;
+  font-size: 0.95rem;
+}
+
+.utility-card-badge {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: rgba(162, 210, 255, 0.2);
+  color: #a2d2ff;
+  border: 1px solid rgba(162, 210, 255, 0.3);
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+  font-size: 0.8rem;
+}
+
+/* 登录模态框 */
+.login-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.login-modal {
+  background: rgba(20, 16, 32, 0.95);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  padding: 2rem;
+  max-width: 400px;
+  width: 90%;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+}
+
+.login-modal-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  color: #f5f7fb;
+}
+
+.login-modal-text {
+  color: rgba(245, 247, 251, 0.7);
+  line-height: 1.6;
+  margin-bottom: 1.5rem;
+}
+
+.login-modal-actions {
+  display: flex;
+  gap: 1rem;
+}
+
+.login-modal-btn {
+  flex: 1;
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.login-modal-btn--primary {
+  background: rgba(162, 210, 255, 0.2);
+  border: 1px solid rgba(162, 210, 255, 0.3);
+  color: #a2d2ff;
+}
+
+.login-modal-btn--primary:hover {
+  background: rgba(162, 210, 255, 0.3);
+  border-color: rgba(162, 210, 255, 0.5);
+}
+
+.login-modal-btn--secondary {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #f5f7fb;
+}
+
+.login-modal-btn--secondary:hover {
+  background: rgba(20, 16, 32, 0.3);
+}
+
+/* ==================== Anki主页 ==================== */
+.anki-home-page {
+  min-height: 100vh;
+  padding: 4rem 2rem;
+  background: transparent;
+  position: relative;
+}
+
+.anki-home-page::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.028), transparent 18%),
+    radial-gradient(circle at 30% 20%, rgba(162, 210, 255, 0.12), transparent 30%),
+    radial-gradient(circle at 70% 70%, rgba(232, 197, 229, 0.1), transparent 30%);
+}
+
+.anki-home-container {
+  max-width: 900px;
+  margin: 0 auto;
+  position: relative;
+  z-index: 1;
+}
+
+.anki-home-header {
+  text-align: center;
+  margin-bottom: 3rem;
+  color: #f5f7fb;
+}
+
+.anki-home-title {
+  font-size: 3rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+.anki-home-subtitle {
+  font-size: 1.2rem;
+  opacity: 0.7;
+}
+
+.anki-home-loading {
+  text-align: center;
+  color: #f5f7fb;
+  font-size: 1.2rem;
+}
+
+.anki-home-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+  margin-bottom: 2rem;
+}
+
+.anki-language-card {
+  background: transparent;
+  backdrop-filter: none;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  padding: 2rem;
+  text-decoration: none;
+  color: #f5f7fb;
+  transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease, background 0.3s ease;
+  text-align: center;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+}
+
+.anki-language-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.22);
+  border-color: rgba(162, 210, 255, 0.2);
+  background: rgba(20, 16, 32, 0.2);
+}
+
+.anki-language-icon {
+  font-size: 4rem;
+  margin-bottom: 1rem;
+}
+
+.anki-language-title {
+  font-size: 1.8rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: #f5f7fb;
+}
+
+.anki-language-count {
+  color: rgba(245, 247, 251, 0.6);
+  margin-bottom: 1rem;
+  font-size: 1rem;
+}
+
+.anki-language-action {
+  display: inline-block;
+  padding: 0.5rem 1.5rem;
+  background: rgba(162, 210, 255, 0.2);
+  color: #a2d2ff;
+  border: 1px solid rgba(162, 210, 255, 0.3);
+  border-radius: 8px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.anki-language-card:hover .anki-language-action {
+  background: rgba(162, 210, 255, 0.3);
+  border-color: rgba(162, 210, 255, 0.5);
+}
+
+.anki-home-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  margin-bottom: 2rem;
+}
+
+.anki-home-btn {
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.anki-home-btn--secondary {
+  background: transparent;
+  backdrop-filter: none;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: #f5f7fb;
+}
+
+.anki-home-btn--secondary:hover {
+  background: rgba(20, 16, 32, 0.3);
+  border-color: rgba(162, 210, 255, 0.2);
+}
+
+.anki-home-back {
+  display: block;
+  text-align: center;
+  color: rgba(245, 247, 251, 0.6);
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.anki-home-back:hover {
+  color: #f5f7fb;
+}
+
+/* ==================== Anki练习页面 ==================== */
+.anki-practice-page {
+  min-height: 100vh;
+  padding: 2rem;
+  background: transparent;
+  position: relative;
+  overflow: hidden;
+}
+
+.anki-practice-page::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.028), transparent 18%),
+    radial-gradient(circle at 50% 50%, rgba(162, 210, 255, 0.08), transparent 40%);
+  transition: all 0.5s ease;
+}
+
+.anki-practice-page--fever::before {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.05), transparent 18%),
+    radial-gradient(circle at 50% 50%, rgba(162, 210, 255, 0.3), transparent 50%);
+  animation: fever-pulse 2s ease-in-out infinite;
+}
+
+.anki-practice-page--superfever::before {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.08), transparent 18%),
+    radial-gradient(circle at 50% 50%, rgba(232, 197, 229, 0.4), transparent 50%);
+  animation: superfever-pulse 1s ease-in-out infinite;
+}
+
+@keyframes superfever-pulse {
+  0%, 100% {
+    filter: brightness(1);
+  }
+  50% {
+    filter: brightness(1.2);
+  }
+}
+
+.anki-practice-container {
+  max-width: 800px;
+  margin: 0 auto;
+  position: relative;
+  z-index: 1;
+}
+
+.anki-practice-empty {
+  text-align: center;
+  color: #f5f7fb;
+  padding: 4rem 2rem;
+}
+
+.anki-practice-empty h2 {
+  font-size: 2rem;
+  margin-bottom: 1rem;
+}
+
+.anki-practice-start {
+  text-align: center;
+  color: #f5f7fb;
+  padding: 4rem 2rem;
+}
+
+.anki-practice-title {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+}
+
+.anki-practice-card-count {
+  font-size: 1.2rem;
+  margin-bottom: 2rem;
+  opacity: 0.9;
+}
+
+.anki-practice-btn {
+  padding: 1rem 2rem;
+  border: none;
+  border-radius: 12px;
+  background: transparent;
+  backdrop-filter: none;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: #f5f7fb;
+  font-size: 1.2rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-decoration: none;
+  display: inline-block;
+}
+
+.anki-practice-btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  border-color: rgba(162, 210, 255, 0.2);
+  background: rgba(20, 16, 32, 0.3);
+}
+
+.anki-practice-btn--large {
+  font-size: 1.5rem;
+  padding: 1.5rem 3rem;
+}
+
+.anki-practice-back {
+  display: block;
+  margin-top: 2rem;
+  color: rgba(245, 247, 251, 0.6);
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.anki-practice-back:hover {
+  color: #f5f7fb;
+}
+
+.anki-practice-stats {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  margin-bottom: 3rem;
+}
+
+.anki-stat-item {
+  background: transparent;
+  backdrop-filter: none;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 1rem 2rem;
+  border-radius: 12px;
+  text-align: center;
+  min-width: 120px;
+  color: #f5f7fb;
+}
+
+.anki-stat-item--fever {
+  background: rgba(162, 210, 255, 0.3);
+  border-color: rgba(162, 210, 255, 0.6);
+  color: #d9f2ff;
+  animation: fever-glow 1s ease-in-out infinite;
+  box-shadow: 0 0 30px rgba(162, 210, 255, 0.6);
+}
+
+.anki-stat-item--superfever {
+  background: rgba(232, 197, 229, 0.35);
+  border-color: rgba(232, 197, 229, 0.7);
+  color: #fce4f7;
+  animation: superfever-glow 0.8s ease-in-out infinite;
+  box-shadow: 0 0 40px rgba(232, 197, 229, 0.8);
+}
+
+@keyframes fever-glow {
+  0%, 100% {
+    box-shadow: 0 0 30px rgba(162, 210, 255, 0.6);
+    transform: scale(1);
+  }
+  50% {
+    box-shadow: 0 0 50px rgba(162, 210, 255, 1);
+    transform: scale(1.05);
+  }
+}
+
+@keyframes superfever-glow {
+  0%, 100% {
+    box-shadow: 0 0 40px rgba(232, 197, 229, 0.7);
+    transform: scale(1);
+  }
+  50% {
+    box-shadow: 0 0 70px rgba(232, 197, 229, 1);
+    transform: scale(1.08);
+  }
+}
+
+.anki-stat-label {
+  display: block;
+  font-size: 0.9rem;
+  margin-bottom: 0.5rem;
+  opacity: 0.8;
+}
+
+.anki-stat-value {
+  display: block;
+  font-size: 2rem;
+  font-weight: 700;
+}
+
+.anki-question-area {
+  background: transparent;
+  backdrop-filter: none;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  padding: 2rem;
+  margin-bottom: 2rem;
+  box-shadow: none;
+}
+
+.anki-question-card {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.anki-question-label {
+  font-size: 1rem;
+  color: rgba(245, 247, 251, 0.6);
+  margin-bottom: 1rem;
+}
+
+.anki-question-text {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #f5f7fb;
+  margin-bottom: 0.5rem;
+}
+
+.anki-question-pronunciation {
+  font-size: 1.2rem;
+  color: rgba(245, 247, 251, 0.5);
+}
+
+.anki-options-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.5rem;
+}
+
+.anki-option-card {
+  padding: 2rem;
+  border: 2px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  background: transparent;
+  backdrop-filter: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-align: center;
+}
+
+.anki-option-card:hover {
+  border-color: rgba(162, 210, 255, 0.3);
+  transform: translateY(-4px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+  background: rgba(20, 16, 32, 0.2);
+}
+
+.anki-option-card--correct {
+  border-color: rgba(162, 210, 255, 0.6);
+  background: rgba(162, 210, 255, 0.15);
+}
+
+.anki-option-card--wrong {
+  border-color: rgba(239, 68, 68, 0.6);
+  background: rgba(239, 68, 68, 0.15);
+}
+
+.anki-option-translation {
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: #f5f7fb;
+  margin-bottom: 0.5rem;
+}
+
+.anki-option-pos {
+  font-size: 0.9rem;
+  color: rgba(245, 247, 251, 0.5);
+}
+
+.anki-result-banner {
+  text-align: center;
+  padding: 1rem;
+  border-radius: 8px;
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-top: 2rem;
+}
+
+.anki-result-banner--correct {
+  background: #d1fae5;
+  color: #10b981;
+}
+
+.anki-result-banner--wrong {
+  background: #fee2e2;
+  color: #ef4444;
+}
+
+.anki-correct-answer {
+  margin-top: 2rem;
+  padding: 2rem;
+  border: 1px solid rgba(162, 210, 255, 0.3);
+  border-radius: 12px;
+  background: rgba(162, 210, 255, 0.1);
+}
+
+.anki-correct-answer-title {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #a2d2ff;
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+.anki-correct-answer-card {
+  background: rgba(20, 16, 32, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.anki-correct-answer-original {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #f5f7fb;
+  margin-bottom: 0.5rem;
+  text-align: center;
+}
+
+.anki-correct-answer-pronunciation {
+  font-size: 1rem;
+  color: rgba(245, 247, 251, 0.6);
+  margin-bottom: 0.5rem;
+  text-align: center;
+}
+
+.anki-correct-answer-pos {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  background: rgba(162, 210, 255, 0.2);
+  border: 1px solid rgba(162, 210, 255, 0.3);
+  border-radius: 4px;
+  font-size: 0.85rem;
+  color: #a2d2ff;
+  margin-bottom: 0.5rem;
+}
+
+.anki-correct-answer-translation {
+  font-size: 1.3rem;
+  color: #a2d2ff;
+  margin-bottom: 0.5rem;
+  text-align: center;
+  font-weight: 600;
+}
+
+.anki-correct-answer-note {
+  font-size: 0.95rem;
+  color: rgba(245, 247, 251, 0.7);
+  font-style: italic;
+  padding: 0.75rem;
+  background: rgba(232, 197, 229, 0.1);
+  border-left: 3px solid rgba(232, 197, 229, 0.5);
+  border-radius: 4px;
+  margin-top: 0.5rem;
+}
+
+.anki-practice-btn--continue {
+  margin-top: 1rem;
+  width: 100%;
+  font-size: 1rem;
+  padding: 0.75rem 1.5rem;
+}
+
+.anki-practice-stop-btn {
+  display: block;
+  margin: 0 auto;
+  padding: 0.75rem 2rem;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  background: rgba(20, 16, 32, 0.3);
+  backdrop-filter: blur(8px);
+  color: #f5f7fb;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.anki-practice-stop-btn:hover {
+  background: rgba(20, 16, 32, 0.6);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+/* Fever特效 */
+.anki-fever-effect {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  z-index: 0;
+  background: radial-gradient(circle at center, rgba(162, 210, 255, 0.25) 0%, transparent 60%);
+  animation: fever-pulse 2s ease-in-out infinite;
+}
+
+.anki-superfever-effect {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  z-index: 0;
+  background: radial-gradient(circle at center, rgba(232, 197, 229, 0.35) 0%, transparent 60%);
+  animation: superfever-pulse 1s ease-in-out infinite;
+}
+
+@keyframes superfever-pulse {
+  0%, 100% {
+    opacity: 0.6;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.15);
+  }
+}
+
+@keyframes fever-pulse {
+  0%, 100% {
+    opacity: 0.5;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.9;
+    transform: scale(1.1);
+  }
+}
+
+/* ==================== Anki管理页面 ==================== */
+.anki-manage-page {
+  min-height: 100vh;
+  padding: 2rem;
+  background: transparent;
+}
+
+.anki-manage-container {
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.anki-manage-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.anki-manage-title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #f5f7fb;
+}
+
+.anki-manage-back {
+  color: rgba(245, 247, 251, 0.6);
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.anki-manage-back:hover {
+  color: #f5f7fb;
+}
+
+.anki-manage-controls {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  box-shadow: none;
+}
+
+.anki-language-tabs {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.anki-language-tab {
+  padding: 0.75rem 1.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  background: transparent;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 1rem;
+  color: #f5f7fb;
+}
+
+.anki-language-tab.is-active {
+  border-color: rgba(162, 210, 255, 0.5);
+  background: rgba(162, 210, 255, 0.2);
+  color: #a2d2ff;
+}
+
+.anki-search-bar {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.anki-search-input {
+  flex: 1;
+  padding: 0.75rem 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(40, 36, 52, 0.6);
+  color: #ffffff;
+  border-radius: 8px;
+  font-size: 1rem;
+}
+
+.anki-search-input::placeholder {
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.anki-search-input:focus {
+  outline: none;
+  border-color: rgba(162, 210, 255, 0.5);
+  background: rgba(50, 46, 62, 0.8);
+}
+
+.anki-search-btn {
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 8px;
+  background: rgba(162, 210, 255, 0.2);
+  border: 1px solid rgba(162, 210, 255, 0.3);
+  color: #a2d2ff;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.anki-search-btn:hover {
+  background: rgba(162, 210, 255, 0.3);
+  border-color: rgba(162, 210, 255, 0.5);
+}
+
+.anki-add-btn {
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 8px;
+  background: rgba(162, 210, 255, 0.2);
+  border: 1px solid rgba(162, 210, 255, 0.3);
+  color: #a2d2ff;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 1rem;
+}
+
+.anki-add-btn:hover {
+  background: rgba(162, 210, 255, 0.3);
+  border-color: rgba(162, 210, 255, 0.5);
+}
+
+.anki-preview-notice {
+  background: rgba(232, 197, 229, 0.2);
+  border: 1px solid rgba(232, 197, 229, 0.3);
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+  text-align: center;
+  color: #e8c5e5;
+  font-weight: 500;
+}
+
+.anki-preview-icon {
+  margin-right: 0.5rem;
+  font-size: 1.2rem;
+}
+
+.anki-manage-loading,
+.anki-manage-empty {
+  text-align: center;
+  padding: 4rem 2rem;
+  color: rgba(245, 247, 251, 0.6);
+}
+
+.anki-cards-list {
+  display: grid;
+  gap: 1rem;
+}
+
+.anki-card-item {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  box-shadow: none;
+  transition: border-color 0.3s ease, background 0.3s ease;
+}
+
+.anki-card-item:hover {
+  border-color: rgba(162, 210, 255, 0.2);
+  background: rgba(20, 16, 32, 0.2);
+}
+
+.anki-card-content {
+  flex: 1;
+}
+
+.anki-card-original {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #f5f7fb;
+  margin-bottom: 0.5rem;
+}
+
+.anki-card-pronunciation {
+  font-size: 1rem;
+  color: rgba(245, 247, 251, 0.6);
+  margin-bottom: 0.5rem;
+}
+
+.anki-card-pos {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  background: rgba(162, 210, 255, 0.2);
+  border: 1px solid rgba(162, 210, 255, 0.3);
+  border-radius: 4px;
+  font-size: 0.85rem;
+  color: #a2d2ff;
+  margin-bottom: 0.5rem;
+}
+
+.anki-card-translation {
+  font-size: 1.1rem;
+  color: #a2d2ff;
+  margin-bottom: 0.5rem;
+}
+
+.anki-card-note {
+  font-size: 0.95rem;
+  color: rgba(245, 247, 251, 0.7);
+  font-style: italic;
+  padding: 0.5rem;
+  background: rgba(232, 197, 229, 0.1);
+  border-left: 3px solid rgba(232, 197, 229, 0.5);
+  border-radius: 4px;
+}
+
+.anki-card-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.anki-card-action-btn {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 0.9rem;
+}
+
+.anki-card-action-btn--edit {
+  background: rgba(162, 210, 255, 0.2);
+  border: 1px solid rgba(162, 210, 255, 0.3);
+  color: #a2d2ff;
+}
+
+.anki-card-action-btn--edit:hover {
+  background: rgba(162, 210, 255, 0.3);
+  border-color: rgba(162, 210, 255, 0.5);
+}
+
+.anki-card-action-btn--delete {
+  background: #ef4444;
+  color: white;
+}
+
+.anki-card-action-btn--delete:hover {
+  background: #dc2626;
+}
+
+/* 编辑器模态框 */
+.anki-editor-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.anki-editor-modal {
+  background: rgba(20, 16, 32, 0.95);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(162, 210, 255, 0.2);
+  border-radius: 16px;
+  padding: 2rem;
+  max-width: 500px;
+  width: 90%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+}
+
+.anki-editor-title {
+  font-size: 1.8rem;
+  font-weight: 600;
+  margin-bottom: 1.5rem;
+  color: #f5f7fb;
+}
+
+.anki-editor-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.anki-form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.anki-form-label {
+  font-size: 1rem;
+  font-weight: 500;
+  color: #f5f7fb;
+  margin-bottom: 0.5rem;
+}
+
+.anki-form-required {
+  color: #ef4444;
+}
+
+.anki-form-input,
+.anki-form-textarea {
+  padding: 0.75rem;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  background: rgba(40, 36, 52, 0.8);
+  color: #ffffff;
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: border-color 0.3s ease, background 0.3s ease;
+}
+
+.anki-form-input::placeholder,
+.anki-form-textarea::placeholder {
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.anki-form-input:focus,
+.anki-form-textarea:focus {
+  outline: none;
+  border-color: rgba(162, 210, 255, 0.6);
+  background: rgba(50, 46, 62, 0.9);
+}
+
+.anki-form-textarea {
+  resize: vertical;
+  font-family: inherit;
+}
+
+.anki-editor-actions {
+  display: flex;
+  gap: 1rem;
+}
+
+.anki-editor-btn {
+  flex: 1;
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.anki-editor-btn--primary {
+  background: rgba(162, 210, 255, 0.2);
+  border: 1px solid rgba(162, 210, 255, 0.3);
+  color: #a2d2ff;
+}
+
+.anki-editor-btn--primary:hover {
+  background: rgba(162, 210, 255, 0.3);
+  border-color: rgba(162, 210, 255, 0.5);
+}
+
+.anki-editor-btn--secondary {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #f5f7fb;
+}
+
+.anki-editor-btn--secondary:hover {
+  background: rgba(20, 16, 32, 0.3);
+}
+
+/* ==================== 错题本页面 ==================== */
+.anki-wrong-cards-page {
+  min-height: 100vh;
+  padding: 2rem;
+  background: transparent;
+}
+
+.anki-wrong-cards-container {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.anki-wrong-cards-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.anki-wrong-cards-title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #333;
+}
+
+.anki-wrong-cards-back {
+  color: #666;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.anki-wrong-cards-back:hover {
+  color: #333;
+}
+
+.anki-wrong-cards-loading,
+.anki-wrong-cards-empty {
+  text-align: center;
+  padding: 4rem 2rem;
+  color: #666;
+}
+
+.anki-wrong-cards-empty-hint {
+  font-size: 1.2rem;
+  color: #999;
+  margin-top: 0.5rem;
+}
+
+.anki-wrong-cards-info {
+  background: white;
+  padding: 1rem;
+  border-radius: 8px;
+  text-align: center;
+  margin-bottom: 1.5rem;
+  color: #666;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.anki-wrong-cards-list {
+  display: grid;
+  gap: 1rem;
+}
+
+.anki-wrong-card-item {
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  border-left: 4px solid #ef4444;
+}
+
+.anki-wrong-card-content {
+  flex: 1;
+}
+
+.anki-wrong-card-original {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 0.5rem;
+}
+
+.anki-wrong-card-pronunciation {
+  font-size: 1rem;
+  color: #999;
+  margin-bottom: 0.5rem;
+}
+
+.anki-wrong-card-pos {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  background: #e5e7eb;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  color: #666;
+  margin-bottom: 0.5rem;
+}
+
+.anki-wrong-card-translation {
+  font-size: 1.1rem;
+  color: #666;
+  margin-bottom: 0.5rem;
+}
+
+.anki-wrong-card-note {
+  font-size: 0.95rem;
+  color: #999;
+  font-style: italic;
+  padding: 0.5rem;
+  background: #fef3c7;
+  border-radius: 4px;
+  margin-bottom: 0.5rem;
+}
+
+.anki-wrong-card-date {
+  font-size: 0.85rem;
+  color: #999;
+}
+
+.anki-wrong-card-remove-btn {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 6px;
+  background: #ef4444;
+  color: white;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.anki-wrong-card-remove-btn:hover {
+  background: #dc2626;
+}
+
+/* 练习总结页面 */
+.anki-practice-summary {
+  text-align: center;
+  color: #f5f7fb;
+  padding: 4rem 2rem;
+  position: relative;
+  z-index: 1;
+}
+
+.anki-summary-title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: 3rem;
+}
+
+.anki-summary-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 2rem;
+  margin-bottom: 3rem;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.anki-summary-stat {
+  background: transparent;
+  backdrop-filter: none;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 2rem;
+  border-radius: 16px;
+  box-shadow: none;
+}
+
+.anki-summary-stat-label {
+  font-size: 1rem;
+  color: rgba(245, 247, 251, 0.6);
+  margin-bottom: 0.5rem;
+}
+
+.anki-summary-stat-value {
+  font-size: 3rem;
+  font-weight: 700;
+  color: #f5f7fb;
+}
+
+.anki-summary-stat-value--correct {
+  color: #a2d2ff;
+}
+
+.anki-summary-stat-value--wrong {
+  color: #ef4444;
+}
+
+.anki-summary-stat-value--combo {
+  color: #e8c5e5;
+}
+
+.anki-summary-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .utilities-title,
+  .anki-home-title,
+  .anki-practice-title {
+    font-size: 2rem;
+  }
+
+  .anki-question-text {
+    font-size: 1.8rem;
+  }
+
+  .anki-practice-stats {
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .anki-options-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .anki-card-item,
+  .anki-wrong-card-item {
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .anki-card-actions {
+    width: 100%;
+  }
+}

@@ -8,6 +8,7 @@ import MusicVisualizer from './components/MusicVisualizer'
 import PageTransition from './components/PageTransition'
 import ClickEffects from './components/ClickEffects'
 import MobileNotice from './components/MobileNotice'
+import ProtectedRoute from './components/ProtectedRoute'
 import { MusicPlayerContext } from './contexts/MusicPlayerContext'
 import { musicTracks } from './data/musicTracks'
 import './App.css'
@@ -20,6 +21,7 @@ import './styles/book.css'
 import './styles/game.css'
 import './styles/music.css'
 import './styles/share.css'
+import './styles/anki.css'
 
 const HomePage = lazy(() => import('./pages/HomePage'))
 const ProfilePage = lazy(() => import('./pages/ProfilePage'))
@@ -43,6 +45,12 @@ const MusicPage = lazy(() => import('./pages/MusicPage'))
 const HiddenSpaceJournalPage = lazy(() => import('./pages/HiddenSpaceJournalPage'))
 const HiddenSpacePersonalPage = lazy(() => import('./pages/HiddenSpacePersonalPage'))
 const QAAdminPage = lazy(() => import('./pages/QAAdminPage'))
+const UtilitiesPage = lazy(() => import('./pages/UtilitiesPage'))
+const LoginPage = lazy(() => import('./pages/LoginPage'))
+const AnkiHomePage = lazy(() => import('./pages/AnkiHomePage'))
+const AnkiPracticePage = lazy(() => import('./pages/AnkiPracticePage'))
+const AnkiManagePage = lazy(() => import('./pages/AnkiManagePage'))
+const AnkiWrongCardsPage = lazy(() => import('./pages/AnkiWrongCardsPage'))
 
 const PLAYBACK_STORAGE_KEY = 'kel-music-player-playback'
 const MESSAGE_STORAGE_KEY = 'kel-music-player-messages'
@@ -555,6 +563,12 @@ function AppRoutes({ musicUiState, onOcAreaChange, replayIntroEnabled, locationK
           <Route path="journal" element={<HiddenSpaceJournalPage />} />
           <Route path="personal" element={<HiddenSpacePersonalPage />} />
         </Route>
+        <Route path="/utilities" element={<UtilitiesPage />} />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/utilities/anki" element={<ProtectedRoute><AnkiHomePage /></ProtectedRoute>} />
+        <Route path="/utilities/anki/practice/:language" element={<ProtectedRoute><AnkiPracticePage /></ProtectedRoute>} />
+        <Route path="/utilities/anki/manage" element={<ProtectedRoute><AnkiManagePage /></ProtectedRoute>} />
+        <Route path="/utilities/anki/wrong-cards" element={<ProtectedRoute><AnkiWrongCardsPage /></ProtectedRoute>} />
         <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </PageTransition>

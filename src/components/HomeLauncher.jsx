@@ -31,6 +31,11 @@ const launcherItems = [
     label: '分享',
     path: '/share',
   },
+  {
+    id: 'utilities',
+    label: '功能区',
+    path: '/utilities',
+  },
 ]
 
 function HomeLauncher({ isVisible = true }) {
