@@ -88,11 +88,12 @@
 .hotspot-carousel:has(.hotspot-carousel-image--error.is-active) .hotspot-carousel-media::before { opacity: 1; }
 .hotspot-carousel:has(.hotspot-carousel-image--error.is-active) .hotspot-carousel-media::before { content: '图片暂不可用'; }
 .hotspot-carousel-overlay { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(8, 13, 24, 0.04) 28%, rgba(255, 255, 255, 0.88) 72%, rgba(255, 255, 255, 0.98)); pointer-events: none; }
-.hotspot-carousel-copy { position: absolute; right: 0; bottom: 0; left: 0; z-index: 1; display: grid; align-content: end; gap: 4px; min-height: 86px; padding: 20px 18px 16px; pointer-events: none; }
+.hotspot-carousel-copy { position: absolute; right: 0; bottom: 0; left: 0; z-index: 1; display: grid; align-content: end; gap: 4px; min-height: 86px; padding: 20px 18px 16px; pointer-events: auto; }
 .hotspot-carousel-copy--compact { min-height: 86px; }
 .hotspot-carousel-copy--mid { min-height: 116px; }
 .hotspot-carousel-copy--wide { min-height: 152px; }
-.hotspot-carousel-copy h3, .hotspot-carousel-copy p { margin: 0; }
+.hotspot-carousel-copy h3, .hotspot-carousel-copy p { margin: 0; transition: opacity 300ms ease-in-out; }
+.hotspot-carousel-copy.is-transitioning h3, .hotspot-carousel-copy.is-transitioning p { opacity: 0; }
 .hotspot-carousel-copy h3 { color: #162238; font-size: 1rem; line-height: 1.25; }
 .hotspot-carousel-copy p { color: rgba(28, 43, 65, 0.74); font-size: 0.76rem; line-height: 1.45; }
 .hotspot-carousel-kicker { color: rgba(45, 103, 162, 0.78) !important; font-size: 0.64rem !important; letter-spacing: 0.12em; text-transform: uppercase; }

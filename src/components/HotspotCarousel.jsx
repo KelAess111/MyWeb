@@ -1,6 +1,7 @@
 ﻿import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useImageLoadState } from '../hooks/useImageLoadState'
 import Annotate from './Annotate'
+import CircularRevealTransition from './CircularRevealTransition'
 
 const HOTSPOT_ROTATION_INTERVAL = 10000
 const HOTSPOT_MANUAL_RESUME_DELAY = 6500
@@ -39,10 +40,86 @@ function getFolderAssets(folderId) {
 }
 
 const HOTSPOT_CONFIGS = {
-  1: { title: '审美积累板块完工', summary: '暂时还没有那么多图。', kicker: '热点 01', textBackClass: 'hotspot-carousel-copy--compact', delayMs: 0 },
-  2: { title: '音乐喜好持续更新', summary: '你可以在左上角播放器里向作者反馈你的喜欢的音乐。', kicker: '热点 02', textBackClass: 'hotspot-carousel-copy--compact', delayMs: 2400 },
-  3: { title: '名言展示栏位', summary: '我最喜欢的一句名言是：“生活就像一盒巧克力，你永远不知道下一块会是什么味道。”', kicker: '热点 03', textBackClass: 'hotspot-carousel-copy--wide', delayMs: 4800 },
-  4: { title: '小作文不断刊登', summary: '看不到是因为没刊登到首页哦。', kicker: '热点 04', textBackClass: 'hotspot-carousel-copy--mid', delayMs: 7200 },
+  1: [
+    {
+      title: '审美积累板块完工',
+      summary: '暂时还没有那么多图。',
+      kicker: '热点 01',
+      textBackClass: 'hotspot-carousel-copy--compact',
+      delayMs: 0,
+      jumpType: 'route',
+      jumpTarget: '/works/painting'
+    },
+    {
+      title: 'QA功能上新',
+      summary: '你可以在个人简介页面查看和提问。',
+      kicker: '热点 01',
+      textBackClass: 'hotspot-carousel-copy--compact',
+      delayMs: 0,
+      jumpType: 'route',
+      jumpTarget: '/profile#intro'
+    }
+  ],
+  2: [
+    {
+      title: '音乐喜好持续更新',
+      summary: '你可以在左上角播放器里向作者反馈你的喜欢的音乐。',
+      kicker: '热点 02',
+      textBackClass: 'hotspot-carousel-copy--compact',
+      delayMs: 2400,
+      jumpType: 'route',
+      jumpTarget: '/works/music'
+    },
+    {
+      title: 'Anki功能实装',
+      summary: '全新的记忆卡片系统，帮助你高效学习。',
+      kicker: '热点 02',
+      textBackClass: 'hotspot-carousel-copy--compact',
+      delayMs: 2400,
+      jumpType: 'route',
+      jumpTarget: '/utilities/anki'
+    }
+  ],
+  3: [
+    {
+      title: '',
+      summary: '”生活就像一盒巧克力，你永远不知道下一块会是什么味道。”',
+      kicker: '热点 03',
+      textBackClass: 'hotspot-carousel-copy--wide',
+      delayMs: 4800,
+      jumpType: null, // 不跳转
+      jumpTarget: null
+    },
+    {
+      title: '',
+      summary: '”两者皆有可能，这就是答案”',
+      kicker: '热点 03',
+      textBackClass: 'hotspot-carousel-copy--wide',
+      delayMs: 4800,
+      jumpType: null, // 不跳转
+      jumpTarget: null
+    }
+  ],
+  4: [
+    {
+      title: '小作文模块刊登中',
+      summary: '看不到是因为没刊登到首页哦。',
+      kicker: '热点 04',
+      textBackClass: 'hotspot-carousel-copy--mid',
+      delayMs: 7200,
+      jumpType: 'route',
+      jumpTarget: '/works/writing'
+    },
+    {
+      title: '博客日志更新',
+      summary: '记录日常思考和生活点滴。',
+      kicker: '热点 04',
+      textBackClass: 'hotspot-carousel-copy--mid',
+      delayMs: 7200,
+      jumpType: 'route',
+      jumpTarget: '/journal'
+    }
+  ],
 }
 
 function HotspotImage({ image, index, isActive, isExiting, eager, title }) {
@@ -71,13 +148,20 @@ function HotspotImage({ image, index, isActive, isExiting, eager, title }) {
 }
 
 function HotspotCarousel({ folderId, variant = 'fade' }) {
-  const config = HOTSPOT_CONFIGS[folderId] ?? HOTSPOT_CONFIGS[1]
+  const configs = HOTSPOT_CONFIGS[folderId] ?? HOTSPOT_CONFIGS[1]
+  const configArray = Array.isArray(configs) ? configs : [configs]
+  const [activeConfigIndex, setActiveConfigIndex] = useState(0)
+  const [isTextTransitioning, setIsTextTransitioning] = useState(false)
+  const config = configArray[activeConfigIndex]
   const images = useMemo(() => getFolderAssets(folderId), [folderId])
   const [activeIndex, setActiveIndex] = useState(0)
   const [transition, setTransition] = useState(null)
   const [reducedMotion, setReducedMotion] = useState(false)
+  const [revealTransition, setRevealTransition] = useState({ isActive: false, clickPosition: null, targetRoute: null, targetElement: null })
   const activeIndexRef = useRef(0)
+  const activeConfigIndexRef = useRef(0)
   const autoplayTimerRef = useRef(null)
+  const textRotateTimerRef = useRef(null)
   const manualResumeTimerRef = useRef(null)
   const transitionTimerRef = useRef(null)
   const pointerRef = useRef(null)
@@ -114,6 +198,42 @@ function HotspotCarousel({ folderId, variant = 'fade' }) {
   useEffect(() => {
     startAutoplayRef.current = startAutoplay
   }, [startAutoplay])
+
+  // 文字轮换逻辑
+  const startTextRotation = useCallback(() => {
+    if (textRotateTimerRef.current) {
+      window.clearTimeout(textRotateTimerRef.current)
+    }
+
+    if (configArray.length <= 1) return
+
+    textRotateTimerRef.current = window.setTimeout(() => {
+      // 开始淡出
+      setIsTextTransitioning(true)
+
+      // 300ms 后切换内容并淡入
+      setTimeout(() => {
+        const nextConfigIndex = (activeConfigIndexRef.current + 1) % configArray.length
+        activeConfigIndexRef.current = nextConfigIndex
+        setActiveConfigIndex(nextConfigIndex)
+        setIsTextTransitioning(false)
+        startTextRotation() // 继续下一次轮换
+      }, 300)
+    }, HOTSPOT_ROTATION_INTERVAL)
+  }, [configArray.length])
+
+  useEffect(() => {
+    // 启动文字轮换
+    if (configArray.length > 1) {
+      startTextRotation()
+    }
+
+    return () => {
+      if (textRotateTimerRef.current) {
+        window.clearTimeout(textRotateTimerRef.current)
+      }
+    }
+  }, [configArray.length, startTextRotation])
 
   const resumeAfterManualInput = useCallback(() => {
     clearManualResume()
@@ -189,18 +309,70 @@ function HotspotCarousel({ folderId, variant = 'fade' }) {
   }
 
   const handlePointerDown = (event) => {
+    // 检查是否点击文字区域
+    if (event.target.closest('.hotspot-carousel-copy')) {
+      return // 如果点击的是文字区域，不处理拖动
+    }
+
     if (variant === 'fade' || images.length <= 1 || (event.pointerType === 'mouse' && event.button !== 0)) return
     pointerRef.current = { id: event.pointerId, x: event.clientX, y: event.clientY }
     event.currentTarget.setPointerCapture?.(event.pointerId)
   }
 
-  const handleClick = () => {
+  const handleClick = (event) => {
+    // 检查点击是否来自文字区域
+    if (event.target.closest('.hotspot-carousel-copy')) {
+      return // 如果点击的是文字区域，不处理图片切换
+    }
+
     if (suppressClickRef.current) {
       suppressClickRef.current = false
       return
     }
     if (variant === 'fade') navigate(1, { resetAutoplay: true })
   }
+
+  const handleCopyClick = (event) => {
+    console.log('handleCopyClick triggered', { jumpTarget: config.jumpTarget, jumpType: config.jumpType })
+
+    if (!config.jumpTarget) {
+      console.warn('No jumpTarget configured')
+      return
+    }
+
+    event.stopPropagation()
+
+    // 根据跳转类型处理
+    if (config.jumpType === 'route') {
+      // 路由跳转
+      console.log('Triggering route transition to:', config.jumpTarget)
+      setRevealTransition({
+        isActive: true,
+        clickPosition: { clientX: event.clientX, clientY: event.clientY },
+        targetRoute: config.jumpTarget,
+        targetElement: null
+      })
+    } else if (config.jumpType === 'scroll') {
+      // 页面内滚动
+      const targetElement = document.querySelector(config.jumpTarget)
+      if (!targetElement) {
+        console.warn(`跳转目标未找到: ${config.jumpTarget}`)
+        return
+      }
+
+      console.log('Triggering scroll transition to:', config.jumpTarget)
+      setRevealTransition({
+        isActive: true,
+        clickPosition: { clientX: event.clientX, clientY: event.clientY },
+        targetRoute: null,
+        targetElement
+      })
+    }
+  }
+
+  const handleRevealComplete = useCallback(() => {
+    setRevealTransition({ isActive: false, clickPosition: null, targetRoute: null, targetElement: null })
+  }, [])
 
   const handleMouseEnter = () => {
     isHoveredRef.current = true
@@ -224,41 +396,56 @@ function HotspotCarousel({ folderId, variant = 'fade' }) {
 
   const totalLabel = images.length ? `${String(images.length).padStart(2, '0')} 张` : '暂无图片'
   return (
-    <div
-      className={`hotspot-carousel hotspot-carousel--${variant} ${transition ? `hotspot-carousel--${transition.direction}` : ''} ${reducedMotion ? 'is-reduced-motion' : ''} ${images.length ? 'has-images' : 'is-empty'}`}
-      role="group"
-      aria-roledescription="carousel"
-      aria-label={`${config.title}，${totalLabel}`}
-      tabIndex={images.length > 1 ? 0 : -1}
-      onKeyDown={handleKeyDown}
-      onClick={handleClick}
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
-      onPointerDown={handlePointerDown}
-      onPointerUp={finishPointer}
-      onPointerCancel={finishPointer}
-    >
-      <div className="hotspot-carousel-media">
-        {images.length ? images.map((image, index) => (
-          <HotspotImage
-            key={`${folderId}-${image.path || image.name || index}`}
-            image={image}
-            index={index}
-            isActive={index === activeIndex}
-            isExiting={index === transition?.fromIndex}
-            eager={index === 0}
-            title={config.title}
-          />
-        )) : <div className="hotspot-carousel-image-placeholder" role="status">图片暂不可用</div>}
-        <div className="hotspot-carousel-overlay" aria-hidden="true" />
+    <>
+      <div
+        className={`hotspot-carousel hotspot-carousel--${variant} ${transition ? `hotspot-carousel--${transition.direction}` : ''} ${reducedMotion ? 'is-reduced-motion' : ''} ${images.length ? 'has-images' : 'is-empty'}`}
+        role="group"
+        aria-roledescription="carousel"
+        aria-label={`${config.title}，${totalLabel}`}
+        tabIndex={images.length > 1 ? 0 : -1}
+        onKeyDown={handleKeyDown}
+        onClick={handleClick}
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
+        onPointerDown={handlePointerDown}
+        onPointerUp={finishPointer}
+        onPointerCancel={finishPointer}
+      >
+        <div className="hotspot-carousel-media">
+          {images.length ? images.map((image, index) => (
+            <HotspotImage
+              key={`${folderId}-${image.path || image.name || index}`}
+              image={image}
+              index={index}
+              isActive={index === activeIndex}
+              isExiting={index === transition?.fromIndex}
+              eager={index === 0}
+              title={config.title}
+            />
+          )) : <div className="hotspot-carousel-image-placeholder" role="status">图片暂不可用</div>}
+          <div className="hotspot-carousel-overlay" aria-hidden="true" />
+        </div>
+        <div
+          className={`hotspot-carousel-copy ${config.textBackClass} ${isTextTransitioning ? 'is-transitioning' : ''}`}
+          onClick={handleCopyClick}
+          style={{
+            cursor: config.jumpTarget ? 'pointer' : 'default',
+            pointerEvents: config.jumpTarget ? 'auto' : 'none'
+          }}
+        >
+          <p className="hotspot-carousel-kicker">{config.kicker}</p>
+          <h3>{config.title}</h3>
+          <p>{config.summary}</p>
+        </div>
       </div>
-      <div className={`hotspot-carousel-copy ${config.textBackClass}`}>
-        <p className="hotspot-carousel-kicker">{config.kicker}</p>
-        <h3>{config.title}</h3>
-        <p>{config.summary}</p>
-        <p className="hotspot-carousel-count">{images.length ? `来自文件夹 ${folderId} · ${images.length} 张` : `文件夹 ${folderId} 暂时还没有图片`}</p>
-      </div>
-    </div>
+      <CircularRevealTransition
+        isActive={revealTransition.isActive}
+        clickPosition={revealTransition.clickPosition}
+        targetRoute={revealTransition.targetRoute}
+        targetElement={revealTransition.targetElement}
+        onComplete={handleRevealComplete}
+      />
+    </>
   )
 }
 

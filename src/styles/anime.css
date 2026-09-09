@@ -175,9 +175,29 @@
 .anime-card:hover .anime-card-review,
 .anime-card:focus-within .anime-card-review,
 .anime-card.is-locked .anime-card-review {
-  max-height: 360px;
+  max-height: 800px;
+  overflow-y: auto;
   padding: 0 16px 18px;
   opacity: 1;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(247, 243, 238, 0.3) transparent;
+}
+
+.anime-card-review::-webkit-scrollbar {
+  width: 6px;
+}
+
+.anime-card-review::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.anime-card-review::-webkit-scrollbar-thumb {
+  background: rgba(247, 243, 238, 0.3);
+  border-radius: 3px;
+}
+
+.anime-card-review::-webkit-scrollbar-thumb:hover {
+  background: rgba(247, 243, 238, 0.5);
 }
 
 .anime-card-review.is-empty {

@@ -9,6 +9,8 @@ import PageTransition from './components/PageTransition'
 import ClickEffects from './components/ClickEffects'
 import MobileNotice from './components/MobileNotice'
 import ProtectedRoute from './components/ProtectedRoute'
+import CircularRevealTransition from './components/CircularRevealTransition'
+import TransitionContext from './contexts/TransitionContext'
 import { MusicPlayerContext } from './contexts/MusicPlayerContext'
 import { musicTracks } from './data/musicTracks'
 import './App.css'
@@ -625,6 +627,7 @@ function AppShell() {
     activeTrackTitle: '',
     lastInteractedAt: 0,
   })
+  const [showGlobalMask, setShowGlobalMask] = useState(false)
   const isHomePage = location.pathname === '/'
   const isHiddenSpace = location.pathname.startsWith('/hidden')
 
@@ -637,23 +640,38 @@ function AppShell() {
   }, [replayIntroEnabled])
 
   return (
-    <div className="site">
-      <MobileNotice />
-      {!isHiddenSpace && <BackgroundLayer mode="base" />}
-      <ClickEffects />
-      <SiteHeader replayIntroEnabled={replayIntroEnabled} setReplayIntroEnabled={setReplayIntroEnabled} />
-      <AppRoutes
-        replayIntroEnabled={replayIntroEnabled}
-        locationKey={location.pathname + location.hash}
-        musicUiState={{
-          ...musicUiState,
-          isMusicSceneActive: isHomePage && musicUiState.isExpanded,
-        }}
-        onOcAreaChange={setOcArea}
-      />
-      <MiniMusicPlayer isHomePage={isHomePage} ocArea={ocArea} onUiStateChange={setMusicUiState} />
-      <MusicVisualizer />
-    </div>
+    <TransitionContext.Provider value={{ showGlobalMask, setShowGlobalMask }}>
+      <div className="site">
+        <MobileNotice />
+        {!isHiddenSpace && <BackgroundLayer mode="base" />}
+        <ClickEffects />
+        <SiteHeader replayIntroEnabled={replayIntroEnabled} setReplayIntroEnabled={setReplayIntroEnabled} />
+        <AppRoutes
+          replayIntroEnabled={replayIntroEnabled}
+          locationKey={location.pathname + location.hash}
+          musicUiState={{
+            ...musicUiState,
+            isMusicSceneActive: isHomePage && musicUiState.isExpanded,
+          }}
+          onOcAreaChange={setOcArea}
+        />
+        <MiniMusicPlayer isHomePage={isHomePage} ocArea={ocArea} onUiStateChange={setMusicUiState} />
+        <MusicVisualizer />
+        <CircularRevealTransition isActive={false} />
+        {showGlobalMask && (
+          <div
+            style={{
+              position: 'fixed',
+              inset: 0,
+              backgroundColor: '#ffffff',
+              zIndex: 10000,
+              pointerEvents: 'none',
+            }}
+            aria-hidden="true"
+          />
+        )}
+      </div>
+    </TransitionContext.Provider>
   )
 }
 

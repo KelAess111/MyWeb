@@ -3,10 +3,14 @@ import { Link } from 'react-router-dom'
 import ContactPanel from '../components/ContactPanel'
 import QASection from '../components/QASection'
 import Annotate from '../components/Annotate'
+import CircularRevealTransition from '../components/CircularRevealTransition'
+import { useTransition } from '../contexts/TransitionContext'
 import avatarImage from '../assets/about/头像.jpg'
 
 function ProfilePage() {
   const [isInterestsOpen, setIsInterestsOpen] = useState(false)
+  const [revealTransition, setRevealTransition] = useState({ isActive: false, clickPosition: null, targetRoute: null })
+  const { setShowGlobalMask } = useTransition()
 
   const interestLinks = [
     {
@@ -41,6 +45,21 @@ function ProfilePage() {
     },
   ]
 
+  const handleInterestLinkClick = (event, to) => {
+    event.preventDefault()
+    console.log('Interest link clicked:', to)
+
+    setRevealTransition({
+      isActive: true,
+      clickPosition: { clientX: event.clientX, clientY: event.clientY },
+      targetRoute: to
+    })
+  }
+
+  const handleRevealComplete = () => {
+    setRevealTransition({ isActive: false, clickPosition: null, targetRoute: null })
+  }
+
   return (
     <main className="profile-page">
       <section className="section profile-intro" id="intro">
@@ -70,6 +89,7 @@ function ProfilePage() {
                       style={{ '--delay': `${index * 0.1}s` }}
                       aria-label={link.label}
                       title={link.label}
+                      onClick={(e) => handleInterestLinkClick(e, link.to)}
                     >
                       <span className="interest-icon">{link.svg}</span>
                     </Link>
@@ -109,7 +129,7 @@ function ProfilePage() {
                 <div className="profile-meta-item">
                   <span className="profile-meta-label">创作理念</span>
                   <span className="profile-meta-value">
-                    <Annotate content="听起来很可笑，像什么会倒闭但不会变质。然我不否认自己会背离初心什么的，但初心即使变化不会影响我想表达的美好愿望。" type="highlight">
+                    <Annotate content="会倒闭但不会变质！！！" type="highlight">
                       传达美好的愿望
                     </Annotate>
                   </span>
@@ -127,6 +147,14 @@ function ProfilePage() {
       <QASection />
 
       <ContactPanel />
+
+      <CircularRevealTransition
+        isActive={revealTransition.isActive}
+        clickPosition={revealTransition.clickPosition}
+        targetRoute={revealTransition.targetRoute}
+        targetElement={null}
+        onComplete={handleRevealComplete}
+      />
     </main>
   )
 }

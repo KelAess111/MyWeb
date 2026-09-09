@@ -113,6 +113,9 @@ function AnimePage() {
     const sourceEntry = editingEntry
     if (!sourceEntry) return
 
+    // 检查该条目是否已存在于 writingTree 中
+    const entryExistsInTree = entriesByAssetKey.has(sourceEntry.meta?.assetKey)
+
     const didSave = await saveNode({
       id: sourceEntry.id,
       slug: sourceEntry.slug,
@@ -128,7 +131,7 @@ function AnimePage() {
       blocks: sourceEntry.blocks ?? [],
       annotations: sourceEntry.annotations ?? [],
       ocHoverLine: sourceEntry.ocHoverLine,
-    }, { mode: 'node' })
+    }, entryExistsInTree ? {} : { mode: 'root' })
 
     if (didSave) setEditingEntry(null)
   }
