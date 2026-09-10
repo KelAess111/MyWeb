@@ -25,34 +25,41 @@ import './styles/music.css'
 import './styles/share.css'
 import './styles/anki.css'
 
-const HomePage = lazy(() => import('./pages/HomePage'))
-const ProfilePage = lazy(() => import('./pages/ProfilePage'))
-const PortfolioPage = lazy(() => import('./pages/PortfolioPage'))
-const InterestsPage = lazy(() => import('./pages/InterestsPage'))
-const SharePage = lazy(() => import('./pages/SharePage'))
-const CategoryPage = lazy(() => import('./pages/CategoryPage'))
-const HiddenArchivePage = lazy(() => import('./pages/HiddenArchivePage'))
-const HiddenSpaceGamesPage = lazy(() => import('./pages/HiddenSpaceGamesPage'))
-const HiddenSpacePaintingPage = lazy(() => import('./pages/HiddenSpacePaintingPage'))
-const HiddenSpaceWritingPage = lazy(() => import('./pages/HiddenSpaceWritingPage'))
-const PublicWritingPage = lazy(() => import('./pages/PublicWritingPage'))
-const PublicJournalPage = lazy(() => import('./pages/PublicJournalPage'))
-const PublicGalleryPage = lazy(() => import('./pages/PublicGalleryPage'))
-const PublicGalleryAlbumPage = lazy(() => import('./pages/PublicGalleryAlbumPage'))
-const AnimePage = lazy(() => import('./pages/AnimePage'))
-const ArticleDetailPage = lazy(() => import('./pages/ArticleDetailPage'))
-const BookPage = lazy(() => import('./pages/BookPage'))
-const GamePage = lazy(() => import('./pages/GamePage'))
-const MusicPage = lazy(() => import('./pages/MusicPage'))
-const HiddenSpaceJournalPage = lazy(() => import('./pages/HiddenSpaceJournalPage'))
-const HiddenSpacePersonalPage = lazy(() => import('./pages/HiddenSpacePersonalPage'))
-const QAAdminPage = lazy(() => import('./pages/QAAdminPage'))
-const UtilitiesPage = lazy(() => import('./pages/UtilitiesPage'))
-const LoginPage = lazy(() => import('./pages/LoginPage'))
-const AnkiHomePage = lazy(() => import('./pages/AnkiHomePage'))
-const AnkiPracticePage = lazy(() => import('./pages/AnkiPracticePage'))
-const AnkiManagePage = lazy(() => import('./pages/AnkiManagePage'))
-const AnkiWrongCardsPage = lazy(() => import('./pages/AnkiWrongCardsPage'))
+// 创建支持预加载的lazy wrapper
+function lazyWithPreload(importFunc) {
+  const LazyComponent = lazy(importFunc)
+  LazyComponent.preload = importFunc
+  return LazyComponent
+}
+
+const HomePage = lazyWithPreload(() => import('./pages/HomePage'))
+const ProfilePage = lazyWithPreload(() => import('./pages/ProfilePage'))
+const PortfolioPage = lazyWithPreload(() => import('./pages/PortfolioPage'))
+const InterestsPage = lazyWithPreload(() => import('./pages/InterestsPage'))
+const SharePage = lazyWithPreload(() => import('./pages/SharePage'))
+const CategoryPage = lazyWithPreload(() => import('./pages/CategoryPage'))
+const HiddenArchivePage = lazyWithPreload(() => import('./pages/HiddenArchivePage'))
+const HiddenSpaceGamesPage = lazyWithPreload(() => import('./pages/HiddenSpaceGamesPage'))
+const HiddenSpacePaintingPage = lazyWithPreload(() => import('./pages/HiddenSpacePaintingPage'))
+const HiddenSpaceWritingPage = lazyWithPreload(() => import('./pages/HiddenSpaceWritingPage'))
+const PublicWritingPage = lazyWithPreload(() => import('./pages/PublicWritingPage'))
+const PublicJournalPage = lazyWithPreload(() => import('./pages/PublicJournalPage'))
+const PublicGalleryPage = lazyWithPreload(() => import('./pages/PublicGalleryPage'))
+const PublicGalleryAlbumPage = lazyWithPreload(() => import('./pages/PublicGalleryAlbumPage'))
+const AnimePage = lazyWithPreload(() => import('./pages/AnimePage'))
+const ArticleDetailPage = lazyWithPreload(() => import('./pages/ArticleDetailPage'))
+const BookPage = lazyWithPreload(() => import('./pages/BookPage'))
+const GamePage = lazyWithPreload(() => import('./pages/GamePage'))
+const MusicPage = lazyWithPreload(() => import('./pages/MusicPage'))
+const HiddenSpaceJournalPage = lazyWithPreload(() => import('./pages/HiddenSpaceJournalPage'))
+const HiddenSpacePersonalPage = lazyWithPreload(() => import('./pages/HiddenSpacePersonalPage'))
+const QAAdminPage = lazyWithPreload(() => import('./pages/QAAdminPage'))
+const UtilitiesPage = lazyWithPreload(() => import('./pages/UtilitiesPage'))
+const LoginPage = lazyWithPreload(() => import('./pages/LoginPage'))
+const AnkiHomePage = lazyWithPreload(() => import('./pages/AnkiHomePage'))
+const AnkiPracticePage = lazyWithPreload(() => import('./pages/AnkiPracticePage'))
+const AnkiManagePage = lazyWithPreload(() => import('./pages/AnkiManagePage'))
+const AnkiWrongCardsPage = lazyWithPreload(() => import('./pages/AnkiWrongCardsPage'))
 
 const PLAYBACK_STORAGE_KEY = 'kel-music-player-playback'
 const MESSAGE_STORAGE_KEY = 'kel-music-player-messages'
@@ -580,6 +587,82 @@ function AppRoutes({ musicUiState, onOcAreaChange, replayIntroEnabled, locationK
 
 function AppShell() {
   const location = useLocation()
+
+  // 预加载所有路由组件（首次进入时）
+  useEffect(() => {
+    // 只在首次加载时预加载
+    const hasPreloaded = sessionStorage.getItem('routes-preloaded')
+    if (hasPreloaded) {
+      return
+    }
+
+    console.log('开始预加载路由组件...')
+
+    // 使用requestIdleCallback在浏览器空闲时预加载
+    const preloadRoutes = async () => {
+      // 预加载所有lazy组件
+      const components = [
+        { name: 'HomePage', component: HomePage },
+        { name: 'ProfilePage', component: ProfilePage },
+        { name: 'PortfolioPage', component: PortfolioPage },
+        { name: 'InterestsPage', component: InterestsPage },
+        { name: 'SharePage', component: SharePage },
+        { name: 'CategoryPage', component: CategoryPage },
+        { name: 'HiddenArchivePage', component: HiddenArchivePage },
+        { name: 'HiddenSpaceGamesPage', component: HiddenSpaceGamesPage },
+        { name: 'HiddenSpacePaintingPage', component: HiddenSpacePaintingPage },
+        { name: 'HiddenSpaceWritingPage', component: HiddenSpaceWritingPage },
+        { name: 'PublicWritingPage', component: PublicWritingPage },
+        { name: 'PublicJournalPage', component: PublicJournalPage },
+        { name: 'PublicGalleryPage', component: PublicGalleryPage },
+        { name: 'PublicGalleryAlbumPage', component: PublicGalleryAlbumPage },
+        { name: 'AnimePage', component: AnimePage },
+        { name: 'ArticleDetailPage', component: ArticleDetailPage },
+        { name: 'BookPage', component: BookPage },
+        { name: 'GamePage', component: GamePage },
+        { name: 'MusicPage', component: MusicPage },
+        { name: 'HiddenSpaceJournalPage', component: HiddenSpaceJournalPage },
+        { name: 'HiddenSpacePersonalPage', component: HiddenSpacePersonalPage },
+        { name: 'QAAdminPage', component: QAAdminPage },
+        { name: 'UtilitiesPage', component: UtilitiesPage },
+        { name: 'LoginPage', component: LoginPage },
+        { name: 'AnkiHomePage', component: AnkiHomePage },
+        { name: 'AnkiPracticePage', component: AnkiPracticePage },
+        { name: 'AnkiManagePage', component: AnkiManagePage },
+        { name: 'AnkiWrongCardsPage', component: AnkiWrongCardsPage }
+      ]
+
+      // 逐个预加载，避免一次性加载太多
+      for (let i = 0; i < components.length; i++) {
+        const { name, component } = components[i]
+        try {
+          if (component.preload) {
+            await component.preload()
+            console.log(`✓ 预加载完成: ${name}`)
+          }
+        } catch (error) {
+          console.warn(`✗ 预加载失败: ${name}`, error)
+        }
+        // 增加间隔到150ms，给浏览器更多喘息时间
+        await new Promise(resolve => setTimeout(resolve, 150))
+      }
+
+      console.log('✓ 所有路由预加载完成')
+      sessionStorage.setItem('routes-preloaded', 'true')
+    }
+
+    // 延迟2.5秒后开始预加载，确保首屏完全加载完成
+    const timer = setTimeout(() => {
+      if (typeof requestIdleCallback !== 'undefined') {
+        // 增加timeout到5秒，给浏览器更宽松的调度时间
+        requestIdleCallback(() => preloadRoutes(), { timeout: 5000 })
+      } else {
+        preloadRoutes()
+      }
+    }, 2500)
+
+    return () => clearTimeout(timer)
+  }, [])
 
   // 在应用最顶层检查预览模式和编辑模式
   useEffect(() => {

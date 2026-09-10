@@ -4,16 +4,21 @@ import { useNavigate, useLocation } from 'react-router-dom'
 import { useTransition } from '../contexts/TransitionContext'
 
 const REVEAL_DURATION = 700 // 扩散时长
-const HOLD_DURATION = 300 // 全屏停留时间，确保新页面加载
+const HOLD_DURATION = 600 // 全屏停留时间，增加到600ms确保新页面加载
 const SHRINK_DURATION = 800 // 收缩时长
-const SHRINK_DELAY = 250 // 收缩前的额外等待时间
+const SHRINK_DELAY = 400 // 收缩前的额外等待时间，增加到400ms
 const REVEAL_EASING = 'cubic-bezier(0.4, 0.0, 0.2, 1)'
 const SHRINK_EASING = 'cubic-bezier(0.6, 0.0, 0.4, 1)'
+
+// 波纹层级延迟（毫秒）
+const RIPPLE_DELAY = 80 // 每层波纹之间的延迟
 
 const TRANSITION_STORAGE_KEY = 'circular-reveal-transition-state'
 
 function CircularRevealTransition({ isActive, clickPosition, targetRoute, targetElement, onComplete }) {
-  const overlayRef = useRef(null)
+  const layer1Ref = useRef(null) // 最内层浅蓝
+  const layer2Ref = useRef(null) // 中间白色
+  const layer3Ref = useRef(null) // 最外层浅蓝
   const [isAnimating, setIsAnimating] = useState(false)
   const [phase, setPhase] = useState('idle') // 'idle', 'expanding', 'shrinking'
   const navigate = useNavigate()
@@ -38,50 +43,73 @@ function CircularRevealTransition({ isActive, clickPosition, targetRoute, target
 
       // 等待下一帧，确保组件已经渲染
       requestAnimationFrame(() => {
-        const overlay = overlayRef.current
-        if (!overlay) {
-          console.error('Overlay ref still not available after state update')
+        const layer1 = layer1Ref.current
+        const layer2 = layer2Ref.current
+        const layer3 = layer3Ref.current
+
+        if (!layer1 || !layer2 || !layer3) {
+          console.error('Layer refs not available after state update')
           setIsAnimating(false)
-          setShowGlobalMask(false) // 确保关闭全局遮罩
+          setShowGlobalMask(false)
           sessionStorage.removeItem(TRANSITION_STORAGE_KEY)
           return
         }
 
-        console.log('Overlay ref ready, initializing for shrink')
+        console.log('Layer refs ready, initializing for shrink')
 
         const { clientX, clientY, maxRadius } = state
 
         // 立即设置为扩散完成的状态（全屏覆盖），保持遮罩覆盖屏幕
         const finalSize = maxRadius * 2.2
-        overlay.style.left = `${clientX}px`
-        overlay.style.top = `${clientY}px`
-        overlay.style.width = `${finalSize}px`
-        overlay.style.height = `${finalSize}px`
-        overlay.style.transform = 'translate(-50%, -50%)'
-        overlay.style.opacity = '1'
-        overlay.style.transition = 'none'
+        const layers = [layer1, layer2, layer3]
 
-        console.log('Overlay initialized for shrink:', { finalSize, clientX, clientY })
+        // 所有层都是全屏大小
+        layers.forEach((layer) => {
+          layer.style.left = `${clientX}px`
+          layer.style.top = `${clientY}px`
+          layer.style.width = `${finalSize}px`
+          layer.style.height = `${finalSize}px`
+          layer.style.transform = 'translate(-50%, -50%)'
+          layer.style.opacity = '1'
+          layer.style.transition = 'none'
+        })
+
+        console.log('Layers initialized for shrink:', { finalSize, clientX, clientY })
 
         // 现在可以清除 sessionStorage 了
         sessionStorage.removeItem(TRANSITION_STORAGE_KEY)
 
-        // 稍长的延迟，确保新页面内容已经渲染，然后再开始收缩
-        setTimeout(() => {
-          console.log('Starting shrink animation on new page, hiding global mask')
-          setShowGlobalMask(false) // 在收缩开始前关闭全局遮罩
+        // 关键修复：等待页面真正渲染完成后再开始收缩
+        // 使用 requestAnimationFrame 多次确保内容已渲染
+        const waitForPageReady = () => {
+          requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+              requestAnimationFrame(() => {
+                console.log('Page rendering complete, starting shrink animation')
+                setShowGlobalMask(false) // 在收缩开始前关闭全局遮罩
 
-          overlay.style.width = '0px'
-          overlay.style.height = '0px'
-          overlay.style.transition = `width ${SHRINK_DURATION}ms ${SHRINK_EASING}, height ${SHRINK_DURATION}ms ${SHRINK_EASING}, opacity ${SHRINK_DURATION * 0.8}ms ease-out ${SHRINK_DURATION * 0.2}ms`
-          overlay.style.opacity = '0'
+                // 差序收缩动画 - 从外到内
+                layers.forEach((layer, index) => {
+                  setTimeout(() => {
+                    layer.style.width = '0px'
+                    layer.style.height = '0px'
+                    layer.style.transition = `width ${SHRINK_DURATION}ms ${SHRINK_EASING}, height ${SHRINK_DURATION}ms ${SHRINK_EASING}, opacity ${SHRINK_DURATION * 0.8}ms ease-out ${SHRINK_DURATION * 0.2}ms`
+                    layer.style.opacity = '0'
+                  }, (2 - index) * RIPPLE_DELAY) // 外层先收缩
+                })
 
-          setTimeout(() => {
-            console.log('Shrink animation complete')
-            setIsAnimating(false)
-            setPhase('idle')
-          }, SHRINK_DURATION + 100)
-        }, SHRINK_DELAY)
+                setTimeout(() => {
+                  console.log('Shrink animation complete')
+                  setIsAnimating(false)
+                  setPhase('idle')
+                }, SHRINK_DURATION + RIPPLE_DELAY * 2 + 100)
+              })
+            })
+          })
+        }
+
+        // 增加延迟，确保Suspense内容已完全渲染
+        setTimeout(waitForPageReady, SHRINK_DELAY + 200)
       })
     } catch (error) {
       console.error('Failed to parse transition state:', error)
@@ -104,9 +132,12 @@ function CircularRevealTransition({ isActive, clickPosition, targetRoute, target
     setIsAnimating(true)
     setPhase('expanding')
 
-    const overlay = overlayRef.current
-    if (!overlay) {
-      console.error('Overlay ref not found')
+    const layer1 = layer1Ref.current
+    const layer2 = layer2Ref.current
+    const layer3 = layer3Ref.current
+
+    if (!layer1 || !layer2 || !layer3) {
+      console.error('Layer refs not found')
       onComplete?.()
       return
     }
@@ -122,21 +153,35 @@ function CircularRevealTransition({ isActive, clickPosition, targetRoute, target
 
     console.log('Starting reveal animation from:', { clientX, clientY, maxRadius })
 
-    // 设置初始状态（从点击位置开始，大小为0）
-    overlay.style.left = `${clientX}px`
-    overlay.style.top = `${clientY}px`
-    overlay.style.width = '0px'
-    overlay.style.height = '0px'
-    overlay.style.transform = 'translate(-50%, -50%)'
-    overlay.style.opacity = '1'
+    const layers = [layer1, layer2, layer3]
 
-    // 开始扩散动画
+    // 设置初始状态（从点击位置开始，大小为0）
+    layers.forEach(layer => {
+      layer.style.left = `${clientX}px`
+      layer.style.top = `${clientY}px`
+      layer.style.width = '0px'
+      layer.style.height = '0px'
+      layer.style.transform = 'translate(-50%, -50%)'
+      layer.style.opacity = '1'
+    })
+
+    // 开始差序扩散动画
     requestAnimationFrame(() => {
       requestAnimationFrame(() => {
         const finalSize = maxRadius * 2.2 // 稍微大一点确保覆盖整个屏幕
-        overlay.style.width = `${finalSize}px`
-        overlay.style.height = `${finalSize}px`
-        overlay.style.transition = `width ${REVEAL_DURATION}ms ${REVEAL_EASING}, height ${REVEAL_DURATION}ms ${REVEAL_EASING}`
+
+        // 三个圆都扩散到全屏，但依次启动形成波纹效果
+        // layer1 = 白色（先扩散）
+        // layer2 = 蓝色（第二个扩散）
+        // layer3 = 白色（最后扩散）
+
+        layers.forEach((layer, index) => {
+          setTimeout(() => {
+            layer.style.width = `${finalSize}px`
+            layer.style.height = `${finalSize}px`
+            layer.style.transition = `width ${REVEAL_DURATION}ms ${REVEAL_EASING}, height ${REVEAL_DURATION}ms ${REVEAL_EASING}`
+          }, index * RIPPLE_DELAY) // 依次扩散：白→蓝→白
+        })
       })
     })
 
@@ -171,10 +216,15 @@ function CircularRevealTransition({ isActive, clickPosition, targetRoute, target
             setPhase('shrinking')
             console.log('Starting shrink animation')
 
-            overlay.style.width = '0px'
-            overlay.style.height = '0px'
-            overlay.style.transition = `width ${SHRINK_DURATION}ms ${SHRINK_EASING}, height ${SHRINK_DURATION}ms ${SHRINK_EASING}, opacity ${SHRINK_DURATION * 0.6}ms ${SHRINK_EASING}`
-            overlay.style.opacity = '0'
+            // 差序收缩 - 从外到内
+            layers.forEach((layer, index) => {
+              setTimeout(() => {
+                layer.style.width = '0px'
+                layer.style.height = '0px'
+                layer.style.transition = `width ${SHRINK_DURATION}ms ${SHRINK_EASING}, height ${SHRINK_DURATION}ms ${SHRINK_EASING}, opacity ${SHRINK_DURATION * 0.6}ms ${SHRINK_EASING}`
+                layer.style.opacity = '0'
+              }, (2 - index) * RIPPLE_DELAY) // 外层先收缩
+            })
 
             const shrinkTimer = setTimeout(() => {
               console.log('Shrink complete')
@@ -182,13 +232,13 @@ function CircularRevealTransition({ isActive, clickPosition, targetRoute, target
               setPhase('idle')
               setShowGlobalMask(false)
               onComplete?.()
-            }, SHRINK_DURATION)
+            }, SHRINK_DURATION + RIPPLE_DELAY * 2)
 
             return () => clearTimeout(shrinkTimer)
           }, 50)
         }
       }, HOLD_DURATION)
-    }, REVEAL_DURATION)
+    }, REVEAL_DURATION + RIPPLE_DELAY * 2) // 等待所有层扩散完成
 
     return () => {
       clearTimeout(expandTimer)
@@ -198,19 +248,50 @@ function CircularRevealTransition({ isActive, clickPosition, targetRoute, target
   if (!isAnimating && !isActive) return null
 
   return createPortal(
-    <div
-      ref={overlayRef}
-      className="circular-reveal-overlay"
-      style={{
-        position: 'fixed',
-        borderRadius: '50%',
-        backgroundColor: '#ffffff',
-        pointerEvents: 'none',
-        zIndex: 9999,
-        willChange: 'transform, width, height, opacity',
-      }}
-      aria-hidden="true"
-    />,
+    <>
+      {/* 第一层 - 最先扩散的白色（z-index最低，在最底下）*/}
+      <div
+        ref={layer1Ref}
+        className="circular-reveal-overlay circular-reveal-layer-1"
+        style={{
+          position: 'fixed',
+          borderRadius: '50%',
+          backgroundColor: '#ffffff',
+          pointerEvents: 'none',
+          zIndex: 10000,
+          willChange: 'transform, width, height, opacity',
+        }}
+        aria-hidden="true"
+      />
+      {/* 第二层 - 第二个扩散的浅蓝色（盖在白色上）*/}
+      <div
+        ref={layer2Ref}
+        className="circular-reveal-overlay circular-reveal-layer-2"
+        style={{
+          position: 'fixed',
+          borderRadius: '50%',
+          backgroundColor: '#b3d9ff',
+          pointerEvents: 'none',
+          zIndex: 10001,
+          willChange: 'transform, width, height, opacity',
+        }}
+        aria-hidden="true"
+      />
+      {/* 第三层 - 最后扩散的白色（z-index最高，在最上面）*/}
+      <div
+        ref={layer3Ref}
+        className="circular-reveal-overlay circular-reveal-layer-3"
+        style={{
+          position: 'fixed',
+          borderRadius: '50%',
+          backgroundColor: '#ffffff',
+          pointerEvents: 'none',
+          zIndex: 10002,
+          willChange: 'transform, width, height, opacity',
+        }}
+        aria-hidden="true"
+      />
+    </>,
     document.body
   )
 }
