@@ -95,11 +95,7 @@ export async function getUserCards(language) {
 export async function createCard(cardData) {
   const user = await getCurrentUser()
 
-  if (isLocalEditMode()) {
-    console.log('Edit mode: card creation skipped')
-    return { id: 'local-' + Date.now(), ...cardData }
-  }
-
+  // 编辑模式下也允许真正保存到数据库
   const { data, error } = await supabase
     .from('anki_cards')
     .insert([{
@@ -130,11 +126,7 @@ export async function createCard(cardData) {
 export async function updateCard(cardId, updates) {
   const user = await getCurrentUser()
 
-  if (isLocalEditMode()) {
-    console.log('Edit mode: card update skipped')
-    return { id: cardId, ...updates }
-  }
-
+  // 编辑模式下也允许真正更新数据库
   const { data, error } = await supabase
     .from('anki_cards')
     .update({
@@ -164,11 +156,7 @@ export async function updateCard(cardId, updates) {
 export async function deleteCard(cardId) {
   const user = await getCurrentUser()
 
-  if (isLocalEditMode()) {
-    console.log('Edit mode: card deletion skipped')
-    return
-  }
-
+  // 编辑模式下也允许真正删除数据
   const { error } = await supabase
     .from('anki_cards')
     .delete()
@@ -188,10 +176,6 @@ export async function deleteCard(cardId) {
  */
 export async function searchCards(language, searchTerm) {
   const user = await getCurrentUser()
-
-  if (isLocalEditMode()) {
-    return []
-  }
 
   const { data, error } = await supabase
     .from('anki_cards')
@@ -217,11 +201,7 @@ export async function searchCards(language, searchTerm) {
 export async function savePracticeSession(sessionData) {
   const user = await getCurrentUser()
 
-  if (isLocalEditMode()) {
-    console.log('Edit mode: practice session save skipped')
-    return { id: 'local-' + Date.now(), ...sessionData }
-  }
-
+  // 编辑模式下也允许保存练习记录
   const { data, error } = await supabase
     .from('anki_practice_sessions')
     .insert([{
@@ -248,10 +228,6 @@ export async function savePracticeSession(sessionData) {
  */
 export async function getPracticeHistory(language) {
   const user = await getCurrentUser()
-
-  if (isLocalEditMode()) {
-    return []
-  }
 
   const { data, error } = await supabase
     .from('anki_practice_sessions')
@@ -300,11 +276,6 @@ export async function getOverallStats(language) {
  */
 export async function addToWrongCards(cardId, language) {
   const user = await getCurrentUser()
-
-  if (isLocalEditMode()) {
-    console.log('Edit mode: add to wrong cards skipped')
-    return
-  }
 
   // 检查是否已存在
   const { data: existing } = await supabase
@@ -368,10 +339,6 @@ export async function addToWrongCards(cardId, language) {
 export async function getWrongCards(language) {
   const user = await getCurrentUser()
 
-  if (isLocalEditMode()) {
-    return []
-  }
-
   const { data, error } = await supabase
     .from('anki_wrong_cards')
     .select(`
@@ -399,11 +366,7 @@ export async function getWrongCards(language) {
 export async function removeFromWrongCards(wrongCardId) {
   const user = await getCurrentUser()
 
-  if (isLocalEditMode()) {
-    console.log('Edit mode: remove from wrong cards skipped')
-    return
-  }
-
+  // 编辑模式下也允许移除错题
   const { error } = await supabase
     .from('anki_wrong_cards')
     .delete()
