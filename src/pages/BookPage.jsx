@@ -27,7 +27,9 @@ function BookPage() {
   const entriesByAssetKey = useMemo(() => new Map((workspace.writingTree?.children ?? []).filter((entry) => entry.meta?.assetKey).map((entry) => [entry.meta.assetKey, entry])), [workspace.writingTree])
   const books = useMemo(() => bookRecommendations.map((item) => {
     const entry = entriesByAssetKey.get(item.assetKey) ?? bookRecommendationsTree.children.find((candidate) => candidate.meta.assetKey === item.assetKey)
-    return { ...item, entry, review: getReview(entry) }
+    const review = getReview(entry)
+    const needsToggle = review.length > 150
+    return { ...item, entry, review, needsToggle }
   }), [entriesByAssetKey])
 
   useEffect(() => {
@@ -77,9 +79,9 @@ function BookPage() {
       {books.length ? books.map((book) => {
         const open = lockedEntryId === book.entry.id
         const reviewId = `book-review-${book.assetKey}`
-        return <article className={`book-item ${open ? 'is-locked' : ''}`} key={book.assetKey}>
-          <button type="button" className="book-item-toggle" onClick={() => setLockedEntryId((current) => current === book.entry.id ? null : book.entry.id)} aria-expanded={open} aria-controls={reviewId} aria-label={`${open ? '收起' : '展开'}《${book.title}》书评`}><BookCover item={book} /><span className="book-item-title">{book.title}</span></button>
-          <div id={reviewId} className={`book-review ${book.review ? '' : 'is-empty'}`} hidden={!open}>{book.review || '作者待补充'}</div>
+        return <article className={`book-item ${open ? 'is-locked' : ''} ${book.needsToggle ? '' : 'book-item--always-open'}`} key={book.assetKey}>
+          {book.needsToggle ? <button type="button" className="book-item-toggle" onClick={() => setLockedEntryId((current) => current === book.entry.id ? null : book.entry.id)} aria-expanded={open} aria-controls={reviewId} aria-label={`${open ? '收起' : '展开'}《${book.title}》书评`}><BookCover item={book} /><span className="book-item-title">{book.title}</span></button> : <div className="book-item-header"><BookCover item={book} /><span className="book-item-title">{book.title}</span></div>}
+          <div id={reviewId} className={`book-review ${book.review ? '' : 'is-empty'}`} hidden={book.needsToggle && !open}>{book.review || '作者待补充'}</div>
           {workspace.canEdit ? <button type="button" className="book-edit-button" onClick={() => setEditingEntry(book.entry)}>编辑评价</button> : null}
         </article>
       }) : <div className="book-empty-state"><strong>还没有本地书籍图片</strong><p>将图片放入 src/assets/book 后，这里会自动生成推荐书目。</p></div>}

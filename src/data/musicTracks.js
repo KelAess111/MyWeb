@@ -71,4 +71,20 @@ export const musicTracks = [
     accent: 'rose',
     //note: '请将音频文件放到 public/audio/It’s Going Down Now-高橋あず美.mp3',
   },
+  {
+    id: '分かっちゃいないね',
+    title: '分かっちゃいないね',
+    artist: 'monet',
+    src: 'public/audio/分かっちゃいないね-monet.mp3',
+    accent: 'rose',
+    //note: '请将音频文件放到 public/audio/分かっちゃいないね-monet.mp3',
+  },
+  {
+    id: 'アイノ最適解',
+    title: 'アイノ最適解',
+    artist: '明透 理芽',
+    src: 'public/audio/アイノ最適解-明透 理芽.mp3',
+    accent: 'rose',
+    //note: '请将音频文件放到 public/audio/アイノ最適解-明透 理芽.mp3',
+  },
 ]
