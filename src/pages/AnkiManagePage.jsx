@@ -255,25 +255,7 @@ function AnkiManagePage() {
             </button>
           </div>
 
-<<<<<<< HEAD
-          {!canEdit && !isPreview && (
-            <div className="anki-preview-notice">
-              <span className="anki-preview-icon">🔒</span>
-              只读模式：所有用户共享词库，仅本地编辑模式可管理
-            </div>
-          )}
-
-          {isPreview && (
-            <div className="anki-preview-notice">
-              <span className="anki-preview-icon">👁️</span>
-              预览模式：仅可查看，无法编辑
-            </div>
-          )}
-
-          {!canEdit && (
-=======
           {canEdit && (
->>>>>>> f869383 (bug修复)
             <button
               type="button"
               className="anki-add-btn"
