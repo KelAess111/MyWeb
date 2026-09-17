@@ -1,6 +1,6 @@
 import { supabase } from '../lib/supabaseClient'
 
-// 作者账号ID（用于共享词库）
+// 作者的用户ID（词库所有者）
 const AUTHOR_USER_ID = '8dff792d-ceab-4299-9d0a-e984191fe29c'
 
 // 检查是否为本地编辑模式
@@ -63,7 +63,11 @@ async function getAuthorUser() {
 // ==================== 卡片管理 ====================
 
 /**
+<<<<<<< HEAD
  * 获取词库卡片（所有用户共享，使用作者的词库）
+=======
+ * 获取用户的所有卡片（所有用户读取作者的词库）
+>>>>>>> f869383 (bug修复)
  * @param {string} language - 'japanese' | 'english'
  * @param {boolean} includeDiscarded - 是否包含弃置的卡片
  * @returns {Promise<Array>}
@@ -96,10 +100,17 @@ export async function getUserCards(language, includeDiscarded = false) {
  */
 export async function createCard(cardData) {
   if (!isLocalEditMode()) {
+<<<<<<< HEAD
     throw new Error('只有本地编辑模式才能添加卡片')
   }
 
   const user = await getAuthorUser()
+=======
+    throw new Error('只有本地编辑模式可以添加卡片')
+  }
+
+  const user = await getCurrentUser()
+>>>>>>> f869383 (bug修复)
 
   const { data, error } = await supabase
     .from('anki_cards')
@@ -131,10 +142,17 @@ export async function createCard(cardData) {
  */
 export async function updateCard(cardId, updates) {
   if (!isLocalEditMode()) {
+<<<<<<< HEAD
     throw new Error('只有本地编辑模式才能编辑卡片')
   }
 
   const user = await getAuthorUser()
+=======
+    throw new Error('只有本地编辑模式可以更新卡片')
+  }
+
+  const user = await getCurrentUser()
+>>>>>>> f869383 (bug修复)
 
   const { data, error } = await supabase
     .from('anki_cards')
@@ -165,10 +183,17 @@ export async function updateCard(cardId, updates) {
  */
 export async function deleteCard(cardId) {
   if (!isLocalEditMode()) {
+<<<<<<< HEAD
     throw new Error('只有本地编辑模式才能删除卡片')
   }
 
   const user = await getAuthorUser()
+=======
+    throw new Error('只有本地编辑模式可以删除卡片')
+  }
+
+  const user = await getCurrentUser()
+>>>>>>> f869383 (bug修复)
 
   const { error } = await supabase
     .from('anki_cards')
@@ -182,7 +207,11 @@ export async function deleteCard(cardId) {
 }
 
 /**
+<<<<<<< HEAD
  * 搜索卡片（共享词库）
+=======
+ * 搜索卡片（所有用户搜索作者的词库）
+>>>>>>> f869383 (bug修复)
  * @param {string} language
  * @param {string} searchTerm
  * @returns {Promise<Array>}
@@ -407,7 +436,11 @@ export async function removeFromWrongCards(wrongCardId) {
 // ==================== 弃置卡片管理 ====================
 
 /**
+<<<<<<< HEAD
  * 弃置卡片（仅本地编辑模式）
+=======
+ * 弃置卡片（所有用户都可以操作）
+>>>>>>> f869383 (bug修复)
  * @param {string} cardId
  * @returns {Promise<void>}
  */
@@ -422,7 +455,7 @@ export async function discardCard(cardId) {
     .from('anki_cards')
     .update({ is_discarded: true })
     .eq('id', cardId)
-    .eq('user_id', user.id)
+    .eq('user_id', AUTHOR_USER_ID)
 
   if (error) {
     throw error
@@ -430,7 +463,11 @@ export async function discardCard(cardId) {
 }
 
 /**
+<<<<<<< HEAD
  * 恢复弃置的卡片（仅本地编辑模式）
+=======
+ * 恢复弃置的卡片（所有用户都可以操作）
+>>>>>>> f869383 (bug修复)
  * @param {string} cardId
  * @returns {Promise<void>}
  */
@@ -445,7 +482,7 @@ export async function restoreCard(cardId) {
     .from('anki_cards')
     .update({ is_discarded: false })
     .eq('id', cardId)
-    .eq('user_id', user.id)
+    .eq('user_id', AUTHOR_USER_ID)
 
   if (error) {
     throw error
@@ -453,7 +490,11 @@ export async function restoreCard(cardId) {
 }
 
 /**
+<<<<<<< HEAD
  * 获取弃置的卡片（共享词库）
+=======
+ * 获取弃置的卡片（所有用户读取作者的词库）
+>>>>>>> f869383 (bug修复)
  * @param {string} language
  * @returns {Promise<Array>}
  */

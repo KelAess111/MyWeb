@@ -11,13 +11,13 @@ import {
 } from '../services/ankiService'
 import { Toast, ConfirmDialog } from '../components/Toast'
 
-// 检查是否为预览模式
-function isPreviewMode() {
+// 检查是否为本地编辑模式
+function isLocalEditMode() {
   if (typeof window === 'undefined') {
     return false
   }
   try {
-    return window.sessionStorage.getItem('previewMode') === 'true'
+    return window.localStorage.getItem('localEditMode') === 'true'
   } catch {
     return false
   }
@@ -40,7 +40,6 @@ function AnkiManagePage() {
     specialNote: '',
   })
   const [canEdit] = useState(() => isLocalEditMode())
-  const [isPreview] = useState(() => isPreviewMode())
   const [toast, setToast] = useState(null)
   const [confirmDialog, setConfirmDialog] = useState(null)
 
@@ -63,17 +62,6 @@ function AnkiManagePage() {
     }
   }
 
-  const handleRestore = async (cardId) => {
-    try {
-      await restoreCard(cardId)
-      setToast({ message: '恢复成功', type: 'success' })
-      loadCards()
-    } catch (error) {
-      console.error('恢复失败:', error)
-      setToast({ message: '恢复失败：' + error.message, type: 'error' })
-    }
-  }
-
   const handleSearch = async () => {
     if (!searchTerm.trim()) {
       loadCards()
@@ -90,6 +78,10 @@ function AnkiManagePage() {
   }
 
   const openEditor = (card = null) => {
+    if (!canEdit) {
+      setToast({ message: '仅查看模式：无法编辑', type: 'warning' })
+      return
+    }
     if (card) {
       setEditingCard(card)
       setFormData({
@@ -121,6 +113,11 @@ function AnkiManagePage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
+
+    if (!canEdit) {
+      setToast({ message: '仅查看模式：无法编辑', type: 'warning' })
+      return
+    }
 
     if (!formData.originalText.trim() || !formData.translation.trim()) {
       setToast({ message: '原文和中文意思不能为空', type: 'warning' })
@@ -159,6 +156,10 @@ function AnkiManagePage() {
   }
 
   const handleDelete = async (cardId) => {
+    if (!canEdit) {
+      setToast({ message: '仅查看模式：无法编辑', type: 'warning' })
+      return
+    }
     setConfirmDialog({
       message: '确定要删除这张卡片吗？',
       onConfirm: async () => {
@@ -174,6 +175,21 @@ function AnkiManagePage() {
       },
       onCancel: () => setConfirmDialog(null)
     })
+  }
+
+  const handleRestore = async (cardId) => {
+    if (!canEdit) {
+      setToast({ message: '仅查看模式：无法编辑', type: 'warning' })
+      return
+    }
+    try {
+      await restoreCard(cardId)
+      setToast({ message: '恢复成功', type: 'success' })
+      loadCards()
+    } catch (error) {
+      console.error('恢复失败:', error)
+      setToast({ message: '恢复失败：' + error.message, type: 'error' })
+    }
   }
 
   return (
@@ -239,6 +255,7 @@ function AnkiManagePage() {
             </button>
           </div>
 
+<<<<<<< HEAD
           {!canEdit && !isPreview && (
             <div className="anki-preview-notice">
               <span className="anki-preview-icon">🔒</span>
@@ -254,6 +271,9 @@ function AnkiManagePage() {
           )}
 
           {!canEdit && (
+=======
+          {canEdit && (
+>>>>>>> f869383 (bug修复)
             <button
               type="button"
               className="anki-add-btn"
@@ -264,10 +284,10 @@ function AnkiManagePage() {
           )}
         </div>
 
-        {isPreview && (
+        {!canEdit && (
           <div className="anki-preview-notice">
             <span className="anki-preview-icon">👁️</span>
-            预览模式：仅可查看，无法编辑
+            仅查看模式：使用作者的共享词库
           </div>
         )}
 
