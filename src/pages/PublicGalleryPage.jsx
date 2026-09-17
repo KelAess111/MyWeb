@@ -83,7 +83,7 @@ function PublicGalleryPage() {
           <div>
             <span className="section-kicker">Works / 审美积累</span>
             <h1 id="public-gallery-title">审美积累</h1>
-            <p>从现在开始向未来延伸，把每一年的图片整理成一条可以逐年打开的图册时间线。</p>
+            <p>本人的个人审美喜好偏向于画面的协调性，对不同风格也有很高的接受度。</p>
           </div>
           <Link to="/interests" className="public-gallery-back-link"><span aria-hidden="true">←</span> 返回个人兴趣</Link>
         </header>

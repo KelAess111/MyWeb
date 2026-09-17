@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 import AnnotatedText from '../components/AnnotatedText'
 import AfterlightAttachmentGrid from '../components/AfterlightAttachmentGrid'
 import { listPublishedJournalEntries } from '../services/afterlightEntries'
-import { isSupabaseConfigured } from '../lib/supabase'
+import { isSupabaseConfigured } from '../lib/supabaseClient'
 
 function formatEntryDate(entryDate) {
   if (!entryDate) return '未填写日期'

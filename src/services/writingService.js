@@ -1,4 +1,4 @@
-import { isSupabaseConfigured, supabase } from '../lib/supabase'
+import { isSupabaseConfigured, supabase } from '../lib/supabaseClient'
 
 const TABLE_NAME = 'public_writing_tree'
 

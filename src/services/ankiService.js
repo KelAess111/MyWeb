@@ -27,26 +27,21 @@ async function getCurrentUser() {
           return user
         }
 
-        // 自动登录
         const { data, error } = await supabase.auth.signInWithPassword({
           email: authorEmail,
           password: authorPassword,
         })
 
         if (error) {
-          console.error('Edit mode auto-login failed:', error)
           throw new Error('编辑模式自动登录失败')
         }
 
         return data.user
-      } catch (error) {
-        console.error('Edit mode auth error:', error)
+      } catch {
         throw new Error('编辑模式认证失败')
       }
     }
 
-    // 没有配置环境变量，返回模拟用户
-    console.warn('Edit mode: VITE_AUTHOR_EMAIL/PASSWORD not configured')
     return { id: 'local-edit-mode', email: 'local@edit.mode' }
   }
 
@@ -67,18 +62,24 @@ async function getCurrentUser() {
 /**
  * 获取用户的所有卡片
  * @param {string} language - 'japanese' | 'english'
+ * @param {boolean} includeDiscarded - 是否包含弃置的卡片
  * @returns {Promise<Array>}
  */
-export async function getUserCards(language) {
+export async function getUserCards(language, includeDiscarded = false) {
   // 编辑模式下也需要能读取数据，使用环境变量中配置的账号
   const user = await getCurrentUser()
 
-  const { data, error } = await supabase
+  let query = supabase
     .from('anki_cards')
     .select('*')
     .eq('user_id', user.id)
     .eq('language', language)
-    .order('created_at', { ascending: false })
+
+  if (!includeDiscarded) {
+    query = query.eq('is_discarded', false)
+  }
+
+  const { data, error } = await query.order('created_at', { ascending: false })
 
   if (error) {
     throw error
@@ -103,6 +104,7 @@ export async function createCard(cardData) {
       language: cardData.language,
       original_text: cardData.originalText,
       pronunciation: cardData.pronunciation || null,
+      kanji_form: cardData.kanjiForm || null,
       part_of_speech: cardData.partOfSpeech || null,
       translation: cardData.translation,
       special_note: cardData.specialNote || null,
@@ -132,6 +134,7 @@ export async function updateCard(cardId, updates) {
     .update({
       original_text: updates.originalText,
       pronunciation: updates.pronunciation || null,
+      kanji_form: updates.kanjiForm || null,
       part_of_speech: updates.partOfSpeech || null,
       translation: updates.translation,
       special_note: updates.specialNote || null,
@@ -177,18 +180,33 @@ export async function deleteCard(cardId) {
 export async function searchCards(language, searchTerm) {
   const user = await getCurrentUser()
 
+  // 移除搜索词中的空格，用于更宽松的罗马音匹配
+  const searchTermNoSpace = searchTerm.replace(/\s+/g, '')
+
   const { data, error } = await supabase
     .from('anki_cards')
     .select('*')
     .eq('user_id', user.id)
     .eq('language', language)
-    .or(`original_text.ilike.%${searchTerm}%,translation.ilike.%${searchTerm}%`)
 
   if (error) {
     throw error
   }
 
-  return data || []
+  // 在客户端进行过滤，支持更灵活的罗马音匹配
+  const filtered = (data || []).filter(card => {
+    const originalMatch = card.original_text?.toLowerCase().includes(searchTerm.toLowerCase())
+    const translationMatch = card.translation?.toLowerCase().includes(searchTerm.toLowerCase())
+    const kanjiMatch = card.kanji_form?.toLowerCase().includes(searchTerm.toLowerCase())
+
+    // 罗马音匹配：移除空格后进行比较
+    const pronunciationNoSpace = (card.pronunciation || '').replace(/\s+/g, '').toLowerCase()
+    const pronunciationMatch = pronunciationNoSpace.includes(searchTermNoSpace.toLowerCase())
+
+    return originalMatch || translationMatch || kanjiMatch || pronunciationMatch
+  })
+
+  return filtered
 }
 
 // ==================== 练习记录 ====================
@@ -376,4 +394,67 @@ export async function removeFromWrongCards(wrongCardId) {
   if (error) {
     throw error
   }
+}
+
+// ==================== 弃置卡片管理 ====================
+
+/**
+ * 弃置卡片
+ * @param {string} cardId
+ * @returns {Promise<void>}
+ */
+export async function discardCard(cardId) {
+  const user = await getCurrentUser()
+
+  const { error } = await supabase
+    .from('anki_cards')
+    .update({ is_discarded: true })
+    .eq('id', cardId)
+    .eq('user_id', user.id)
+
+  if (error) {
+    throw error
+  }
+}
+
+/**
+ * 恢复弃置的卡片
+ * @param {string} cardId
+ * @returns {Promise<void>}
+ */
+export async function restoreCard(cardId) {
+  const user = await getCurrentUser()
+
+  const { error } = await supabase
+    .from('anki_cards')
+    .update({ is_discarded: false })
+    .eq('id', cardId)
+    .eq('user_id', user.id)
+
+  if (error) {
+    throw error
+  }
+}
+
+/**
+ * 获取弃置的卡片
+ * @param {string} language
+ * @returns {Promise<Array>}
+ */
+export async function getDiscardedCards(language) {
+  const user = await getCurrentUser()
+
+  const { data, error } = await supabase
+    .from('anki_cards')
+    .select('*')
+    .eq('user_id', user.id)
+    .eq('language', language)
+    .eq('is_discarded', true)
+    .order('created_at', { ascending: false })
+
+  if (error) {
+    throw error
+  }
+
+  return data || []
 }

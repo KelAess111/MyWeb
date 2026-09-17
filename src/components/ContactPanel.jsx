@@ -136,6 +136,10 @@ function ContactPanel() {
           <h2>联系我</h2>
           <p>邮箱：2597631359@qq.com</p>
           <p>qq群：1067287400</p>
+          <p>B站、小红书等：KelAess<Annotate content="没搜到就是没有。" type="highlight">
+            (全平台同名)
+          </Annotate></p>
+          
 
           <div className="secret-concealed-zone" aria-hidden={isSecretRevealed ? 'false' : 'true'}>
             <button

@@ -14,17 +14,9 @@ function MusicVisualizer() {
 
   // 初始化音频分析器（只执行一次）
   useEffect(() => {
-    if (!audioElement) {
-      console.log('Waiting for audioElement...')
+    if (!audioElement || isInitialized) {
       return
     }
-
-    if (isInitialized) {
-      console.log('Already initialized, skipping')
-      return
-    }
-
-    console.log('Initializing audio analyzer with audioElement:', audioElement)
 
     try {
       const AudioContext = window.AudioContext || window.webkitAudioContext
@@ -36,11 +28,8 @@ function MusicVisualizer() {
       analyser.minDecibels = -90
       analyser.maxDecibels = -10
 
-      console.log('Creating media element source...')
       const source = audioContext.createMediaElementSource(audioElement)
-      console.log('Connecting source to analyser...')
       source.connect(analyser)
-      console.log('Connecting analyser to destination...')
       analyser.connect(audioContext.destination)
 
       audioContextRef.current = audioContext
@@ -48,24 +37,14 @@ function MusicVisualizer() {
       sourceRef.current = source
 
       setIsInitialized(true)
-      console.log('Audio analyzer initialized! fftSize:', analyser.fftSize, 'bufferLength:', analyser.frequencyBinCount)
-
-      // 测试立即读取数据
-      const testData = new Uint8Array(analyser.frequencyBinCount)
-      analyser.getByteFrequencyData(testData)
-      const testSum = testData.reduce((a, b) => a + b, 0)
-      console.log('Initial test data sum:', testSum, 'first few values:', Array.from(testData.slice(0, 10)))
-    } catch (error) {
-      console.error('Failed to initialize audio analyzer:', error)
+    } catch {
+      // Silently fail if audio analyzer cannot be initialized
     }
   }, [audioElement, isInitialized])
 
   // 处理可视化动画
   useEffect(() => {
-    console.log('Animation effect triggered. isInitialized:', isInitialized, 'isPlaying:', isPlaying, 'canvas:', !!canvasRef.current, 'analyser:', !!analyserRef.current)
-
     if (!isInitialized || !canvasRef.current || !analyserRef.current) {
-      console.log('Cannot start animation, missing requirements')
       return
     }
 
@@ -75,20 +54,14 @@ function MusicVisualizer() {
     const bufferLength = analyser.frequencyBinCount
     const dataArray = new Uint8Array(bufferLength)
 
-    console.log('Setting up canvas and data array. bufferLength:', bufferLength)
-
-    // 设置canvas尺寸
     const updateCanvasSize = () => {
       const rect = canvas.getBoundingClientRect()
-      // 如果容器高度为0，使用父元素的高度
       const actualHeight = rect.height > 0 ? rect.height : canvas.parentElement?.getBoundingClientRect().height || 100
       canvas.width = rect.width
       canvas.height = actualHeight
-      console.log('Canvas size set to:', canvas.width, 'x', canvas.height, '(actual height from container:', actualHeight, ')')
     }
     updateCanvasSize()
 
-    // 添加延迟的尺寸更新，等待CSS动画完成
     const sizeUpdateTimer = setTimeout(updateCanvasSize, 450)
 
     window.addEventListener('resize', updateCanvasSize)
@@ -99,20 +72,8 @@ function MusicVisualizer() {
       const width = canvas.width
       const height = canvas.height
 
-      // 清空画布
       ctx.clearRect(0, 0, width, height)
 
-      // 检查是否有音频数据
-      const sum = dataArray.reduce((a, b) => a + b, 0)
-      const avg = sum / bufferLength
-
-      if (sum === 0) {
-        console.log('No audio data detected, sum is 0')
-      } else if (avg < 1) {
-        console.log('Very low audio data, avg:', avg.toFixed(2))
-      }
-
-      // 绘制频谱柱 - W形布局：两端高，1/4和3/4处低，中间高
       const barCount = 120
       const barWidth = (width / barCount) * 0.5
       const gap = (width / barCount) * 0.5
@@ -168,25 +129,15 @@ function MusicVisualizer() {
     }
 
     if (isPlaying && audioContextRef.current) {
-      // 恢复音频上下文
       if (audioContextRef.current.state === 'suspended') {
-        console.log('Resuming suspended audio context...')
-        audioContextRef.current.resume().then(() => {
-          console.log('Audio context resumed, state:', audioContextRef.current.state)
-        })
-      } else {
-        console.log('Audio context state:', audioContextRef.current.state)
+        audioContextRef.current.resume()
       }
-      console.log('Starting visualization animation')
       draw()
     } else {
-      // 停止动画
-      console.log('Stopping animation. isPlaying:', isPlaying, 'audioContext:', !!audioContextRef.current)
       if (animationRef.current) {
         cancelAnimationFrame(animationRef.current)
         animationRef.current = null
       }
-      // 清空画布
       ctx.clearRect(0, 0, canvas.width, canvas.height)
     }
 

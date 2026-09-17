@@ -192,9 +192,7 @@ function MusicPlayerProvider({ children }) {
   const progressValue = duration > 0 ? Math.min(currentTime, duration) : currentTime
 
   useEffect(() => {
-    // 只在第一次挂载时创建audio元素
     if (audioRef.current) {
-      console.log('Audio element already exists, skipping creation')
       return
     }
 
@@ -202,7 +200,6 @@ function MusicPlayerProvider({ children }) {
     audio.preload = 'metadata'
     audioRef.current = audio
     setAudioElement(audio)
-    console.log('Created new audio element')
 
     const handleLoadedMetadata = () => {
       setDuration(Number.isFinite(audio.duration) ? audio.duration : 0)
@@ -450,8 +447,7 @@ function MusicPlayerProvider({ children }) {
           } else {
             setMessageStatus('saved_only')
           }
-        } catch (error) {
-          console.error('Failed to send message to Formspree:', error)
+        } catch {
           setMessageStatus('saved_only')
         }
       } else {
@@ -588,66 +584,33 @@ function AppRoutes({ musicUiState, onOcAreaChange, replayIntroEnabled, locationK
 function AppShell() {
   const location = useLocation()
 
-  // 预加载所有路由组件（首次进入时）
   useEffect(() => {
-    // 只在首次加载时预加载
     const hasPreloaded = sessionStorage.getItem('routes-preloaded')
     if (hasPreloaded) {
       return
     }
 
-    console.log('开始预加载路由组件...')
-
-    // 使用requestIdleCallback在浏览器空闲时预加载
     const preloadRoutes = async () => {
-      // 预加载所有lazy组件
       const components = [
-        { name: 'HomePage', component: HomePage },
-        { name: 'ProfilePage', component: ProfilePage },
-        { name: 'PortfolioPage', component: PortfolioPage },
-        { name: 'InterestsPage', component: InterestsPage },
-        { name: 'SharePage', component: SharePage },
-        { name: 'CategoryPage', component: CategoryPage },
-        { name: 'HiddenArchivePage', component: HiddenArchivePage },
-        { name: 'HiddenSpaceGamesPage', component: HiddenSpaceGamesPage },
-        { name: 'HiddenSpacePaintingPage', component: HiddenSpacePaintingPage },
-        { name: 'HiddenSpaceWritingPage', component: HiddenSpaceWritingPage },
-        { name: 'PublicWritingPage', component: PublicWritingPage },
-        { name: 'PublicJournalPage', component: PublicJournalPage },
-        { name: 'PublicGalleryPage', component: PublicGalleryPage },
-        { name: 'PublicGalleryAlbumPage', component: PublicGalleryAlbumPage },
-        { name: 'AnimePage', component: AnimePage },
-        { name: 'ArticleDetailPage', component: ArticleDetailPage },
-        { name: 'BookPage', component: BookPage },
-        { name: 'GamePage', component: GamePage },
-        { name: 'MusicPage', component: MusicPage },
-        { name: 'HiddenSpaceJournalPage', component: HiddenSpaceJournalPage },
-        { name: 'HiddenSpacePersonalPage', component: HiddenSpacePersonalPage },
-        { name: 'QAAdminPage', component: QAAdminPage },
-        { name: 'UtilitiesPage', component: UtilitiesPage },
-        { name: 'LoginPage', component: LoginPage },
-        { name: 'AnkiHomePage', component: AnkiHomePage },
-        { name: 'AnkiPracticePage', component: AnkiPracticePage },
-        { name: 'AnkiManagePage', component: AnkiManagePage },
-        { name: 'AnkiWrongCardsPage', component: AnkiWrongCardsPage }
+        HomePage, ProfilePage, PortfolioPage, InterestsPage, SharePage, CategoryPage,
+        HiddenArchivePage, HiddenSpaceGamesPage, HiddenSpacePaintingPage, HiddenSpaceWritingPage,
+        PublicWritingPage, PublicJournalPage, PublicGalleryPage, PublicGalleryAlbumPage,
+        AnimePage, ArticleDetailPage, BookPage, GamePage, MusicPage,
+        HiddenSpaceJournalPage, HiddenSpacePersonalPage, QAAdminPage, UtilitiesPage,
+        LoginPage, AnkiHomePage, AnkiPracticePage, AnkiManagePage, AnkiWrongCardsPage
       ]
 
-      // 逐个预加载，避免一次性加载太多
-      for (let i = 0; i < components.length; i++) {
-        const { name, component } = components[i]
-        try {
-          if (component.preload) {
+      for (const component of components) {
+        if (component.preload) {
+          try {
             await component.preload()
-            console.log(`✓ 预加载完成: ${name}`)
+          } catch {
+            // Ignore preload errors
           }
-        } catch (error) {
-          console.warn(`✗ 预加载失败: ${name}`, error)
+          await new Promise(resolve => setTimeout(resolve, 100))
         }
-        // 增加间隔到150ms，给浏览器更多喘息时间
-        await new Promise(resolve => setTimeout(resolve, 150))
       }
 
-      console.log('✓ 所有路由预加载完成')
       sessionStorage.setItem('routes-preloaded', 'true')
     }
 

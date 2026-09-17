@@ -116,7 +116,10 @@ function GamePage() {
 
   return <main className="game-page">
     <section className="game-hero" aria-labelledby="game-page-title">
-      <div><span className="section-kicker">Works / 游戏推荐</span><h1 id="game-page-title">游戏推荐</h1><p>游戏图片来自本地 game 文件夹，评价由作者在编辑模式中补充。</p></div>
+      <div><span className="section-kicker">Works / 游戏推荐</span><h1 id="game-page-title">游戏推荐</h1><p>本人几乎不玩各类
+        <Annotate content="尤其是各类FPS" type="highlight">
+          竞技游戏
+        </Annotate>以及各类难度太高的操作类游戏，偏好叙事类，养成类游戏。</p></div>
       <div className="game-hero-actions"><Link to="/interests" className="game-back-link">← 返回个人兴趣</Link></div>
     </section>
     {workspace.isAuthorMode ? <aside className={`writing-author-drawer game-author-drawer ${workspace.authorDrawerOpen ? 'is-open' : ''}`} aria-label="作者验证">

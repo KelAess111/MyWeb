@@ -83,7 +83,7 @@ const HOTSPOT_CONFIGS = {
   3: [
     {
       title: '',
-      summary: '”生活就像一盒巧克力，你永远不知道下一块会是什么味道。”',
+      summary: '”创作直到最后一刻，自刎归天！！！”',
       kicker: '热点 03',
       textBackClass: 'hotspot-carousel-copy--wide',
       delayMs: 4800,
@@ -333,19 +333,13 @@ function HotspotCarousel({ folderId, variant = 'fade' }) {
   }
 
   const handleCopyClick = (event) => {
-    console.log('handleCopyClick triggered', { jumpTarget: config.jumpTarget, jumpType: config.jumpType })
-
     if (!config.jumpTarget) {
-      console.warn('No jumpTarget configured')
       return
     }
 
     event.stopPropagation()
 
-    // 根据跳转类型处理
     if (config.jumpType === 'route') {
-      // 路由跳转
-      console.log('Triggering route transition to:', config.jumpTarget)
       setRevealTransition({
         isActive: true,
         clickPosition: { clientX: event.clientX, clientY: event.clientY },
@@ -353,14 +347,11 @@ function HotspotCarousel({ folderId, variant = 'fade' }) {
         targetElement: null
       })
     } else if (config.jumpType === 'scroll') {
-      // 页面内滚动
       const targetElement = document.querySelector(config.jumpTarget)
       if (!targetElement) {
-        console.warn(`跳转目标未找到: ${config.jumpTarget}`)
         return
       }
 
-      console.log('Triggering scroll transition to:', config.jumpTarget)
       setRevealTransition({
         isActive: true,
         clickPosition: { clientX: event.clientX, clientY: event.clientY },

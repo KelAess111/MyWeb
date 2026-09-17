@@ -52,7 +52,7 @@ const galleryMetadata = [
     year: '2026',
     title: '2026 图册',
     summary: '目前已经整理好的图册，从这一年开始浏览。',
-    note: '这一年已经放入了实际图片，可以直接放大查看。',
+    note: '其实这就是一个巨大的参考库。',
     side: 'left',
     status: 'published',
   },

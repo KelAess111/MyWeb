@@ -68,7 +68,7 @@ function UtilitiesPage() {
             <div className="utility-card-icon">📚</div>
             <h2 className="utility-card-title">Anki 学习</h2>
             <p className="utility-card-description">
-              日语与英语词库练习，支持错题本和连击特效
+              日语与英语词库练习。
             </p>
             {!user && <span className="utility-card-badge">需要登录</span>}
           </Link>

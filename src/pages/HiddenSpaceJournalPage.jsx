@@ -10,7 +10,7 @@ import {
   listEditableJournalEntries,
   updateJournalEntry,
 } from '../services/afterlightEntries'
-import { isSupabaseConfigured } from '../lib/supabase'
+import { isSupabaseConfigured } from '../lib/supabaseClient'
 
 const EDIT_TOKEN = 'KelAess'
 const JOURNAL_ADMIN_AUTH_STORAGE_KEY = 'writing_admin_auth'

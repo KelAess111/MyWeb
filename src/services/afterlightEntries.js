@@ -1,4 +1,4 @@
-import { AFTERLIGHT_SIGNED_URL_EXPIRES_IN, AFTERLIGHT_STORAGE_BUCKETS, isSupabaseConfigured, supabase } from '../lib/supabase'
+import { AFTERLIGHT_SIGNED_URL_EXPIRES_IN, AFTERLIGHT_STORAGE_BUCKETS, isSupabaseConfigured, supabase } from '../lib/supabaseClient'
 
 const TABLE_NAME = 'afterlight_entries'
 const IMAGE_BUCKET = AFTERLIGHT_STORAGE_BUCKETS.images

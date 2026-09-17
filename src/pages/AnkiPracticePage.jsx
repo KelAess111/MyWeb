@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
-import { getUserCards, savePracticeSession, addToWrongCards } from '../services/ankiService'
+import { getUserCards, savePracticeSession, addToWrongCards, discardCard } from '../services/ankiService'
+import { Toast } from '../components/Toast'
 
 // 50题缓冲区管理
 class BufferQueue {
@@ -43,6 +44,7 @@ function AnkiPracticePage() {
   const [showResult, setShowResult] = useState(false)
   const [isCorrect, setIsCorrect] = useState(false)
   const [showSummary, setShowSummary] = useState(false)
+  const [toast, setToast] = useState(null)
 
   useEffect(() => {
     loadCards()
@@ -54,7 +56,7 @@ function AnkiPracticePage() {
       setCards(data)
     } catch (error) {
       console.error('加载卡片失败:', error)
-      alert('加载卡片失败：' + error.message)
+      setToast({ message: '加载卡片失败：' + error.message, type: 'error' })
     }
   }
 
@@ -81,7 +83,7 @@ function AnkiPracticePage() {
 
   const startPractice = () => {
     if (cards.length < 2) {
-      alert('卡片数量不足，至少需要2张卡片才能开始练习')
+      setToast({ message: '卡片数量不足，至少需要2张卡片才能开始练习', type: 'warning' })
       return
     }
     buffer.clear()
@@ -94,27 +96,49 @@ function AnkiPracticePage() {
   const nextQuestion = () => {
     const questionCard = getRandomCard()
     if (!questionCard) {
-      alert('没有可用的卡片了')
+      setToast({ message: '没有可用的卡片了', type: 'warning' })
       return
     }
 
     const distractorCard = getRandomCard(questionCard.id)
     if (!distractorCard) {
-      alert('没有足够的卡片生成干扰项')
+      setToast({ message: '没有足够的卡片生成干扰项', type: 'warning' })
       return
     }
 
     const shuffledOptions = [questionCard, distractorCard].sort(() => Math.random() - 0.5)
 
-    setCurrentQuestion(questionCard)
+    // 为日语卡片随机选择出题形式（假名或汉字）
+    const questionCardWithForm = { ...questionCard }
+    if (language === 'japanese' && questionCard.kanji_form) {
+      // 如果有汉字形式，50%概率用汉字出题，50%用假名
+      const useKanji = Math.random() < 0.5
+      if (useKanji) {
+        questionCardWithForm.displayText = questionCard.kanji_form
+        questionCardWithForm.isKanjiForm = true
+      } else {
+        questionCardWithForm.displayText = questionCard.pronunciation || questionCard.original_text
+        questionCardWithForm.isKanjiForm = false
+      }
+    } else {
+      // 没有汉字或非日语，使用original_text
+      questionCardWithForm.displayText = questionCard.original_text
+      questionCardWithForm.isKanjiForm = false
+    }
+
+    setCurrentQuestion(questionCardWithForm)
     setOptions(shuffledOptions)
     setShowResult(false)
+    setSelectedOption(null)
   }
+
+  const [selectedOption, setSelectedOption] = useState(null)
 
   const handleAnswer = async (selectedCard) => {
     const correct = selectedCard.id === currentQuestion.id
 
     setIsCorrect(correct)
+    setSelectedOption(selectedCard)
     setShowResult(true)
 
     let newStats = { ...stats }
@@ -157,12 +181,20 @@ function AnkiPracticePage() {
 
     setStats(newStats)
 
-    // 答对：0.4秒后自动下一题
-    // 答错：显示正确答案，等待用户确认
-    if (correct) {
-      setTimeout(() => {
-        nextQuestion()
-      }, 400)
+    // 答对和答错都显示正确答案，等待用户确认
+    // 不再自动跳转
+  }
+
+  const handleDiscard = async () => {
+    try {
+      await discardCard(currentQuestion.id)
+      setToast({ message: '卡片已弃置', type: 'success' })
+      // 从当前卡片列表中移除
+      setCards(cards.filter(card => card.id !== currentQuestion.id))
+      nextQuestion()
+    } catch (error) {
+      console.error('弃置卡片失败:', error)
+      setToast({ message: '弃置卡片失败：' + error.message, type: 'error' })
     }
   }
 
@@ -289,8 +321,8 @@ function AnkiPracticePage() {
               <div className="anki-question-area">
                 <div className="anki-question-card">
                   <div className="anki-question-label">请选择正确答案：</div>
-                  <div className="anki-question-text">{currentQuestion.original_text}</div>
-                  {currentQuestion.pronunciation && (
+                  <div className="anki-question-text">{currentQuestion.displayText || currentQuestion.original_text}</div>
+                  {!currentQuestion.isKanjiForm && currentQuestion.pronunciation && (
                     <div className="anki-question-pronunciation">
                       [{currentQuestion.pronunciation}]
                     </div>
@@ -298,26 +330,36 @@ function AnkiPracticePage() {
                 </div>
 
                 <div className="anki-options-grid">
-                  {options.map((option) => (
-                    <button
-                      key={option.id}
-                      type="button"
-                      className={`anki-option-card ${
-                        showResult
-                          ? option.id === currentQuestion.id
-                            ? 'anki-option-card--correct'
-                            : 'anki-option-card--wrong'
-                          : ''
-                      }`}
-                      onClick={() => !showResult && handleAnswer(option)}
-                      disabled={showResult}
-                    >
-                      <div className="anki-option-translation">{option.translation}</div>
-                      {option.part_of_speech && (
-                        <div className="anki-option-pos">{option.part_of_speech}</div>
-                      )}
-                    </button>
-                  ))}
+                  {options.map((option) => {
+                    const isCorrectOption = option.id === currentQuestion.id
+                    const isSelectedOption = showResult && selectedOption && option.id === selectedOption.id
+
+                    // 选对了：只有正确答案显示绿色
+                    // 选错了：只有错误答案显示红色
+                    let optionClass = ''
+                    if (showResult) {
+                      if (isCorrect && isCorrectOption) {
+                        optionClass = 'anki-option-card--correct'
+                      } else if (!isCorrect && isSelectedOption) {
+                        optionClass = 'anki-option-card--wrong'
+                      }
+                    }
+
+                    return (
+                      <button
+                        key={option.id}
+                        type="button"
+                        className={`anki-option-card ${optionClass}`}
+                        onClick={() => !showResult && handleAnswer(option)}
+                        disabled={showResult}
+                      >
+                        <div className="anki-option-translation">{option.translation}</div>
+                        {option.part_of_speech && (
+                          <div className="anki-option-pos">{option.part_of_speech}</div>
+                        )}
+                      </button>
+                    )
+                  })}
                 </div>
 
                 {showResult && (
@@ -326,14 +368,19 @@ function AnkiPracticePage() {
                   </div>
                 )}
 
-                {showResult && !isCorrect && (
+                {showResult && (
                   <div className="anki-correct-answer">
-                    <div className="anki-correct-answer-title">正确答案：</div>
+                    <div className="anki-correct-answer-title">{isCorrect ? '答案详情：' : '正确答案：'}</div>
                     <div className="anki-correct-answer-card">
                       <div className="anki-correct-answer-original">{currentQuestion.original_text}</div>
                       {currentQuestion.pronunciation && (
                         <div className="anki-correct-answer-pronunciation">
                           [{currentQuestion.pronunciation}]
+                        </div>
+                      )}
+                      {currentQuestion.kanji_form && (
+                        <div className="anki-correct-answer-kanji">
+                          汉字：{currentQuestion.kanji_form}
                         </div>
                       )}
                       {currentQuestion.part_of_speech && (
@@ -344,13 +391,24 @@ function AnkiPracticePage() {
                         <div className="anki-correct-answer-note">💡 {currentQuestion.special_note}</div>
                       )}
                     </div>
-                    <button
-                      type="button"
-                      className="anki-practice-btn anki-practice-btn--continue"
-                      onClick={() => nextQuestion()}
-                    >
-                      继续
-                    </button>
+                    <div className="anki-answer-actions">
+                      <button
+                        type="button"
+                        className="anki-practice-btn anki-practice-btn--continue"
+                        onClick={() => nextQuestion()}
+                      >
+                        继续
+                      </button>
+                      {isCorrect && (
+                        <button
+                          type="button"
+                          className="anki-practice-btn anki-practice-btn--discard"
+                          onClick={handleDiscard}
+                        >
+                          已完全掌握，弃置此卡
+                        </button>
+                      )}
+                    </div>
                   </div>
                 )}
               </div>
@@ -369,6 +427,14 @@ function AnkiPracticePage() {
           </>
         )}
       </div>
+
+      {toast && (
+        <Toast
+          message={toast.message}
+          type={toast.type}
+          onClose={() => setToast(null)}
+        />
+      )}
     </main>
   )
 }

@@ -1,6 +1,6 @@
 ﻿import { useEffect, useState } from 'react'
 import { getAllQuestions, updateQuestion, deleteQuestion } from '../services/qaService'
-import { supabase } from '../lib/supabase'
+import { supabase } from '../lib/supabaseClient'
 import Annotate from '../components/Annotate'
 
 function QAAdminPage() {
