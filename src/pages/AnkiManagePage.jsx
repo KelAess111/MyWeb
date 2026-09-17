@@ -39,6 +39,7 @@ function AnkiManagePage() {
     translation: '',
     specialNote: '',
   })
+  const [canEdit] = useState(() => isLocalEditMode())
   const [isPreview] = useState(() => isPreviewMode())
   const [toast, setToast] = useState(null)
   const [confirmDialog, setConfirmDialog] = useState(null)
@@ -238,7 +239,21 @@ function AnkiManagePage() {
             </button>
           </div>
 
-          {!isPreview && (
+          {!canEdit && !isPreview && (
+            <div className="anki-preview-notice">
+              <span className="anki-preview-icon">🔒</span>
+              只读模式：所有用户共享词库，仅本地编辑模式可管理
+            </div>
+          )}
+
+          {isPreview && (
+            <div className="anki-preview-notice">
+              <span className="anki-preview-icon">👁️</span>
+              预览模式：仅可查看，无法编辑
+            </div>
+          )}
+
+          {!canEdit && (
             <button
               type="button"
               className="anki-add-btn"
@@ -261,7 +276,7 @@ function AnkiManagePage() {
         ) : cards.length === 0 ? (
           <div className="anki-manage-empty">
             <p>暂无卡片</p>
-            {!isPreview && (
+            {canEdit && (
               <button
                 type="button"
                 className="anki-add-btn"
@@ -291,7 +306,7 @@ function AnkiManagePage() {
                     <div className="anki-card-note">💡 {card.special_note}</div>
                   )}
                 </div>
-                {!isPreview && (
+                {canEdit && (
                   <div className="anki-card-actions">
                     {viewMode === 'active' ? (
                       <>

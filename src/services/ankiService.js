@@ -1,5 +1,8 @@
 import { supabase } from '../lib/supabaseClient'
 
+// 作者账号ID（用于共享词库）
+const AUTHOR_USER_ID = '8dff792d-ceab-4299-9d0a-e984191fe29c'
+
 // 检查是否为本地编辑模式
 function isLocalEditMode() {
   if (typeof window === 'undefined') {
@@ -12,39 +15,8 @@ function isLocalEditMode() {
   }
 }
 
-// 获取当前用户（编辑模式下使用环境变量账号自动登录）
+// 获取当前用户（用于练习记录）
 async function getCurrentUser() {
-  if (isLocalEditMode()) {
-    // 编辑模式下使用环境变量中的账号自动登录
-    const authorEmail = import.meta.env.VITE_AUTHOR_EMAIL
-    const authorPassword = import.meta.env.VITE_AUTHOR_PASSWORD
-
-    if (authorEmail && authorPassword) {
-      try {
-        // 先检查是否已经登录
-        const { data: { user } } = await supabase.auth.getUser()
-        if (user && user.email === authorEmail) {
-          return user
-        }
-
-        const { data, error } = await supabase.auth.signInWithPassword({
-          email: authorEmail,
-          password: authorPassword,
-        })
-
-        if (error) {
-          throw new Error('编辑模式自动登录失败')
-        }
-
-        return data.user
-      } catch {
-        throw new Error('编辑模式认证失败')
-      }
-    }
-
-    return { id: 'local-edit-mode', email: 'local@edit.mode' }
-  }
-
   if (!supabase) {
     throw new Error('Supabase未配置')
   }
@@ -57,22 +29,51 @@ async function getCurrentUser() {
   return user
 }
 
+// 获取作者用户（用于编辑词库）
+async function getAuthorUser() {
+  const authorEmail = import.meta.env.VITE_AUTHOR_EMAIL
+  const authorPassword = import.meta.env.VITE_AUTHOR_PASSWORD
+
+  if (!authorEmail || !authorPassword) {
+    throw new Error('作者账号未配置')
+  }
+
+  try {
+    // 先检查是否已经登录
+    const { data: { user } } = await supabase.auth.getUser()
+    if (user && user.email === authorEmail) {
+      return user
+    }
+
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email: authorEmail,
+      password: authorPassword,
+    })
+
+    if (error) {
+      throw new Error('作者账号登录失败')
+    }
+
+    return data.user
+  } catch (error) {
+    throw new Error('作者账号认证失败：' + error.message)
+  }
+}
+
 // ==================== 卡片管理 ====================
 
 /**
- * 获取用户的所有卡片
+ * 获取词库卡片（所有用户共享，使用作者的词库）
  * @param {string} language - 'japanese' | 'english'
  * @param {boolean} includeDiscarded - 是否包含弃置的卡片
  * @returns {Promise<Array>}
  */
 export async function getUserCards(language, includeDiscarded = false) {
-  // 编辑模式下也需要能读取数据，使用环境变量中配置的账号
-  const user = await getCurrentUser()
-
+  // 所有用户都读取作者的词库
   let query = supabase
     .from('anki_cards')
     .select('*')
-    .eq('user_id', user.id)
+    .eq('user_id', AUTHOR_USER_ID)
     .eq('language', language)
 
   if (!includeDiscarded) {
@@ -89,14 +90,17 @@ export async function getUserCards(language, includeDiscarded = false) {
 }
 
 /**
- * 创建新卡片
+ * 创建新卡片（仅本地编辑模式）
  * @param {Object} cardData
  * @returns {Promise<Object>}
  */
 export async function createCard(cardData) {
-  const user = await getCurrentUser()
+  if (!isLocalEditMode()) {
+    throw new Error('只有本地编辑模式才能添加卡片')
+  }
 
-  // 编辑模式下也允许真正保存到数据库
+  const user = await getAuthorUser()
+
   const { data, error } = await supabase
     .from('anki_cards')
     .insert([{
@@ -120,15 +124,18 @@ export async function createCard(cardData) {
 }
 
 /**
- * 更新卡片
+ * 更新卡片（仅本地编辑模式）
  * @param {string} cardId
  * @param {Object} updates
  * @returns {Promise<Object>}
  */
 export async function updateCard(cardId, updates) {
-  const user = await getCurrentUser()
+  if (!isLocalEditMode()) {
+    throw new Error('只有本地编辑模式才能编辑卡片')
+  }
 
-  // 编辑模式下也允许真正更新数据库
+  const user = await getAuthorUser()
+
   const { data, error } = await supabase
     .from('anki_cards')
     .update({
@@ -152,14 +159,17 @@ export async function updateCard(cardId, updates) {
 }
 
 /**
- * 删除卡片
+ * 删除卡片（仅本地编辑模式）
  * @param {string} cardId
  * @returns {Promise<void>}
  */
 export async function deleteCard(cardId) {
-  const user = await getCurrentUser()
+  if (!isLocalEditMode()) {
+    throw new Error('只有本地编辑模式才能删除卡片')
+  }
 
-  // 编辑模式下也允许真正删除数据
+  const user = await getAuthorUser()
+
   const { error } = await supabase
     .from('anki_cards')
     .delete()
@@ -172,21 +182,19 @@ export async function deleteCard(cardId) {
 }
 
 /**
- * 搜索卡片
+ * 搜索卡片（共享词库）
  * @param {string} language
  * @param {string} searchTerm
  * @returns {Promise<Array>}
  */
 export async function searchCards(language, searchTerm) {
-  const user = await getCurrentUser()
-
   // 移除搜索词中的空格，用于更宽松的罗马音匹配
   const searchTermNoSpace = searchTerm.replace(/\s+/g, '')
 
   const { data, error } = await supabase
     .from('anki_cards')
     .select('*')
-    .eq('user_id', user.id)
+    .eq('user_id', AUTHOR_USER_ID)
     .eq('language', language)
 
   if (error) {
@@ -399,12 +407,16 @@ export async function removeFromWrongCards(wrongCardId) {
 // ==================== 弃置卡片管理 ====================
 
 /**
- * 弃置卡片
+ * 弃置卡片（仅本地编辑模式）
  * @param {string} cardId
  * @returns {Promise<void>}
  */
 export async function discardCard(cardId) {
-  const user = await getCurrentUser()
+  if (!isLocalEditMode()) {
+    throw new Error('只有本地编辑模式才能弃置卡片')
+  }
+
+  const user = await getAuthorUser()
 
   const { error } = await supabase
     .from('anki_cards')
@@ -418,12 +430,16 @@ export async function discardCard(cardId) {
 }
 
 /**
- * 恢复弃置的卡片
+ * 恢复弃置的卡片（仅本地编辑模式）
  * @param {string} cardId
  * @returns {Promise<void>}
  */
 export async function restoreCard(cardId) {
-  const user = await getCurrentUser()
+  if (!isLocalEditMode()) {
+    throw new Error('只有本地编辑模式才能恢复卡片')
+  }
+
+  const user = await getAuthorUser()
 
   const { error } = await supabase
     .from('anki_cards')
@@ -437,17 +453,15 @@ export async function restoreCard(cardId) {
 }
 
 /**
- * 获取弃置的卡片
+ * 获取弃置的卡片（共享词库）
  * @param {string} language
  * @returns {Promise<Array>}
  */
 export async function getDiscardedCards(language) {
-  const user = await getCurrentUser()
-
   const { data, error } = await supabase
     .from('anki_cards')
     .select('*')
-    .eq('user_id', user.id)
+    .eq('user_id', AUTHOR_USER_ID)
     .eq('language', language)
     .eq('is_discarded', true)
     .order('created_at', { ascending: false })
