@@ -15,8 +15,39 @@ function isLocalEditMode() {
   }
 }
 
-// 获取当前用户（用于练习记录）
+// 获取当前用户（编辑模式下使用环境变量账号自动登录）
 async function getCurrentUser() {
+  if (isLocalEditMode()) {
+    // 编辑模式下使用环境变量中的账号自动登录
+    const authorEmail = import.meta.env.VITE_AUTHOR_EMAIL
+    const authorPassword = import.meta.env.VITE_AUTHOR_PASSWORD
+
+    if (authorEmail && authorPassword) {
+      try {
+        // 先检查是否已经登录
+        const { data: { user } } = await supabase.auth.getUser()
+        if (user && user.email === authorEmail) {
+          return user
+        }
+
+        const { data, error } = await supabase.auth.signInWithPassword({
+          email: authorEmail,
+          password: authorPassword,
+        })
+
+        if (error) {
+          throw new Error('编辑模式自动登录失败')
+        }
+
+        return data.user
+      } catch {
+        throw new Error('编辑模式认证失败')
+      }
+    }
+
+    return { id: 'local-edit-mode', email: 'local@edit.mode' }
+  }
+
   if (!supabase) {
     throw new Error('Supabase未配置')
   }
@@ -29,45 +60,10 @@ async function getCurrentUser() {
   return user
 }
 
-// 获取作者用户（用于编辑词库）
-async function getAuthorUser() {
-  const authorEmail = import.meta.env.VITE_AUTHOR_EMAIL
-  const authorPassword = import.meta.env.VITE_AUTHOR_PASSWORD
-
-  if (!authorEmail || !authorPassword) {
-    throw new Error('作者账号未配置')
-  }
-
-  try {
-    // 先检查是否已经登录
-    const { data: { user } } = await supabase.auth.getUser()
-    if (user && user.email === authorEmail) {
-      return user
-    }
-
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email: authorEmail,
-      password: authorPassword,
-    })
-
-    if (error) {
-      throw new Error('作者账号登录失败')
-    }
-
-    return data.user
-  } catch (error) {
-    throw new Error('作者账号认证失败：' + error.message)
-  }
-}
-
 // ==================== 卡片管理 ====================
 
 /**
-<<<<<<< HEAD
- * 获取词库卡片（所有用户共享，使用作者的词库）
-=======
  * 获取用户的所有卡片（所有用户读取作者的词库）
->>>>>>> f869383 (bug修复)
  * @param {string} language - 'japanese' | 'english'
  * @param {boolean} includeDiscarded - 是否包含弃置的卡片
  * @returns {Promise<Array>}
@@ -100,17 +96,10 @@ export async function getUserCards(language, includeDiscarded = false) {
  */
 export async function createCard(cardData) {
   if (!isLocalEditMode()) {
-<<<<<<< HEAD
-    throw new Error('只有本地编辑模式才能添加卡片')
-  }
-
-  const user = await getAuthorUser()
-=======
     throw new Error('只有本地编辑模式可以添加卡片')
   }
 
   const user = await getCurrentUser()
->>>>>>> f869383 (bug修复)
 
   const { data, error } = await supabase
     .from('anki_cards')
@@ -142,17 +131,10 @@ export async function createCard(cardData) {
  */
 export async function updateCard(cardId, updates) {
   if (!isLocalEditMode()) {
-<<<<<<< HEAD
-    throw new Error('只有本地编辑模式才能编辑卡片')
-  }
-
-  const user = await getAuthorUser()
-=======
     throw new Error('只有本地编辑模式可以更新卡片')
   }
 
   const user = await getCurrentUser()
->>>>>>> f869383 (bug修复)
 
   const { data, error } = await supabase
     .from('anki_cards')
@@ -183,17 +165,10 @@ export async function updateCard(cardId, updates) {
  */
 export async function deleteCard(cardId) {
   if (!isLocalEditMode()) {
-<<<<<<< HEAD
-    throw new Error('只有本地编辑模式才能删除卡片')
-  }
-
-  const user = await getAuthorUser()
-=======
     throw new Error('只有本地编辑模式可以删除卡片')
   }
 
   const user = await getCurrentUser()
->>>>>>> f869383 (bug修复)
 
   const { error } = await supabase
     .from('anki_cards')
@@ -207,11 +182,7 @@ export async function deleteCard(cardId) {
 }
 
 /**
-<<<<<<< HEAD
- * 搜索卡片（共享词库）
-=======
  * 搜索卡片（所有用户搜索作者的词库）
->>>>>>> f869383 (bug修复)
  * @param {string} language
  * @param {string} searchTerm
  * @returns {Promise<Array>}
@@ -436,21 +407,11 @@ export async function removeFromWrongCards(wrongCardId) {
 // ==================== 弃置卡片管理 ====================
 
 /**
-<<<<<<< HEAD
- * 弃置卡片（仅本地编辑模式）
-=======
- * 弃置卡片（所有用户都可以操作）
->>>>>>> f869383 (bug修复)
+ * 弃置卡片（所有用户都可以操作作者的词库）
  * @param {string} cardId
  * @returns {Promise<void>}
  */
 export async function discardCard(cardId) {
-  if (!isLocalEditMode()) {
-    throw new Error('只有本地编辑模式才能弃置卡片')
-  }
-
-  const user = await getAuthorUser()
-
   const { error } = await supabase
     .from('anki_cards')
     .update({ is_discarded: true })
@@ -463,21 +424,11 @@ export async function discardCard(cardId) {
 }
 
 /**
-<<<<<<< HEAD
- * 恢复弃置的卡片（仅本地编辑模式）
-=======
- * 恢复弃置的卡片（所有用户都可以操作）
->>>>>>> f869383 (bug修复)
+ * 恢复弃置的卡片（所有用户都可以操作作者的词库）
  * @param {string} cardId
  * @returns {Promise<void>}
  */
 export async function restoreCard(cardId) {
-  if (!isLocalEditMode()) {
-    throw new Error('只有本地编辑模式才能恢复卡片')
-  }
-
-  const user = await getAuthorUser()
-
   const { error } = await supabase
     .from('anki_cards')
     .update({ is_discarded: false })
@@ -490,11 +441,7 @@ export async function restoreCard(cardId) {
 }
 
 /**
-<<<<<<< HEAD
- * 获取弃置的卡片（共享词库）
-=======
  * 获取弃置的卡片（所有用户读取作者的词库）
->>>>>>> f869383 (bug修复)
  * @param {string} language
  * @returns {Promise<Array>}
  */

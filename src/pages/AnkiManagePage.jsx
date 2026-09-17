@@ -62,6 +62,17 @@ function AnkiManagePage() {
     }
   }
 
+  const handleRestore = async (cardId) => {
+    try {
+      await restoreCard(cardId)
+      setToast({ message: '恢复成功', type: 'success' })
+      loadCards()
+    } catch (error) {
+      console.error('恢复失败:', error)
+      setToast({ message: '恢复失败：' + error.message, type: 'error' })
+    }
+  }
+
   const handleSearch = async () => {
     if (!searchTerm.trim()) {
       loadCards()
@@ -78,10 +89,6 @@ function AnkiManagePage() {
   }
 
   const openEditor = (card = null) => {
-    if (!canEdit) {
-      setToast({ message: '仅查看模式：无法编辑', type: 'warning' })
-      return
-    }
     if (card) {
       setEditingCard(card)
       setFormData({
@@ -113,11 +120,6 @@ function AnkiManagePage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-
-    if (!canEdit) {
-      setToast({ message: '仅查看模式：无法编辑', type: 'warning' })
-      return
-    }
 
     if (!formData.originalText.trim() || !formData.translation.trim()) {
       setToast({ message: '原文和中文意思不能为空', type: 'warning' })
@@ -156,10 +158,6 @@ function AnkiManagePage() {
   }
 
   const handleDelete = async (cardId) => {
-    if (!canEdit) {
-      setToast({ message: '仅查看模式：无法编辑', type: 'warning' })
-      return
-    }
     setConfirmDialog({
       message: '确定要删除这张卡片吗？',
       onConfirm: async () => {
@@ -175,21 +173,6 @@ function AnkiManagePage() {
       },
       onCancel: () => setConfirmDialog(null)
     })
-  }
-
-  const handleRestore = async (cardId) => {
-    if (!canEdit) {
-      setToast({ message: '仅查看模式：无法编辑', type: 'warning' })
-      return
-    }
-    try {
-      await restoreCard(cardId)
-      setToast({ message: '恢复成功', type: 'success' })
-      loadCards()
-    } catch (error) {
-      console.error('恢复失败:', error)
-      setToast({ message: '恢复失败：' + error.message, type: 'error' })
-    }
   }
 
   return (
@@ -269,7 +252,7 @@ function AnkiManagePage() {
         {!canEdit && (
           <div className="anki-preview-notice">
             <span className="anki-preview-icon">👁️</span>
-            仅查看模式：使用作者的共享词库
+            预览模式：仅可查看，无法编辑
           </div>
         )}
 
