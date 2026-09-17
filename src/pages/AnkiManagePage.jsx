@@ -291,36 +291,38 @@ function AnkiManagePage() {
                     <div className="anki-card-note">💡 {card.special_note}</div>
                   )}
                 </div>
-                {canEdit && (
-                  <div className="anki-card-actions">
-                    {viewMode === 'active' ? (
-                      <>
-                        <button
-                          type="button"
-                          className="anki-card-action-btn anki-card-action-btn--edit"
-                          onClick={() => openEditor(card)}
-                        >
-                          编辑
-                        </button>
-                        <button
-                          type="button"
-                          className="anki-card-action-btn anki-card-action-btn--delete"
-                          onClick={() => handleDelete(card.id)}
-                        >
-                          删除
-                        </button>
-                      </>
-                    ) : (
-                      <button
-                        type="button"
-                        className="anki-card-action-btn anki-card-action-btn--restore"
-                        onClick={() => handleRestore(card.id)}
-                      >
-                        恢复
-                      </button>
-                    )}
-                  </div>
-                )}
+                <div className="anki-card-actions">
+                  {viewMode === 'active' ? (
+                    <>
+                      {canEdit && (
+                        <>
+                          <button
+                            type="button"
+                            className="anki-card-action-btn anki-card-action-btn--edit"
+                            onClick={() => openEditor(card)}
+                          >
+                            编辑
+                          </button>
+                          <button
+                            type="button"
+                            className="anki-card-action-btn anki-card-action-btn--delete"
+                            onClick={() => handleDelete(card.id)}
+                          >
+                            删除
+                          </button>
+                        </>
+                      )}
+                    </>
+                  ) : (
+                    <button
+                      type="button"
+                      className="anki-card-action-btn anki-card-action-btn--restore"
+                      onClick={() => handleRestore(card.id)}
+                    >
+                      恢复
+                    </button>
+                  )}
+                </div>
               </div>
             ))}
           </div>
