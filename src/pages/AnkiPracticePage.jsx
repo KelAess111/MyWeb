@@ -117,7 +117,7 @@ function AnkiPracticePage() {
         questionCardWithForm.displayText = questionCard.kanji_form
         questionCardWithForm.isKanjiForm = true
       } else {
-        questionCardWithForm.displayText = questionCard.pronunciation || questionCard.original_text
+        questionCardWithForm.displayText = questionCard.original_text
         questionCardWithForm.isKanjiForm = false
       }
     } else {
