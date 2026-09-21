@@ -35,7 +35,7 @@ function ArticleDetailPage() {
           {article.isPdf ? (
             <div className="article-pdf-viewer">
               <iframe
-                src={article.pdfUrl}
+                src={`https://mozilla.github.io/pdf.js/web/viewer.html?file=${encodeURIComponent(article.pdfUrl)}`}
                 title={article.title}
                 className="pdf-frame"
               />
@@ -43,6 +43,8 @@ function ArticleDetailPage() {
                 href={article.pdfUrl}
                 download={article.fileName}
                 className="btn secondary pdf-download-btn"
+                target="_blank"
+                rel="noopener noreferrer"
               >
                 下载 PDF
               </a>
