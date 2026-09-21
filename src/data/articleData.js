@@ -17,6 +17,14 @@ const pdfModules = import.meta.glob('../assets/article/*.pdf', {
   import: 'default',
 })
 
+// 外部 PDF 文件（从 GitHub Releases）
+const externalPdfArticles = {
+  'ディメンション凸ラバース!!_設定資料集': {
+    url: 'https://github.com/KelAess111/MyWeb/releases/download/v1.0.0/_.pdf',
+    title: 'ディメンション凸ラバース!!_設定資料集',
+  },
+}
+
 const articleModules = { ...txtModules, ...mdModules, ...pdfModules }
 
 const articleCollator = new Intl.Collator('zh-Hans-CN', {
@@ -64,24 +72,38 @@ function parseArticleContent(rawContent, isPdf) {
   return { title, content }
 }
 
-export const articles = Object.entries(articleModules)
-  .map(([path, rawContent]) => {
-    const fileName = getTitle(path)
-    const isPdf = isPdfFile(path)
-    const parsed = parseArticleContent(rawContent, isPdf)
-    const isMarkdown = isMarkdownFile(path)
+// 处理本地文件
+const localArticles = Object.entries(articleModules).map(([path, rawContent]) => {
+  const fileName = getTitle(path)
+  const isPdf = isPdfFile(path)
+  const parsed = parseArticleContent(rawContent, isPdf)
+  const isMarkdown = isMarkdownFile(path)
 
-    return {
-      path,
-      fileName,
-      title: parsed.title || fileName,
-      content: parsed.content,
-      rawContent: isPdf ? null : rawContent,
-      pdfUrl: parsed.pdfUrl,
-      isMarkdown,
-      isPdf,
-    }
-  })
+  return {
+    path,
+    fileName,
+    title: parsed.title || fileName,
+    content: parsed.content,
+    rawContent: isPdf ? null : rawContent,
+    pdfUrl: parsed.pdfUrl,
+    isMarkdown,
+    isPdf,
+  }
+})
+
+// 处理外部 PDF 文件
+const externalArticles = Object.entries(externalPdfArticles).map(([key, data]) => ({
+  path: `external://${key}`,
+  fileName: data.title,
+  title: data.title,
+  content: '',
+  rawContent: null,
+  pdfUrl: data.url,
+  isMarkdown: false,
+  isPdf: true,
+}))
+
+export const articles = [...localArticles, ...externalArticles]
   .filter((item) => item.title)
   .sort((left, right) => articleCollator.compare(left.title, right.title))
   .map((item, index) => ({
