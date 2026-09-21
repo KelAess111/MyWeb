@@ -12,6 +12,9 @@ function PDFViewer({ url, fileName }) {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
 
+  // 使用代理 URL 来绕过 CORS
+  const proxyUrl = `/api/pdf-proxy?url=${encodeURIComponent(url)}`
+
   function onDocumentLoadSuccess({ numPages }) {
     setNumPages(numPages)
     setLoading(false)
@@ -56,7 +59,7 @@ function PDFViewer({ url, fileName }) {
       )}
 
       <Document
-        file={url}
+        file={proxyUrl}
         onLoadSuccess={onDocumentLoadSuccess}
         onLoadError={onDocumentLoadError}
         loading=""
