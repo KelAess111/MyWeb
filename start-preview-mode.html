@@ -3,63 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <title>Starting Preview Mode...</title>
-    <style>
-        body {
-            font-family: sans-serif;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-            margin: 0;
-            background: #0f1117;
-            color: #f5f7fb;
-        }
-        .message {
-            text-align: center;
-            font-size: 1.2rem;
-            line-height: 1.8;
-        }
-    </style>
-    <script type="module">
-        import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm'
+    <script>
+        // Clear localStorage and set sessionStorage for preview mode
+        localStorage.removeItem('localEditMode');
+        sessionStorage.setItem('previewMode', 'true');
 
-        async function initPreviewMode() {
-            // Clear localStorage and set sessionStorage for preview mode
-            localStorage.removeItem('localEditMode');
-            sessionStorage.setItem('previewMode', 'true');
+        console.log('Preview mode initialization:');
+        console.log('- localStorage.localEditMode =', localStorage.getItem('localEditMode'));
+        console.log('- sessionStorage.previewMode =', sessionStorage.getItem('previewMode'));
 
-            console.log('Preview mode initialization:');
-            console.log('- localStorage.localEditMode =', localStorage.getItem('localEditMode'));
-            console.log('- sessionStorage.previewMode =', sessionStorage.getItem('previewMode'));
-
-            // Sign out from Supabase to clear edit mode session
-            try {
-                const supabaseUrl = 'https://yoanalruwqzihmcnbbuo.supabase.co'
-                const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlvYW5hbHJ1d3F6aWhtY25iYnVvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzY0MDI0MjUsImV4cCI6MjA1MTk3ODQyNX0.TBxN-VKH_BPNOZEwSGW7WZiZEXCh8BPPaWL-x4J_r4I'
-
-                if (supabaseUrl && supabaseKey) {
-                    const supabase = createClient(supabaseUrl, supabaseKey)
-                    await supabase.auth.signOut()
-                    console.log('✅ Signed out from Supabase')
-                }
-            } catch (error) {
-                console.warn('Supabase sign out failed:', error)
-            }
-
-            // Redirect with preview parameter
-            setTimeout(() => {
-                window.location.href = 'http://localhost:5173/?preview=true'
-            }, 500)
-        }
-
-        initPreviewMode()
+        // Redirect with preview parameter
+        setTimeout(function() {
+            window.location.href = 'http://localhost:5173/?preview=true';
+        }, 200);
     </script>
 </head>
 <body>
-    <div class="message">
-        👁️ Starting preview mode...<br>
-        Clearing edit permissions...
-    </div>
+    <p>Starting preview mode...</p>
+    <p>Clearing edit permissions...</p>
 </body>
 </html>

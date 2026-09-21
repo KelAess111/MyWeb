@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import ContactPanel from '../components/ContactPanel'
 import QASection from '../components/QASection'
+import GamePlanSection from '../components/GamePlanSection'
 import Annotate from '../components/Annotate'
 import CircularRevealTransition from '../components/CircularRevealTransition'
 import { useTransition } from '../contexts/TransitionContext'
@@ -145,6 +146,8 @@ function ProfilePage() {
       </section>
 
       <QASection />
+
+      <GamePlanSection />
 
       <ContactPanel />
 

@@ -32,7 +32,22 @@ function ArticleDetailPage() {
         </header>
 
         <div className="article-detail-body">
-          {article.isMarkdown ? (
+          {article.isPdf ? (
+            <div className="article-pdf-viewer">
+              <iframe
+                src={article.pdfUrl}
+                title={article.title}
+                className="pdf-frame"
+              />
+              <a
+                href={article.pdfUrl}
+                download={article.fileName}
+                className="btn secondary pdf-download-btn"
+              >
+                下载 PDF
+              </a>
+            </div>
+          ) : article.isMarkdown ? (
             <ReactMarkdown
               remarkPlugins={[remarkGfm, remarkMath]}
               rehypePlugins={[rehypeKatex]}

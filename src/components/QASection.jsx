@@ -64,11 +64,6 @@ function QASection() {
         <span className="section-kicker">Q&A</span>
         <h2>问答时间</h2>
         <p>有什么想了解的？欢迎提问，我会在这里回答。</p>
-        {isEditMode && (
-          <Link to="/qa-admin" className="qa-admin-link">
-            管理问答
-          </Link>
-        )}
       </div>
 
       <div className="qa-content">

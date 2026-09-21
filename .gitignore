@@ -25,3 +25,5 @@ edit-mode.bat
 *.njsproj
 *.sln
 *.sw?
+# 忽略大型 PDF 文件
+src/assets/article/ディメンション凸ラバース!!_設定資料集.pdf

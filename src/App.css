@@ -7,6 +7,7 @@
 @import './styles/afterlight-journal.css';
 @import './styles/hidden-space-writing.css';
 @import './styles/site-header.css';
+@import './styles/game-plan-section.css';
 
 :root {
   --glass-bg: rgba(20, 16, 32, 0.45);

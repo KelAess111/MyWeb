@@ -1,4 +1,4 @@
-// 同时读取 .txt 和 .md 文件
+// 同时读取 .txt、.md 和 .pdf 文件
 const txtModules = import.meta.glob('../assets/article/*.txt', {
   eager: true,
   query: '?raw',
@@ -11,7 +11,13 @@ const mdModules = import.meta.glob('../assets/article/*.md', {
   import: 'default',
 })
 
-const articleModules = { ...txtModules, ...mdModules }
+const pdfModules = import.meta.glob('../assets/article/*.pdf', {
+  eager: true,
+  query: '?url',
+  import: 'default',
+})
+
+const articleModules = { ...txtModules, ...mdModules, ...pdfModules }
 
 const articleCollator = new Intl.Collator('zh-Hans-CN', {
   numeric: true,
@@ -23,12 +29,16 @@ function getFileName(path) {
 }
 
 function getTitle(path) {
-  return getFileName(path).replace(/\.(txt|md)$/, '').trim()
+  return getFileName(path).replace(/\.(txt|md|pdf)$/, '').trim()
 }
 
-// 判断文件是否为 Markdown 格式
+// 判断文件格式
 function isMarkdownFile(path) {
   return path.endsWith('.md')
+}
+
+function isPdfFile(path) {
+  return path.endsWith('.pdf')
 }
 
 function getSlug(title, index) {
@@ -41,7 +51,12 @@ function getSlug(title, index) {
   return normalized || `article-${index + 1}`
 }
 
-function parseArticleContent(rawContent) {
+function parseArticleContent(rawContent, isPdf) {
+  // PDF 文件返回 URL，不需要解析内容
+  if (isPdf) {
+    return { title: '', content: '', pdfUrl: rawContent }
+  }
+
   const lines = String(rawContent ?? '').split('\n')
   const title = lines[0]?.trim() || ''
   const content = lines.slice(1).join('\n').trim()
@@ -52,7 +67,8 @@ function parseArticleContent(rawContent) {
 export const articles = Object.entries(articleModules)
   .map(([path, rawContent]) => {
     const fileName = getTitle(path)
-    const parsed = parseArticleContent(rawContent)
+    const isPdf = isPdfFile(path)
+    const parsed = parseArticleContent(rawContent, isPdf)
     const isMarkdown = isMarkdownFile(path)
 
     return {
@@ -60,8 +76,10 @@ export const articles = Object.entries(articleModules)
       fileName,
       title: parsed.title || fileName,
       content: parsed.content,
-      rawContent,
+      rawContent: isPdf ? null : rawContent,
+      pdfUrl: parsed.pdfUrl,
       isMarkdown,
+      isPdf,
     }
   })
   .filter((item) => item.title)
@@ -70,7 +88,7 @@ export const articles = Object.entries(articleModules)
     ...item,
     id: `article-${index + 1}`,
     slug: getSlug(item.fileName, index),
-    excerpt: item.content.slice(0, 180).trim() + (item.content.length > 180 ? '…' : ''),
+    excerpt: item.isPdf ? 'PDF 文档' : (item.content.slice(0, 180).trim() + (item.content.length > 180 ? '…' : '')),
   }))
 
 export function findArticleBySlug(slug) {
