@@ -6,6 +6,7 @@ import rehypeKatex from 'rehype-katex'
 import 'katex/dist/katex.min.css'
 import { findArticleBySlug } from '../data/articleData'
 import Annotate from '../components/Annotate'
+import PDFViewer from '../components/PDFViewer'
 
 function ArticleDetailPage() {
   const { slug } = useParams()
@@ -33,22 +34,7 @@ function ArticleDetailPage() {
 
         <div className="article-detail-body">
           {article.isPdf ? (
-            <div className="article-pdf-viewer">
-              <iframe
-                src={`https://mozilla.github.io/pdf.js/web/viewer.html?file=${encodeURIComponent(article.pdfUrl)}`}
-                title={article.title}
-                className="pdf-frame"
-              />
-              <a
-                href={article.pdfUrl}
-                download={article.fileName}
-                className="btn secondary pdf-download-btn"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                下载 PDF
-              </a>
-            </div>
+            <PDFViewer url={article.pdfUrl} fileName={article.fileName} />
           ) : article.isMarkdown ? (
             <ReactMarkdown
               remarkPlugins={[remarkGfm, remarkMath]}
