@@ -1,34 +1,53 @@
 import { useState, useEffect } from 'react'
-
-const isEditMode = import.meta.env.VITE_EDIT_MODE === 'true'
+import useEditMode from '../hooks/useEditMode'
 
 function GamePlanSection() {
   const [gamePlans, setGamePlans] = useState([])
-  const isPreviewMode = window.sessionStorage.getItem('previewMode') === 'true'
+  const canEdit = useEditMode()
+  const [notice, setNotice] = useState('')
+  const [isSaving, setIsSaving] = useState(false)
   const [isEditing, setIsEditing] = useState(false)
   const [editingId, setEditingId] = useState(null)
   const [formData, setFormData] = useState({
     name: '',
     conceptImage: '',
     description: '',
-    recruiting: ''
+    recruiting: '', status: 'planning', progress: ''
   })
 
   // 从 localStorage 加载数据
   useEffect(() => {
-    const stored = localStorage.getItem('gamePlans')
-    if (stored) {
-      try {
-        setGamePlans(JSON.parse(stored))
-      } catch (e) {
-        console.error('Failed to parse game plans:', e)
-      }
-    }
+    const controller = new AbortController()
+    fetch(`${import.meta.env.BASE_URL}content/game-plans.json`, { signal: controller.signal, cache: 'no-store' })
+      .then(response => { if (!response.ok) throw new Error(); return response.json() })
+      .then(plans => { if (!Array.isArray(plans)) throw new Error(); setGamePlans(plans) })
+      .catch(error => { if (error.name !== 'AbortError') setNotice('游戏规划暂时无法加载，请刷新重试。') })
+    return () => controller.abort()
   }, [])
 
   // 保存到 localStorage
-  const saveToStorage = (plans) => {
-    localStorage.setItem('gamePlans', JSON.stringify(plans))
+  const saveToStorage = async (plans) => {
+    if (!canEdit || isSaving) return false
+    setIsSaving(true)
+    try {
+      const response = await fetch('/api/local-game-plans', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(plans) })
+      if (!response.ok) throw new Error()
+      setGamePlans(plans)
+      setNotice('已保存到本地网站文件，下次发布时会一起展示。')
+      return true
+    } catch {
+      setNotice('保存失败，请确认正在本地开发预览中编辑，然后重试。')
+      return false
+    } finally { setIsSaving(false) }
+  }
+
+  const importLegacyPlans = async () => {
+    try {
+      const stored = JSON.parse(localStorage.getItem('gamePlans') || '[]')
+      if (!Array.isArray(stored) || !stored.length) { setNotice('这个浏览器中没有旧的游戏规划。'); return }
+      const existingIds = new Set(gamePlans.map(plan => String(plan.id)))
+      await saveToStorage([...gamePlans, ...stored.filter(plan => plan && plan.name && !existingIds.has(String(plan.id)))])
+    } catch { setNotice('旧数据无法读取，原数据没有被修改。') }
   }
 
   const handleAdd = () => {
@@ -38,7 +57,7 @@ function GamePlanSection() {
       name: '',
       conceptImage: '',
       description: '',
-      recruiting: ''
+      recruiting: '', status: 'planning', progress: ''
     })
   }
 
@@ -48,15 +67,14 @@ function GamePlanSection() {
     setFormData(plan)
   }
 
-  const handleDelete = (id) => {
+  const handleDelete = async (id) => {
     if (!confirm('确定要删除这个游戏规划吗？')) return
 
     const updated = gamePlans.filter(p => p.id !== id)
-    setGamePlans(updated)
-    saveToStorage(updated)
+    await saveToStorage(updated)
   }
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
 
     if (!formData.name.trim()) {
@@ -80,8 +98,7 @@ function GamePlanSection() {
       updated = [...gamePlans, newPlan]
     }
 
-    setGamePlans(updated)
-    saveToStorage(updated)
+    if (!await saveToStorage(updated)) return
     setIsEditing(false)
     setEditingId(null)
   }
@@ -106,11 +123,13 @@ function GamePlanSection() {
               <article key={plan.id} className="game-plan-card card">
                 {plan.conceptImage && (
                   <div className="game-plan-image">
-                    <img src={plan.conceptImage} alt={plan.name} />
+                    <img src={plan.conceptImage} alt={plan.name} loading="lazy" />
                   </div>
                 )}
                 <div className="game-plan-body">
                   <h3 className="game-plan-title">{plan.name}</h3>
+                  <span className="plan-status">{{ planning: '企划中', development: '开发中', completed: '已完成' }[plan.status] || '企划中'}</span>
+                  {plan.progress && <p className="plan-progress"><strong>最近进展</strong>{plan.progress}</p>}
                   {plan.description && (
                     <p className="game-plan-description">{plan.description}</p>
                   )}
@@ -120,7 +139,7 @@ function GamePlanSection() {
                       <p>{plan.recruiting}</p>
                     </div>
                   )}
-                  {isEditMode && (
+                  {canEdit && (
                     <div className="game-plan-actions">
                       <button
                         className="btn-icon"
@@ -132,6 +151,7 @@ function GamePlanSection() {
                       <button
                         className="btn-icon"
                         onClick={() => handleDelete(plan.id)}
+                        disabled={isSaving}
                         aria-label="删除"
                       >
                         🗑️
@@ -148,16 +168,20 @@ function GamePlanSection() {
           </div>
         )}
 
-        {isEditMode && !isPreviewMode && !isEditing && (
+        {notice && <p role="status">{notice}</p>}
+        {canEdit && <button className="btn secondary" disabled={isSaving} onClick={importLegacyPlans}>导入此浏览器的旧规划</button>}
+        {canEdit && !isEditing && (
           <button className="btn primary game-plan-add-btn" onClick={handleAdd}>
             + 添加游戏规划
           </button>
         )}
 
-        {isEditing && (
+        {canEdit && isEditing && (
           <div className="game-plan-form-overlay">
             <form className="game-plan-form card" onSubmit={handleSubmit}>
               <h3>{editingId ? '编辑游戏规划' : '添加游戏规划'}</h3>
+              <div className="form-field"><label htmlFor="plan-status">项目状态</label><select id="plan-status" value={formData.status || 'planning'} onChange={e => setFormData({ ...formData, status: e.target.value })}><option value="planning">企划中</option><option value="development">开发中</option><option value="completed">已完成</option></select></div>
+              <div className="form-field"><label htmlFor="plan-progress">最近进展</label><textarea id="plan-progress" rows={2} value={formData.progress || ''} onChange={e => setFormData({ ...formData, progress: e.target.value })} placeholder="记录刚刚完成的小进展…" /></div>
 
               <div className="form-field">
                 <label htmlFor="game-name">游戏名称 *</label>
@@ -205,8 +229,8 @@ function GamePlanSection() {
               </div>
 
               <div className="form-actions">
-                <button type="submit" className="btn primary">
-                  {editingId ? '保存修改' : '添加'}
+                <button type="submit" className="btn primary" disabled={isSaving}>
+                  {isSaving ? '保存中…' : editingId ? '保存修改' : '添加'}
                 </button>
                 <button type="button" className="btn secondary" onClick={handleCancel}>
                   取消

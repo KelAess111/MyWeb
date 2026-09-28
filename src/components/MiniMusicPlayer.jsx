@@ -122,7 +122,7 @@ function MiniMusicPlayer({ isHomePage = false, ocArea = null, onUiStateChange })
           </button>
         </div>
 
-        <div className={`music-player-expanded-panel ${isExpanded ? 'is-visible' : ''}`} id="right-corner-radio-panel">
+        <div className={`music-player-expanded-panel ${isExpanded ? 'is-visible' : ''}`} id="right-corner-radio-panel" inert={!isExpanded}>
           <div className="music-player-panel-tabs" role="tablist" aria-label="广播面板标签">
             <button
               type="button"

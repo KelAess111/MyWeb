@@ -1,9 +1,11 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
+import localGamePlans from './scripts/local-game-plans.mjs'
+import localPdfProxy from './scripts/local-pdf-proxy.mjs'
 
 // https://vite.dev/config/
 export default defineConfig({
-  plugins: [react()],
+  plugins: [react(), localGamePlans(), localPdfProxy()],
   server: {
     proxy: {
       '/api/ipapi': {
@@ -17,23 +19,14 @@ export default defineConfig({
   build: {
     rollupOptions: {
       output: {
-        manualChunks: {
-          // 将大型库分离成独立的 chunk
-          'pdf-viewer': ['pdfjs-dist'],
-          'markdown': ['react-markdown', 'remark-gfm', 'remark-math', 'rehype-katex'],
-          'ui-libs': ['framer-motion', 'photoswipe'],
-          'react-vendor': ['react', 'react-dom', 'react-router-dom']
-        }
+        manualChunks(id) {
+          if (/node_modules[\\/]pdfjs-dist[\\/]/.test(id)) return 'pdf-viewer'
+          if (/node_modules[\\/](react|react-dom|react-router|react-router-dom)[\\/]/.test(id)) return 'react-vendor'
+        },
       }
     },
     chunkSizeWarningLimit: 1000,
     // 开启压缩
-    minify: 'terser',
-    terserOptions: {
-      compress: {
-        drop_console: true, // 生产环境移除 console
-        drop_debugger: true
-      }
-    }
+    minify: true,
   }
 })

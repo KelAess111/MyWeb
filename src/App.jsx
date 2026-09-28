@@ -7,7 +7,6 @@ import MiniMusicPlayer from './components/MiniMusicPlayer'
 import MusicVisualizer from './components/MusicVisualizer'
 import PageTransition from './components/PageTransition'
 import ClickEffects from './components/ClickEffects'
-import MobileNotice from './components/MobileNotice'
 import ProtectedRoute from './components/ProtectedRoute'
 import CircularRevealTransition from './components/CircularRevealTransition'
 import TransitionContext from './contexts/TransitionContext'
@@ -24,6 +23,7 @@ import './styles/game.css'
 import './styles/music.css'
 import './styles/share.css'
 import './styles/anki.css'
+import './styles/experience.css'
 
 // 创建支持预加载的lazy wrapper
 function lazyWithPreload(importFunc) {
@@ -214,19 +214,6 @@ function MusicPlayerProvider({ children }) {
       setCurrentTime(audio.currentTime)
     }
 
-    const handleEnded = () => {
-      const nextIndex = autoplayNext ? resolveNextTrackIndex(activeTrackIndex, musicTracks.length, playbackMode) : null
-
-      if (nextIndex === null) {
-        setIsPlaying(false)
-        setCurrentTime(0)
-        return
-      }
-
-      setActiveTrackIndex(nextIndex)
-      setCurrentTime(0)
-      setIsPlaying(true)
-    }
 
     const handleError = () => {
       setAudioStatus('error')
@@ -235,18 +222,32 @@ function MusicPlayerProvider({ children }) {
 
     audio.addEventListener('loadedmetadata', handleLoadedMetadata)
     audio.addEventListener('timeupdate', handleTimeUpdate)
-    audio.addEventListener('ended', handleEnded)
     audio.addEventListener('error', handleError)
 
     return () => {
       audio.pause()
       audio.removeEventListener('loadedmetadata', handleLoadedMetadata)
       audio.removeEventListener('timeupdate', handleTimeUpdate)
-      audio.removeEventListener('ended', handleEnded)
       audio.removeEventListener('error', handleError)
-      // 不要清除 audioRef.current，让它持久存在
+      audioRef.current = null
     }
   }, []) // 空依赖数组，只运行一次
+
+  useEffect(() => {
+    const audio = audioRef.current
+    if (!audio) return
+    const onEnded = () => {
+      const nextIndex = autoplayNext ? resolveNextTrackIndex(activeTrackIndex, musicTracks.length, playbackMode) : null
+      setCurrentTime(0)
+      if (nextIndex === null) { setIsPlaying(false); return }
+      if (nextIndex === activeTrackIndex) {
+        audio.currentTime = 0
+        audio.play().catch(() => { setIsPlaying(false); setAudioStatus('error') })
+      } else { setActiveTrackIndex(nextIndex); setIsPlaying(true) }
+    }
+    audio.addEventListener('ended', onEnded)
+    return () => audio.removeEventListener('ended', onEnded)
+  }, [activeTrackIndex, autoplayNext, playbackMode])
 
   useEffect(() => {
     const audio = audioRef.current
@@ -592,12 +593,7 @@ function AppShell() {
 
     const preloadRoutes = async () => {
       const components = [
-        HomePage, ProfilePage, PortfolioPage, InterestsPage, SharePage, CategoryPage,
-        HiddenArchivePage, HiddenSpaceGamesPage, HiddenSpacePaintingPage, HiddenSpaceWritingPage,
-        PublicWritingPage, PublicJournalPage, PublicGalleryPage, PublicGalleryAlbumPage,
-        AnimePage, ArticleDetailPage, BookPage, GamePage, MusicPage,
-        HiddenSpaceJournalPage, HiddenSpacePersonalPage, QAAdminPage, UtilitiesPage,
-        LoginPage, AnkiHomePage, AnkiPracticePage, AnkiManagePage, AnkiWrongCardsPage
+        ProfilePage, PortfolioPage, SharePage,
       ]
 
       for (const component of components) {
@@ -688,7 +684,6 @@ function AppShell() {
   return (
     <TransitionContext.Provider value={{ showGlobalMask, setShowGlobalMask }}>
       <div className="site">
-        <MobileNotice />
         {!isHiddenSpace && <BackgroundLayer mode="base" />}
         <ClickEffects />
         <SiteHeader replayIntroEnabled={replayIntroEnabled} setReplayIntroEnabled={setReplayIntroEnabled} />

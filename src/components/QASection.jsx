@@ -1,11 +1,10 @@
 ﻿import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { getAnsweredQuestions, submitQuestion } from '../services/qaService'
-import Annotate from './Annotate'
-
-const isEditMode = import.meta.env.VITE_EDIT_MODE === 'true'
+import useEditMode from '../hooks/useEditMode'
 
 function QASection() {
+  const canEdit = useEditMode()
   const [questions, setQuestions] = useState([])
   const [isLoading, setIsLoading] = useState(true)
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -16,15 +15,12 @@ function QASection() {
   const [submitError, setSubmitError] = useState('')
 
   useEffect(() => {
-    loadQuestions()
+    let active = true
+    getAnsweredQuestions().then(data => { if (active) setQuestions(data) })
+      .catch(() => { if (active) setSubmitError('问答暂时无法加载，请稍后刷新。') })
+      .finally(() => { if (active) setIsLoading(false) })
+    return () => { active = false }
   }, [])
-
-  const loadQuestions = async () => {
-    setIsLoading(true)
-    const data = await getAnsweredQuestions()
-    setQuestions(data)
-    setIsLoading(false)
-  }
 
   const handleSubmit = async (event) => {
     event.preventDefault()
@@ -64,6 +60,7 @@ function QASection() {
         <span className="section-kicker">Q&A</span>
         <h2>问答时间</h2>
         <p>有什么想了解的？欢迎提问，我会在这里回答。</p>
+        {canEdit && <Link to="/qa-admin" className="qa-admin-link">管理问答 →</Link>}
       </div>
 
       <div className="qa-content">

@@ -1,7 +1,6 @@
 ﻿import { useEffect, useState } from 'react'
 import { NavLink, useLocation, useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabaseClient'
-import Annotate from './Annotate'
 
 function SiteHeader({ replayIntroEnabled, setReplayIntroEnabled }) {
   const location = useLocation()
@@ -11,19 +10,16 @@ function SiteHeader({ replayIntroEnabled, setReplayIntroEnabled }) {
   const [user, setUser] = useState(null)
 
   useEffect(() => {
-    checkUser()
+    let active = true
+    supabase.auth.getUser().then(({ data }) => { if (active) setUser(data.user) }).catch(() => {})
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null)
     })
 
-    return () => subscription.unsubscribe()
+    return () => { active = false; subscription.unsubscribe() }
   }, [])
 
-  const checkUser = async () => {
-    const { data: { user } } = await supabase.auth.getUser()
-    setUser(user)
-  }
 
   const handleLogout = async () => {
     await supabase.auth.signOut()
@@ -59,6 +55,9 @@ function SiteHeader({ replayIntroEnabled, setReplayIntroEnabled }) {
             <NavLink to="/" end>
               首页
             </NavLink>
+            <NavLink to="/portfolio">作品</NavLink>
+            <NavLink to="/share">资料</NavLink>
+            <NavLink to="/profile">关于我</NavLink>
             {user ? (
               <button
                 type="button"
