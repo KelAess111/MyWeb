@@ -4,13 +4,10 @@
       "maxDuration": 10
     }
   },
-  "routes": [
+  "rewrites": [
     {
-      "handle": "filesystem"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/index.html"
+      "source": "/(.*)",
+      "destination": "/index.html"
     }
   ],
   "headers": [
@@ -24,7 +21,7 @@
       ]
     },
     {
-      "source": "/(.*)\.(?:jpg|jpeg|png|gif|webp|svg|ico)",
+      "source": "/(.*)\\.(?:jpg|jpeg|png|gif|webp|svg|ico)",
       "headers": [
         {
           "key": "Cache-Control",
@@ -33,7 +30,7 @@
       ]
     },
     {
-      "source": "/(.*)\.(?:css|js)",
+      "source": "/(.*)\\.(?:css|js)",
       "headers": [
         {
           "key": "Cache-Control",
