@@ -42,7 +42,7 @@ function PortfolioPage() {
                 <div className="portfolio-project-role">
                   <h3>我负责的部分</h3>
                   <p>{project.responsibility}</p>
-                  <details>
+                  {project.contributions?.length > 0 && <details>
                     <summary>展开制作细节</summary>
                     <ul>{project.contributions.map(item => (
                       <li key={typeof item === 'string' ? item : item.title}>
@@ -50,7 +50,7 @@ function PortfolioPage() {
                       </li>
                     ))}</ul>
                     {project.collaborationNote && <p className="portfolio-collaboration-note">{project.collaborationNote}</p>}
-                  </details>
+                  </details>}
                 </div>
                 {project.disclosure && <p className="portfolio-project-disclosure">{project.disclosure}</p>}
                 <div className="portfolio-project-download">
