@@ -1,19 +1,62 @@
+import { portfolioProjects } from '../data/portfolioProjects'
+import '../styles/portfolio.css'
+
 function PortfolioPage() {
   return (
     <main className="portfolio-page">
-      <section className="section portfolio-placeholder-section" id="portfolio">
+      <section className="section portfolio-projects-section" id="portfolio">
         <div className="section-heading">
-          <span className="section-kicker">Portfolio / Coming Soon</span>
+          <span className="section-kicker">Portfolio / Selected Games</span>
           <h1>个人作品集</h1>
-          <p>这里将用于展示未来整理完成的个人项目与作品。目前先保留这个入口，内容会在之后逐步加入。</p>
+          <p>从光影中的探索，到异国旅途里的故事。这里记录我参与开发的游戏，以及由我独立推进的作品。</p>
         </div>
 
-        <div className="portfolio-placeholder-card" role="status">
-          <span className="portfolio-placeholder-mark" aria-hidden="true">✦</span>
-          <div>
-            <h2>内容准备中</h2>
-            <p>游戏、绘画、音乐等兴趣分区已经移到“个人兴趣”，未来的独立作品会在这里集中呈现。</p>
-          </div>
+        <nav className="portfolio-index" aria-label="游戏作品目录">
+          {portfolioProjects.map(project => (
+            <a key={project.id} href={`#${project.id}`}>
+              <span aria-hidden="true">{project.number}</span>{project.title}
+            </a>
+          ))}
+        </nav>
+
+        <div className="portfolio-project-list">
+          {portfolioProjects.map(project => (
+            <article key={project.id} id={project.id} className={`portfolio-project portfolio-project--${project.id}`} aria-labelledby={`${project.id}-title`}>
+              <div className="portfolio-project-visual">
+                <img src={project.cover} alt={project.coverAlt} loading={project.number === '01' ? 'eager' : 'lazy'} decoding="async" />
+                <div className="portfolio-project-visual-shade" aria-hidden="true" />
+                <span className="portfolio-project-number" aria-hidden="true">{project.number}</span>
+                <p>{project.subtitle}</p>
+              </div>
+              <div className="portfolio-project-content">
+                <div className="portfolio-project-meta">
+                  <span>{project.category}</span><span>{project.status}</span>
+                </div>
+                <h2 id={`${project.id}-title`}>{project.title}</h2>
+                <p className="portfolio-project-description">{project.description}</p>
+                <dl className="portfolio-project-facts">
+                  <div><dt>我的角色</dt><dd>{project.role}</dd></div>
+                  <div><dt>制作工具</dt><dd>{project.engine}</dd></div>
+                  <div><dt>试玩平台</dt><dd>{project.platform}</dd></div>
+                </dl>
+                <div className="portfolio-project-role">
+                  <h3>我负责的部分</h3>
+                  <p>{project.responsibility}</p>
+                  <details>
+                    <summary>展开制作细节</summary>
+                    <ul>{project.contributions.map(item => <li key={item}>{item}</li>)}</ul>
+                  </details>
+                </div>
+                {project.disclosure && <p className="portfolio-project-disclosure">{project.disclosure}</p>}
+                <div className="portfolio-project-download">
+                  {project.downloadUrl ? (
+                    <a href={project.downloadUrl} className="btn primary" aria-label={`下载${project.title} Windows 试玩版`}>下载 Windows 试玩版 <span aria-hidden="true">↗</span></a>
+                  ) : <span className="portfolio-download-pending">试玩包待上传</span>}
+                  <p>{project.downloadNote}</p>
+                </div>
+              </div>
+            </article>
+          ))}
         </div>
       </section>
     </main>
