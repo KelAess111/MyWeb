@@ -28,6 +28,9 @@
 .portfolio-project-role summary { width: fit-content; cursor: pointer; color: #adcaef; font-size: .85rem; padding: 5px 0; }
 .portfolio-project-role ul { padding-left: 1.2em; color: #bdc9dc; line-height: 1.9; font-size: .88rem; }
 .portfolio-project-role li + li { margin-top: 8px; }
+.portfolio-project-role li:has(.portfolio-contribution-title) + li { margin-top: 18px; }
+.portfolio-contribution-title { display: block; margin-bottom: 5px; color: #e0e8fa; font-size: .92rem; font-weight: 600; }
+.portfolio-project-role .portfolio-collaboration-note { margin-top: 20px; padding-top: 16px; border-top: 1px solid rgba(188, 204, 239, .12); color: #aabbd5; font-size: .84rem; }
 .portfolio-project-disclosure { color: #a8b6cd; font-size: .78rem; line-height: 1.9; margin: 18px 0 0; }
 .portfolio-project-download { margin-top: 26px; }
 .portfolio-project-download .btn { display: inline-flex; gap: 20px; align-items: center; }

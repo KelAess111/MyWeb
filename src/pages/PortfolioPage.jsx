@@ -44,7 +44,12 @@ function PortfolioPage() {
                   <p>{project.responsibility}</p>
                   <details>
                     <summary>展开制作细节</summary>
-                    <ul>{project.contributions.map(item => <li key={item}>{item}</li>)}</ul>
+                    <ul>{project.contributions.map(item => (
+                      <li key={typeof item === 'string' ? item : item.title}>
+                        {typeof item === 'string' ? item : <><strong className="portfolio-contribution-title">{item.title}</strong><span>{item.text}</span></>}
+                      </li>
+                    ))}</ul>
+                    {project.collaborationNote && <p className="portfolio-collaboration-note">{project.collaborationNote}</p>}
                   </details>
                 </div>
                 {project.disclosure && <p className="portfolio-project-disclosure">{project.disclosure}</p>}
