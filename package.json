@@ -8,7 +8,11 @@
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "generate:writing": "node scripts/generate-writing-content.mjs"
+    "generate:writing": "node scripts/generate-writing-content.mjs",
+    "test:editor": "node --test tests/*.test.mjs",
+    "desktop:install": "npm --prefix desktop install",
+    "desktop:dev": "npm --prefix desktop start",
+    "desktop:build": "npm --prefix desktop run pack"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.111.0",

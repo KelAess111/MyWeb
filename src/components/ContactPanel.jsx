@@ -1,3 +1,4 @@
+import { verifyAccessKey } from '../utils/verifyAccessKey'
 ﻿import { useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { secretRoom } from '../data/secretRoom'
@@ -115,10 +116,13 @@ function ContactPanel() {
     setKeyError('')
   }
 
-  const handleSecretSubmit = (event) => {
+  const handleSecretSubmit = async (event) => {
     event.preventDefault()
 
-    if (enteredKey.trim() !== secretRoom.accessKey) {
+    let valid = false
+    try { valid = await verifyAccessKey(enteredKey,secretRoom) }
+    catch { setKeyError('入口校验暂时不可用，请使用 HTTPS 或本机地址。'); return }
+    if (!valid) {
       setKeyError('密钥不正确。请先联系作者获取有效密钥。')
       return
     }

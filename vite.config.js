@@ -1,12 +1,23 @@
+import publicSecretCheck from './scripts/check-public-content.mjs'
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import localGamePlans from './scripts/local-game-plans.mjs'
+import localContent from './scripts/local-content.mjs'
 import localPdfProxy from './scripts/local-pdf-proxy.mjs'
 
 // https://vite.dev/config/
-export default defineConfig({
-  plugins: [react(), localGamePlans(), localPdfProxy()],
+export default defineConfig(({ command }) => ({
+  plugins: [react(), localGamePlans(), localContent(), localPdfProxy(), publicSecretCheck()],
+  // Never put author credentials in a production bundle, even when .env.local exists.
+  define: command === 'build' ? {
+    'import.meta.env.VITE_AUTHOR_EMAIL': JSON.stringify(''),
+    'import.meta.env.VITE_AUTHOR_PASSWORD': JSON.stringify(''),
+    'import.meta.env.VITE_EDIT_SECRET': JSON.stringify(''),
+    'import.meta.env.VITE_EDIT_MODE': JSON.stringify('false'),
+  } : {},
   server: {
+    host: '127.0.0.1',
+    watch: { ignored: ['**/Kel-Portfolio-Studio-*.exe', '**/desktop/dist/**'] },
     proxy: {
       '/api/ipapi': {
         target: 'https://ipapi.co',
@@ -29,4 +40,4 @@ export default defineConfig({
     // 开启压缩
     minify: true,
   }
-})
+}))

@@ -1,3 +1,5 @@
+import AnkiImportPanel from '../components/AnkiImportPanel'
+import useEditMode from '../hooks/useEditMode'
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import {
@@ -12,16 +14,6 @@ import {
 import { Toast, ConfirmDialog } from '../components/Toast'
 
 // 检查是否为本地编辑模式
-function isLocalEditMode() {
-  if (typeof window === 'undefined') {
-    return false
-  }
-  try {
-    return window.localStorage.getItem('localEditMode') === 'true'
-  } catch {
-    return false
-  }
-}
 
 function AnkiManagePage() {
   const [language, setLanguage] = useState('japanese')
@@ -39,7 +31,7 @@ function AnkiManagePage() {
     translation: '',
     specialNote: '',
   })
-  const [canEdit] = useState(() => isLocalEditMode())
+  const canEdit = useEditMode()
   const [toast, setToast] = useState(null)
   const [confirmDialog, setConfirmDialog] = useState(null)
 
@@ -186,6 +178,7 @@ function AnkiManagePage() {
         </header>
 
         <div className="anki-manage-controls">
+
           <div className="anki-language-tabs">
             <button
               type="button"
@@ -203,6 +196,7 @@ function AnkiManagePage() {
             </button>
           </div>
 
+          {canEdit && <AnkiImportPanel key={language} language={language} onImported={loadCards} />}
           <div className="anki-view-mode-tabs">
             <button
               type="button"

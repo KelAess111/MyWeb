@@ -1,0 +1,5 @@
+.anki-batch-panel{width:100%;padding:18px 20px;margin:0 0 18px;border:1px solid #a3b3db55;border-radius:14px;background:#182133aa;color:#e4eaff}.anki-batch-panel summary{cursor:pointer;font-weight:600}.anki-batch-panel p,.anki-batch-panel label{font-size:13px;line-height:1.8;color:#c1cce3}.anki-batch-panel label{display:block;margin-top:18px}.anki-batch-panel textarea{width:100%;margin:8px 0 12px}.anki-batch-panel ul{line-height:1.9;padding-left:22px}.anki-batch-panel button{margin:6px 8px 6px 0}.anki-batch-panel>div{padding-top:8px;border-top:1px solid #a3b3db33;margin-top:14px}
+
+.anki-batch-panel .anki-import-advanced { margin-top: 16px; padding: 12px 14px; border: 1px solid #a3b3db33; border-radius: 10px; }
+.anki-import-advanced summary { font-size: 13px; color: #c9d9f6; }
+.anki-import-preview strong { color: #bdf3d9; }

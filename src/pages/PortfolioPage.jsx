@@ -54,9 +54,13 @@ function PortfolioPage() {
                 </div>
                 {project.disclosure && <p className="portfolio-project-disclosure">{project.disclosure}</p>}
                 <div className="portfolio-project-download">
-                  {project.downloadUrl ? (
-                    <a href={project.downloadUrl} className="btn primary" aria-label={`下载${project.title} Windows 试玩版`}>下载 Windows 试玩版 <span aria-hidden="true">↗</span></a>
-                  ) : <span className="portfolio-download-pending">试玩包待上传</span>}
+                  <div className="portfolio-download-actions">
+                    {project.baiduUrl && <a href={project.baiduUrl} className="btn primary" target="_blank" rel="noopener noreferrer" aria-label={`通过百度网盘下载《${project.title}》（新窗口打开）`}>百度网盘下载 <span aria-hidden="true">↗</span></a>}
+                    {project.downloadUrl && <a href={project.downloadUrl} className={`btn ${project.baiduUrl ? 'portfolio-download-backup' : 'primary'}`} target="_blank" rel="noopener noreferrer" aria-label={`通过 GitHub 下载《${project.title}》Windows 试玩版（新窗口打开）`}>{project.baiduUrl ? 'GitHub 备用下载' : '下载 Windows 试玩版'} <span aria-hidden="true">↗</span></a>}
+                    {!project.baiduUrl && !project.downloadUrl && <span className="portfolio-download-pending">试玩包待上传</span>}
+                  </div>
+                  {project.baiduCode && <p className="portfolio-baidu-info">提取码：<strong>{project.baiduCode}</strong><span>链接已包含提取码</span></p>}
+                  {project.baiduFileName && <p className="portfolio-download-filename">网盘文件：{project.baiduFileName}</p>}
                   <p>{project.downloadNote}</p>
                 </div>
               </div>

@@ -44,3 +44,10 @@
   .portfolio-project-list { gap: 28px; }
   .portfolio-index a { font-size: .85rem; padding: 9px 13px; }
 }
+
+.portfolio-download-actions { display: flex; align-items: center; flex-wrap: wrap; gap: 12px; }
+.portfolio-download-actions .portfolio-download-backup { background: transparent; border: 1px solid rgba(184, 203, 244, .35); color: #d2e3ff; }
+.portfolio-baidu-info { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 12px; }
+.portfolio-baidu-info strong { color: #edf4ff; font-size: .92rem; letter-spacing: .12em; user-select: all; }
+.portfolio-baidu-info span { color: #aab7ce; }
+.portfolio-download-filename { overflow-wrap: anywhere; }

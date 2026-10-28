@@ -6,7 +6,8 @@ import GamePlanSection from '../components/GamePlanSection'
 import Annotate from '../components/Annotate'
 import CircularRevealTransition from '../components/CircularRevealTransition'
 import { useTransition } from '../contexts/TransitionContext'
-import avatarImage from '../assets/about/头像.jpg'
+import avatarImage from '../assets/about/rui-original.png'
+import '../styles/profile-avatar.css'
 
 function ProfilePage() {
   const [isInterestsOpen, setIsInterestsOpen] = useState(false)
@@ -69,7 +70,7 @@ function ProfilePage() {
             {/* 头像区域 */}
             <div className="profile-card-avatar-wrapper">
               <div className="profile-card-avatar">
-                <img src={avatarImage} alt="KelAess Avatar" className="profile-avatar-image" />
+                <img src={avatarImage} alt="芮的头部头像" className="profile-avatar-image profile-avatar-image--headshot" />
               </div>
 
               {/* 兴趣导航圆盘 */}

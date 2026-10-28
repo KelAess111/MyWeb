@@ -1,3 +1,4 @@
+import { saveLocalContent } from '../utils/editMode'
 import { useState, useEffect } from 'react'
 import useEditMode from '../hooks/useEditMode'
 
@@ -30,8 +31,7 @@ function GamePlanSection() {
     if (!canEdit || isSaving) return false
     setIsSaving(true)
     try {
-      const response = await fetch('/api/local-game-plans', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(plans) })
-      if (!response.ok) throw new Error()
+      await saveLocalContent('/api/local-game-plans', plans)
       setGamePlans(plans)
       setNotice('已保存到本地网站文件，下次发布时会一起展示。')
       return true

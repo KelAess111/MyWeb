@@ -1,7 +1,10 @@
+import { authorConnectionMessage } from '../utils/authorSessionCore'
+import useEditMode from './useEditMode'
 import { useEffect, useMemo, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import {
   getWritingWorkspaceStorageKeys,
+  getCachedWritingTree,
   loadWritingTree,
   normalizeWritingNode,
   normalizeWritingTree,
@@ -16,62 +19,6 @@ const EDIT_PARAM = 'edit'
 const AUTHOR_EMAIL = '2597631359@qq.com'
 
 // 检查是否为本地编辑模式
-function isLocalEditMode() {
-  if (typeof window === 'undefined') {
-    return false
-  }
-
-  const urlParams = new URLSearchParams(window.location.search)
-  const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-
-  // 检查是否是预览模式 - 最高优先级
-  const hasPreviewParam = urlParams.get('preview') === 'true'
-
-  // 如果 URL 有 preview=true，保存到 sessionStorage
-  if (hasPreviewParam) {
-    try {
-      window.sessionStorage.setItem('previewMode', 'true')
-      window.localStorage.removeItem('localEditMode')
-    } catch {
-      // ignore
-    }
-    return false
-  }
-
-  // 检查 sessionStorage 中的预览模式标记
-  try {
-    if (window.sessionStorage.getItem('previewMode') === 'true') {
-      return false
-    }
-  } catch {
-    // ignore
-  }
-
-  const hasLocalParam = urlParams.get('editMode') === 'local'
-  const hasEditMode = import.meta.env.VITE_EDIT_MODE === 'true'
-
-  // 如果URL有editMode=local参数，保存到localStorage，并清除预览模式
-  if (hasLocalParam && isLocalhost && hasEditMode) {
-    try {
-      window.localStorage.setItem('localEditMode', 'true')
-      window.sessionStorage.removeItem('previewMode')
-    } catch {
-      // ignore
-    }
-    return true
-  }
-
-  // 检查localStorage中是否有本地编辑模式标记
-  if (isLocalhost && hasEditMode) {
-    try {
-      return window.localStorage.getItem('localEditMode') === 'true'
-    } catch {
-      return false
-    }
-  }
-
-  return false
-}
 
 function readStoredFlag(key) {
   if (typeof window === 'undefined') {
@@ -116,13 +63,7 @@ export function useWritingWorkspace({ workspace, fallbackTree }) {
   const isAuthorMode = useMemo(() => searchParams.get(EDIT_PARAM) === EDIT_TOKEN, [searchParams])
 
   // 检查本地编辑模式 - 使用 useState 让它能够响应变化
-  const [isLocalEdit, setIsLocalEdit] = useState(() => isLocalEditMode())
-
-  // 监听 URL 参数变化，重新检查编辑模式
-  useEffect(() => {
-    const newLocalEditState = isLocalEditMode()
-    setIsLocalEdit(newLocalEditState)
-  }, [searchParams])
+  const isLocalEdit = useEditMode()
 
   const hasAuthorAccess = readStoredFlag(storageKeys.authorAccess)
 
@@ -138,9 +79,10 @@ export function useWritingWorkspace({ workspace, fallbackTree }) {
         if (!cancelled) {
           setWritingTree(loadedTree ? normalizeWritingTree(loadedTree) : normalizeWritingTree(fallbackTree))
         }
-      } catch {
+      } catch (error) {
         if (!cancelled) {
-          setWritingTree(normalizeWritingTree(fallbackTree))
+          if (isLocalEdit) setEditorError(authorConnectionMessage(error))
+          setWritingTree(normalizeWritingTree(getCachedWritingTree(workspace) || fallbackTree))
         }
       } finally {
         if (!cancelled) {
@@ -154,7 +96,7 @@ export function useWritingWorkspace({ workspace, fallbackTree }) {
     return () => {
       cancelled = true
     }
-  }, [fallbackTree, workspace])
+  }, [fallbackTree, workspace, isLocalEdit])
 
   useEffect(() => {
     // 如果是本地编辑模式，自动启用编辑器并授予权限
@@ -168,7 +110,7 @@ export function useWritingWorkspace({ workspace, fallbackTree }) {
       return
     }
 
-    if (isAuthorMode) {
+    if (isAuthorMode && isLocalEdit) {
       writeStoredFlag(storageKeys.editorMode, true)
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setEditorEnabled(true)
@@ -205,9 +147,7 @@ export function useWritingWorkspace({ workspace, fallbackTree }) {
       setEditorError('')
       return true
     } catch (error) {
-      const message = error instanceof Error && error.message === 'missing-author-session'
-        ? '当前未连接 Supabase 作者会话：本地改动已保留，但还未同步到远端。'
-        : '保存失败，请稍后重试。'
+      const message = authorConnectionMessage(error) + ' 本地改动已保留，请重试保存以同步。'
       setWritingTree(normalizedTree)
       setEditorError(message)
       return true

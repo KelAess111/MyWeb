@@ -29,3 +29,9 @@ edit-mode.bat
 src/assets/article/ディメンション凸ラバース!!_設定資料集.pdf
 
 .claude/
+
+# Desktop build output and local settings
+desktop/dist/
+*.tmp.local
+
+Kel-Portfolio-Studio-*.exe

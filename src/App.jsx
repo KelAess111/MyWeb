@@ -1,3 +1,5 @@
+import useEditMode from './hooks/useEditMode'
+import './styles/anki-batch.css'
 import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Navigate, Route, Routes, useLocation } from 'react-router-dom'
 import HiddenSpaceLayout from './components/HiddenSpaceLayout'
@@ -539,6 +541,7 @@ function AppRoutes({ musicUiState, onOcAreaChange, replayIntroEnabled, locationK
           }
         />
         <Route path="/profile" element={<ProfilePage />} />
+        <Route path="/profile/intro" element={<ProfilePage />} />
         <Route path="/qa-admin" element={<QAAdminPage />} />
         <Route path="/interests" element={<InterestsPage />} />
         <Route path="/portfolio" element={<PortfolioPage />} />
@@ -583,6 +586,7 @@ function AppRoutes({ musicUiState, onOcAreaChange, replayIntroEnabled, locationK
 }
 
 function AppShell() {
+  useEditMode()
   const location = useLocation()
 
   useEffect(() => {
@@ -623,36 +627,7 @@ function AppShell() {
     return () => clearTimeout(timer)
   }, [])
 
-  // 在应用最顶层检查预览模式和编辑模式
-  useEffect(() => {
-    if (typeof window === 'undefined') {
-      return
-    }
 
-    const urlParams = new URLSearchParams(window.location.search)
-    const hasPreviewParam = urlParams.get('preview') === 'true'
-    const hasEditParam = urlParams.get('editMode') === 'local'
-
-    // 如果 URL 有 preview=true，设置 sessionStorage 并清除 localStorage
-    if (hasPreviewParam) {
-      try {
-        window.sessionStorage.setItem('previewMode', 'true')
-        window.localStorage.removeItem('localEditMode')
-      } catch {
-        // ignore
-      }
-    }
-
-    // 如果 URL 有 editMode=local，设置 localStorage 并清除预览模式
-    if (hasEditParam) {
-      try {
-        window.localStorage.setItem('localEditMode', 'true')
-        window.sessionStorage.removeItem('previewMode')
-      } catch {
-        // ignore
-      }
-    }
-  }, [location.search])
 
   const [replayIntroEnabled, setReplayIntroEnabled] = useState(() => {
     if (typeof window === 'undefined') {

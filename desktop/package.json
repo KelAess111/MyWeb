@@ -1,0 +1,36 @@
+{
+  "name": "kel-portfolio-studio",
+  "version": "1.0.1",
+  "private": true,
+  "description": "Kel Portfolio Windows editor",
+  "author": "KelAess",
+  "main": "main.cjs",
+  "scripts": {
+    "start": "electron .",
+    "pack": "electron-builder --win portable --x64",
+    "install:runtime": "node node_modules/electron/install.js"
+  },
+  "devDependencies": {
+    "electron": "45.0.0",
+    "electron-builder": "26.18.0"
+  },
+  "build": {
+    "appId": "com.kelaess.portfoliostudio",
+    "productName": "Kel Portfolio Studio",
+    "asar": true,
+    "files": [
+      "*.cjs",
+      "*.mjs",
+      "*.html",
+      "*.css",
+      "*.js",
+      "package.json"
+    ],
+    "win": {
+      "target": "portable",
+      "signAndEditExecutable": false
+    },
+    "artifactName": "Kel-Portfolio-Studio-${version}.${ext}",
+    "compression": "normal"
+  }
+}

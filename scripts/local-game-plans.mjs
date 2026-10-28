@@ -1,3 +1,4 @@
+import { allowLocalWrite } from './local-content.mjs'
 import { readFile, writeFile, rename } from 'node:fs/promises'
 
 // Development-only editor: saves public content alongside the website.
@@ -10,6 +11,7 @@ export default function localGamePlans() {
       server.middlewares.use('/api/local-game-plans', async (req, res) => {
         res.setHeader('Content-Type', 'application/json; charset=utf-8')
         const fail = (status, message) => { res.statusCode = status; res.end(JSON.stringify({ error: message })) }
+        if (!allowLocalWrite(req, server.config.env.VITE_EDIT_MODE === 'true')) return fail(403, '仅支持本机编辑模式')
         const address = req.socket.remoteAddress
         if (!['127.0.0.1', '::1', '::ffff:127.0.0.1'].includes(address)) return fail(403, '仅支持本机编辑')
         if (req.headers.origin && req.headers.origin !== `http://${req.headers.host}`) return fail(403, '来源不匹配')

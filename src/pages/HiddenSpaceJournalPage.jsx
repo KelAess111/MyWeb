@@ -1,3 +1,4 @@
+import useEditMode from '../hooks/useEditMode'
 import { useEffect, useRef, useState } from 'react'
 import { Link, useOutletContext, useSearchParams } from 'react-router-dom'
 import AfterlightAttachmentGrid from '../components/AfterlightAttachmentGrid'
@@ -91,12 +92,7 @@ function HiddenSpaceJournalPage() {
   const storedAuthorAuth = readJournalAdminAuth()
 
   // 检查本地编辑模式
-  const isLocalEditMode = typeof window !== 'undefined' &&
-    window.sessionStorage.getItem('previewMode') !== 'true' &&
-    window.localStorage.getItem('localEditMode') === 'true'
-
-  // 只允许本地编辑模式，禁用 ?edit=KelAess 远程认证
-  const isAuthor = isLocalEditMode
+  const isAuthor = useEditMode()
   const modeKey = isAuthor ? 'author' : 'public'
 
   const [entries, setEntries] = useState([])

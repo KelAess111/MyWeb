@@ -1,9 +1,11 @@
+import useEditMode from '../hooks/useEditMode'
 ﻿import { useEffect, useState } from 'react'
 import { getAllQuestions, updateQuestion, deleteQuestion } from '../services/qaService'
 import { supabase } from '../lib/supabaseClient'
 import Annotate from '../components/Annotate'
 
 function QAAdminPage() {
+  const canEdit = useEditMode()
   const [questions, setQuestions] = useState([])
   const [isLoading, setIsLoading] = useState(true)
   const [isAuthenticated, setIsAuthenticated] = useState(false)
@@ -14,7 +16,7 @@ function QAAdminPage() {
 
   useEffect(() => {
     checkAuth()
-  }, [])
+  }, [canEdit])
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -27,7 +29,7 @@ function QAAdminPage() {
       data: { session },
     } = await supabase.auth.getSession()
 
-    if (session?.user?.email === '2597631359@qq.com') {
+    if (canEdit && session?.user?.email === '2597631359@qq.com') {
       setIsAuthenticated(true)
     } else {
       setIsAuthenticated(false)
@@ -87,6 +89,8 @@ function QAAdminPage() {
 
   const pendingCount = questions.filter((q) => q.status === 'pending').length
   const answeredCount = questions.filter((q) => q.status === 'answered').length
+
+  if (!canEdit) return <main className="section"><p>请在本地编辑模式中管理问答。</p></main>
 
   if (!isAuthenticated) {
     return (

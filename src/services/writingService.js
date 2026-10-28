@@ -1,3 +1,5 @@
+import { ensureAuthorSession } from './authorSession'
+import { isLocalEditMode, requireLocalEditMode } from '../utils/editMode'
 import { isSupabaseConfigured, supabase } from '../lib/supabaseClient'
 
 const TABLE_NAME = 'public_writing_tree'
@@ -422,26 +424,17 @@ function ensureSupabase() {
 }
 
 async function getRequiredAuthorId(client) {
-  try {
-    const { data, error } = await client.auth.getUser()
-
-    if (error) {
-      throw error
-    }
-
-    const authorId = data.user?.id
-
-    if (!authorId) {
-      throw new Error('missing-author-session')
-    }
-
-    return authorId
-  } catch {
-    throw new Error('missing-author-session')
-  }
+  requireLocalEditMode()
+  await ensureAuthorSession()
+  requireLocalEditMode()
+  const {data,error}=await client.auth.getUser()
+  if (error) throw error
+  if (!data.user?.id) throw new Error('missing-author-session')
+  return data.user.id
 }
 
 export async function getWritingAuthorSession() {
+  if (isLocalEditMode()) return ensureAuthorSession()
   if (!isSupabaseConfigured || !supabase) {
     return null
   }
@@ -599,12 +592,15 @@ async function hasWritingAuthorSession() {
 }
 
 export async function saveWritingTree(tree, workspace = PUBLIC_WRITING_WORKSPACE) {
+  requireLocalEditMode()
   const resolvedWorkspace = resolveWritingWorkspace(workspace)
   const normalizedTree = normalizeWritingTree(tree)
   const didSaveLocal = writeStorage(resolvedWorkspace.storageKeys.tree, serializeWritingTree(normalizedTree))
 
   if (isSupabaseConfigured && supabase) {
+    writeStorage(resolvedWorkspace.storageKeys.tree + ':pending-sync', 'true')
     await saveWritingTreeToSupabase(normalizedTree, resolvedWorkspace)
+    removeStorage(resolvedWorkspace.storageKeys.tree + ':pending-sync')
   }
 
   return didSaveLocal || Boolean(normalizedTree)
@@ -612,6 +608,9 @@ export async function saveWritingTree(tree, workspace = PUBLIC_WRITING_WORKSPACE
 
 export async function loadWritingTree(fallback = null, workspace = PUBLIC_WRITING_WORKSPACE) {
   const resolvedWorkspace = resolveWritingWorkspace(workspace)
+  if (isLocalEditMode() && isSupabaseConfigured) await ensureAuthorSession()
+  const pendingLocal = parseJson(readStorage(resolvedWorkspace.storageKeys.tree), null)
+  if (isLocalEditMode() && readStorage(resolvedWorkspace.storageKeys.tree + ':pending-sync') === 'true' && pendingLocal) return normalizeWritingTree(pendingLocal)
   const isHiddenWorkspace = resolvedWorkspace.id === HIDDEN_WRITING_WORKSPACE.id
   const canLoadRemote = !isHiddenWorkspace || await hasWritingAuthorSession()
 
@@ -620,16 +619,24 @@ export async function loadWritingTree(fallback = null, workspace = PUBLIC_WRITIN
       const remoteTree = await loadWritingTreeFromSupabase(resolvedWorkspace)
       if (remoteTree) {
         const normalized = normalizeWritingTree(remoteTree)
+        const previousLocal=readStorage(resolvedWorkspace.storageKeys.tree)
+        if (previousLocal && previousLocal !== JSON.stringify(normalized) && !readStorage(resolvedWorkspace.storageKeys.tree + ':recovery')) writeStorage(resolvedWorkspace.storageKeys.tree + ':recovery',previousLocal)
         writeStorage(resolvedWorkspace.storageKeys.tree, JSON.stringify(normalized))
         return normalized
       }
-    } catch {
+    } catch (error) {
+      if (isLocalEditMode()) throw error
       // Use the workspace fallback when remote loading fails.
     }
   }
 
   const localTree = parseJson(readStorage(resolvedWorkspace.storageKeys.tree), null)
   return localTree ? normalizeWritingTree(localTree) : fallback
+}
+
+export function getCachedWritingTree(workspace = PUBLIC_WRITING_WORKSPACE) {
+  const tree=parseJson(readStorage(resolveWritingWorkspace(workspace).storageKeys.tree),null)
+  return tree ? normalizeWritingTree(tree) : null
 }
 
 export function clearWritingTree(workspace = PUBLIC_WRITING_WORKSPACE) {

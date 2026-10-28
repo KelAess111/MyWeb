@@ -1,23 +1,14 @@
+import useEditMode from '../hooks/useEditMode'
 import { Link, useNavigate } from 'react-router-dom'
 import { useEffect, useState } from 'react'
 import { supabase } from '../lib/supabaseClient'
 
 // 检查是否为本地编辑模式
-function isLocalEditMode() {
-  if (typeof window === 'undefined') {
-    return false
-  }
-  try {
-    return window.localStorage.getItem('localEditMode') === 'true'
-  } catch {
-    return false
-  }
-}
 
 function UtilitiesPage() {
   const navigate = useNavigate()
   const [user, setUser] = useState(null)
-  const isEditMode = isLocalEditMode()
+  const isEditMode = useEditMode()
 
   useEffect(() => {
     // 编辑模式下跳过登录检查

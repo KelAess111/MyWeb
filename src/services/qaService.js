@@ -1,3 +1,4 @@
+import { requireLocalEditMode } from '../utils/editMode'
 import { supabase } from '../lib/supabaseClient'
 
 /**
@@ -79,6 +80,7 @@ export async function getAllQuestions() {
  * @returns {Promise<Object>} 更新结果
  */
 export async function updateQuestion(id, updates) {
+  requireLocalEditMode()
   // 如果状态改为 answered，自动设置 answered_at
   if (updates.status === 'answered' && updates.answer) {
     updates.answered_at = new Date().toISOString()
@@ -104,6 +106,7 @@ export async function updateQuestion(id, updates) {
  * @returns {Promise<boolean>} 删除是否成功
  */
 export async function deleteQuestion(id) {
+  requireLocalEditMode()
   const { error } = await supabase.from('qa_entries').delete().eq('id', id)
 
   if (error) {

@@ -1,24 +1,15 @@
+import useEditMode from '../hooks/useEditMode'
 import { useEffect, useState } from 'react'
 import { Navigate, useLocation } from 'react-router-dom'
 import { supabase } from '../lib/supabaseClient'
 
 // 检查是否为本地编辑模式
-function isLocalEditMode() {
-  if (typeof window === 'undefined') {
-    return false
-  }
-  try {
-    return window.localStorage.getItem('localEditMode') === 'true'
-  } catch {
-    return false
-  }
-}
 
 function ProtectedRoute({ children }) {
   const [loading, setLoading] = useState(true)
   const [user, setUser] = useState(null)
   const location = useLocation()
-  const isEditMode = isLocalEditMode()
+  const isEditMode = useEditMode()
 
   useEffect(() => {
     // 本地编辑模式直接跳过认证检查

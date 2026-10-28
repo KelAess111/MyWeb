@@ -17,6 +17,9 @@ export const portfolioProjects = [
       '我担任主程序，负责将策划流程与团队美术素材落地为可运行的 Godot Demo。实际工作包括元素与生存系统、关卡搭建和联调、2D / 3D 场景交互、镜头演出、Shader 特效、UI 动效，以及存档和 Windows 版本发布；同时参与系统规则与关卡交互细节的协作调整。',
     downloadUrl: 'https://github.com/KelAess111/MyWeb/releases/download/portfolio-games-20261020/Let-There-Be-Light-Windows.zip',
     downloadName: 'Let-There-Be-Light-Windows.zip',
+    baiduUrl: 'https://pan.baidu.com/s/1ZzSeCr0J6q6wxdZODtTNcg?pwd=x9mb',
+    baiduCode: 'x9mb',
+    baiduFileName: 'There-are-lies-Windows-fire-fix-20261019.zip',
     downloadNote: 'Windows 版本；解压后请保持 EXE 与 PCK 文件在同一目录。',
   },
   {
@@ -42,6 +45,9 @@ export const portfolioProjects = [
     disclosure: '制作说明：采用 AI 辅助；“约 90% 独立完成”指制作内容与工作量，不代表全部素材均为手工原创。',
     downloadUrl: 'https://github.com/KelAess111/MyWeb/releases/download/portfolio-games-20261020/Witch-in-a-Perfume-Bottle-Windows-Demo.zip',
     downloadName: 'Witch-in-a-Perfume-Bottle-Windows-Demo.zip',
+    baiduUrl: 'https://pan.baidu.com/s/1cO9a7Nx4fUoTrrvPIvf_FA?pwd=8m9s',
+    baiduCode: '8m9s',
+    baiduFileName: '香水瓶中的魔女.zip',
     downloadNote: 'Windows 试玩版；完整解压后运行 WebGAL.exe。',
   },
 ]

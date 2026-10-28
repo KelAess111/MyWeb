@@ -1,0 +1,11 @@
+/* Frame the head using the unchanged original illustration. */
+.profile-avatar-image.profile-avatar-image--headshot {
+  position:absolute;
+  width:430%;
+  max-width:none;
+  height:auto;
+  left:50%;
+  top:50%;
+  transform:translate(-50%,-17%);
+}
+.profile-card-avatar { background:#fff; }

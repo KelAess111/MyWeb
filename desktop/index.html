@@ -1,0 +1,9 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; frame-src http://127.0.0.1:*; connect-src 'none'"><title>Kel Portfolio Studio</title><link rel="stylesheet" href="studio.css"></head>
+<body>
+  <header class="toolbar"><div class="brand"><strong>Kel Portfolio Studio · 1.0.1</strong><small id="project">正在打开本地项目…</small></div><span class="badge" id="mode-label">预览模式</span><button id="choose">选择项目</button><button id="toggle" class="primary">切换到编辑</button><button id="release">↑ 一键上传</button></header>
+  <p id="notice" role="status">正在启动…</p>
+  <iframe id="website" title="个人网站" allow="autoplay" sandbox="allow-scripts allow-same-origin allow-forms allow-modals allow-downloads allow-popups"></iframe>
+  <dialog id="publish-dialog"><form method="dialog"><header><h2>提交新版本</h2><button aria-label="关闭" id="close-dialog" type="button">×</button></header><p id="destination"></p><label for="version">版本名称</label><input id="version" maxlength="80" placeholder="例如：1.2.0 · 更新游戏规划" required><p class="hint">只上传下列网站文件。本地配置、密钥、构建产物和其他工作区会自动排除。</p><pre id="files"></pre><p id="skipped" class="hint"></p><pre id="log" role="log"></pre><footer><button id="refresh" type="button">刷新清单</button><button id="upload" type="button" class="primary">构建、提交并上传</button></footer></form></dialog>
+  <script src="renderer.js"></script>
+</body></html>
