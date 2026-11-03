@@ -1,15 +1,15 @@
-import resetCommon from '../assets/oc/Reset_common.png'
-import resetDrink from '../assets/oc/Reset_drink.png'
-import resetGreet from '../assets/oc/Reset_greet.png'
-import resetSpeechless from '../assets/oc/Reset_speechless.png'
-import resetThink from '../assets/oc/Reset_think.png'
+import idle from '../assets/oc/rui-approved/idle.png'
+import annoyed from '../assets/oc/rui-approved/annoyed.png'
+import talk from '../assets/oc/rui-approved/talk.png'
+import dislike from '../assets/oc/rui-approved/dislike.png'
+import side from '../assets/oc/rui-approved/side.png'
 
 const expressionImageMap = {
-  calm: resetGreet,
-  mischief: resetCommon,
-  helpless: resetSpeechless,
-  think: resetThink,
-  drink: resetDrink,
+  calm: idle,
+  mischief: annoyed,
+  helpless: dislike,
+  think: side,
+  drink: talk,
 }
 
 export function createOCSceneFromNode(node) {
@@ -18,7 +18,7 @@ export function createOCSceneFromNode(node) {
   }
 
   const { text, expression = 'calm', caption } = node.ocHoverLine
-  const image = expressionImageMap[expression] || resetGreet
+  const image = expressionImageMap[expression] || idle
 
   return {
     id: `oc-writing-${node.id}`,
