@@ -13,7 +13,7 @@ import { supabase } from '../lib/supabaseClient'
 export async function getAnsweredQuestions() {
   const { data, error } = await supabase
     .from('qa_entries')
-    .select('*')
+    .select('id, question, answer, author_name, status, created_at, answered_at, display_order, tags, likes_count')
     .eq('status', 'answered')
     .order('display_order', { ascending: false })
     .order('answered_at', { ascending: false })
@@ -35,7 +35,7 @@ export async function getAnsweredQuestions() {
  * @returns {Promise<Object>} 创建结果
  */
 export async function submitQuestion({ question, author_name = '匿名', author_email = '' }) {
-  const { data, error } = await supabase
+  const { error } = await supabase
     .from('qa_entries')
     .insert([
       {
@@ -45,14 +45,13 @@ export async function submitQuestion({ question, author_name = '匿名', author_
         status: 'pending',
       },
     ])
-    .select()
 
   if (error) {
     console.error('Error submitting question:', error)
     throw new Error('提交问题失败，请稍后再试')
   }
 
-  return data?.[0]
+  return true
 }
 
 /**
@@ -61,9 +60,7 @@ export async function submitQuestion({ question, author_name = '匿名', author_
  */
 export async function getAllQuestions() {
   const { data, error } = await supabase
-    .from('qa_entries')
-    .select('*')
-    .order('created_at', { ascending: false })
+    .rpc('get_author_questions')
 
   if (error) {
     console.error('Error fetching all questions:', error)
@@ -90,7 +87,7 @@ export async function updateQuestion(id, updates) {
     .from('qa_entries')
     .update(updates)
     .eq('id', id)
-    .select()
+.select('id, question, answer, author_name, status, created_at, answered_at, display_order, tags, likes_count')
 
   if (error) {
     console.error('Error updating question:', error)

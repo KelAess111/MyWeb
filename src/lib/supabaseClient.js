@@ -1,3 +1,4 @@
+import { markPasswordRecovery } from '../utils/passwordRecovery'
 import { createClient } from '@supabase/supabase-js'
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
@@ -24,4 +25,11 @@ export const supabase = isSupabaseConfigured
 
 if (import.meta.env.DEV && typeof window !== 'undefined' && supabase) {
   window.supabase = supabase
+}
+
+// Subscribe before React mounts so fast recovery callbacks are retained.
+if (supabase) {
+  supabase.auth.onAuthStateChange((event) => {
+    if (event === 'PASSWORD_RECOVERY') markPasswordRecovery()
+  })
 }

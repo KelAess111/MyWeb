@@ -1,10 +1,10 @@
 export const secretRoom = {
   route: '/hidden',
-  unlockStorageKey: 'kelaess-afterlight-unlocked',
+  unlockStorageKey: 'kelaess-afterlight-unlocked-v2',
   introSeenStorageKey: 'kelaess-hidden-space-intro-seen',
-  accessSalt: 'b24edf3f34348cb134a6681dec2778e8',
-  accessHash: '5a524780e561854b828611b55e263d8bccb7f45536577eef0df717604b174f05',
-  accessIterations: 210000,
+  accessSalt: 'e55d05fc42c8750656b3455fc4e0c794',
+  accessHash: '6c20a44fd96d272349c8e038238da3b0f29b847d4fa0c8f0fd74610825e04c2c',
+  accessIterations: 600000,
   modalTitle: '未归档房间',
   modalDescription:
     '若你想进入，请先联系作者获取密钥。',
