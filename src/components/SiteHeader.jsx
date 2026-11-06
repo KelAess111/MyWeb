@@ -2,7 +2,7 @@
 import { NavLink, useLocation, useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabaseClient'
 
-function SiteHeader({ replayIntroEnabled, setReplayIntroEnabled }) {
+function SiteHeader({ introEnabled, onIntroSettingChange, onTestIntro }) {
   const location = useLocation()
   const navigate = useNavigate()
   const [isSettingsOpen, setIsSettingsOpen] = useState(false)
@@ -92,11 +92,20 @@ function SiteHeader({ replayIntroEnabled, setReplayIntroEnabled }) {
               <label className="settings-checkbox-row">
                 <input
                   type="checkbox"
-                  checked={replayIntroEnabled}
-                  onChange={(event) => setReplayIntroEnabled(event.target.checked)}
+                  checked={introEnabled}
+                  onChange={(event) => onIntroSettingChange(event.target.checked)}
                 />
-                <span>显示入场动画</span>
+                <span>显示入场动画（每天首次）</span>
               </label>
+              {onTestIntro && <button
+                className="settings-checkbox-row"
+                type="button"
+                disabled={!introEnabled}
+                onClick={() => {
+                  setIsSettingsOpen(false)
+                  onTestIntro()
+                }}
+              >本地重播入场动画</button>}
             </div>
           </div>
         </div>

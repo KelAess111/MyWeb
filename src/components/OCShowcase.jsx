@@ -1,5 +1,5 @@
 ﻿import { useEffect, useState } from 'react'
-import idlePortrait from '../assets/oc/rui-approved/idle.png'
+import idlePortrait from '../assets/oc/rui-approved/idle.webp'
 import '../styles/oc-showcase.css'
 import Annotate from './Annotate'
 
@@ -64,6 +64,7 @@ function OCShowcase({ scene, onClick, onPauseRotation, className = '' }) {
               key={`${item.id}-${index === 0 ? 'current' : 'incoming'}`}
               className={`oc-image ${index === 1 ? 'oc-image--incoming' : 'oc-image--current'}${incomingScene && index === 1 ? ' is-entering' : ''}`}
               src={item.image ?? idlePortrait}
+              decoding="async"
               alt={item.alt ?? '站在首页迎接来访者的 Q 版原创角色占位形象'}
             />
           ))}

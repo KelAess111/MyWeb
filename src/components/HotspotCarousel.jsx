@@ -1,3 +1,4 @@
+import '../styles/hotspot-carousel.css'
 ﻿import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useImageLoadState } from '../hooks/useImageLoadState'
 import Annotate from './Annotate'
@@ -6,6 +7,7 @@ import CircularRevealTransition from './CircularRevealTransition'
 const HOTSPOT_ROTATION_INTERVAL = 10000
 const HOTSPOT_MANUAL_RESUME_DELAY = 6500
 const HOTSPOT_TRANSITION_DURATION = 1250
+const HOTSPOT_SLIDE_DURATION = 400
 const HOTSPOT_SWIPE_THRESHOLD = 40
 const HOTSPOT_ORDER = ['1', '2', '3', '4']
 const HOTSPOT_COLLATOR = typeof Intl !== 'undefined'
@@ -165,7 +167,6 @@ function HotspotCarousel({ folderId, variant = 'fade' }) {
   const manualResumeTimerRef = useRef(null)
   const transitionTimerRef = useRef(null)
   const pointerRef = useRef(null)
-  const suppressClickRef = useRef(false)
   const isHoveredRef = useRef(false)
   const navigateRef = useRef(null)
   const startAutoplayRef = useRef(null)
@@ -189,7 +190,7 @@ function HotspotCarousel({ folderId, variant = 'fade' }) {
     if (reducedMotion || images.length <= 1 || isHoveredRef.current) return
     autoplayTimerRef.current = window.setTimeout(() => {
       autoplayTimerRef.current = null
-      if (reducedMotion || isHoveredRef.current) return
+      if (reducedMotion || isHoveredRef.current || pointerRef.current) return
       navigateRef.current?.(1)
       startAutoplayRef.current?.(HOTSPOT_ROTATION_INTERVAL)
     }, delayMs)
@@ -255,6 +256,10 @@ function HotspotCarousel({ folderId, variant = 'fade' }) {
 
   const navigate = useCallback((direction, { resetAutoplay = false } = {}) => {
     if (images.length <= 1) return
+    if (variant !== 'fade' && transitionTimerRef.current !== null && !reducedMotion) {
+      if (resetAutoplay) resumeAfterManualInput()
+      return
+    }
     const fromIndex = activeIndexRef.current
     const nextIndex = (fromIndex + direction + images.length) % images.length
     activeIndexRef.current = nextIndex
@@ -264,11 +269,11 @@ function HotspotCarousel({ folderId, variant = 'fade' }) {
       transitionTimerRef.current = window.setTimeout(() => {
         setTransition(null)
         transitionTimerRef.current = null
-      }, HOTSPOT_TRANSITION_DURATION)
+      }, variant === 'fade' ? HOTSPOT_TRANSITION_DURATION : HOTSPOT_SLIDE_DURATION)
     }
     setActiveIndex(nextIndex)
     if (resetAutoplay) resumeAfterManualInput()
-  }, [clearTransition, images.length, reducedMotion, resumeAfterManualInput])
+  }, [clearTransition, images.length, reducedMotion, resumeAfterManualInput, variant])
 
   useEffect(() => {
     navigateRef.current = navigate
@@ -283,7 +288,6 @@ function HotspotCarousel({ folderId, variant = 'fade' }) {
   }, [])
 
   useEffect(() => {
-    activeIndexRef.current = 0
     startAutoplay(config.delayMs)
     return () => {
       clearAutoplay()
@@ -302,20 +306,26 @@ function HotspotCarousel({ folderId, variant = 'fade' }) {
     if (!pointer || pointer.id !== event.pointerId) return
     pointerRef.current = null
     if (event.currentTarget.hasPointerCapture?.(event.pointerId)) event.currentTarget.releasePointerCapture(event.pointerId)
-    const distance = variant === 'slide-x' ? event.clientX - pointer.x : event.clientY - pointer.y
-    if (Math.abs(distance) < HOTSPOT_SWIPE_THRESHOLD) return
-    suppressClickRef.current = true
-    navigate(distance < 0 ? 1 : -1, { resetAutoplay: true })
+    if (event.type !== 'pointerup') {
+      resumeAfterManualInput()
+      return
+    }
+    const dx = event.clientX - pointer.x
+    const dy = event.clientY - pointer.y
+    const [distance, crossDistance] = variant === 'slide-x' ? [dx, dy] : [dy, dx]
+    if (Math.abs(distance) >= HOTSPOT_SWIPE_THRESHOLD && Math.abs(distance) > Math.abs(crossDistance)) {
+      navigate(distance < 0 ? 1 : -1, { resetAutoplay: true })
+    } else {
+      resumeAfterManualInput()
+    }
   }
 
   const handlePointerDown = (event) => {
-    // 检查是否点击文字区域
-    if (event.target.closest('.hotspot-carousel-copy')) {
-      return // 如果点击的是文字区域，不处理拖动
-    }
-
-    if (variant === 'fade' || images.length <= 1 || (event.pointerType === 'mouse' && event.button !== 0)) return
+    if (variant === 'fade' || images.length <= 1 || pointerRef.current || event.button !== 0) return
+    if (!event.target.closest('.hotspot-carousel-media')) return
     pointerRef.current = { id: event.pointerId, x: event.clientX, y: event.clientY }
+    clearAutoplay()
+    clearManualResume()
     event.currentTarget.setPointerCapture?.(event.pointerId)
   }
 
@@ -325,10 +335,6 @@ function HotspotCarousel({ folderId, variant = 'fade' }) {
       return // 如果点击的是文字区域，不处理图片切换
     }
 
-    if (suppressClickRef.current) {
-      suppressClickRef.current = false
-      return
-    }
     if (variant === 'fade') navigate(1, { resetAutoplay: true })
   }
 
@@ -376,10 +382,12 @@ function HotspotCarousel({ folderId, variant = 'fade' }) {
   }
 
   const handleKeyDown = (event) => {
-    if (event.key === 'ArrowRight' || event.key === 'ArrowDown') {
+    const nextKeys = variant === 'slide-y' ? ['ArrowDown'] : variant === 'slide-x' ? ['ArrowRight'] : ['ArrowRight', 'ArrowDown']
+    const previousKeys = variant === 'slide-y' ? ['ArrowUp'] : variant === 'slide-x' ? ['ArrowLeft'] : ['ArrowLeft', 'ArrowUp']
+    if (nextKeys.includes(event.key)) {
       event.preventDefault()
       navigate(1, { resetAutoplay: true })
-    } else if (event.key === 'ArrowLeft' || event.key === 'ArrowUp') {
+    } else if (previousKeys.includes(event.key)) {
       event.preventDefault()
       navigate(-1, { resetAutoplay: true })
     }
@@ -401,6 +409,7 @@ function HotspotCarousel({ folderId, variant = 'fade' }) {
         onPointerDown={handlePointerDown}
         onPointerUp={finishPointer}
         onPointerCancel={finishPointer}
+        onLostPointerCapture={finishPointer}
       >
         <div className="hotspot-carousel-media">
           {images.length ? images.map((image, index) => (

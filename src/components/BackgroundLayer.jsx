@@ -1,4 +1,4 @@
-﻿import backgroundImage from '../assets/background/Reset_graden.png'
+﻿import backgroundImage from '../assets/background/Reset_graden.webp'
 import '../styles/background-layer.css'
 import Annotate from './Annotate'
 

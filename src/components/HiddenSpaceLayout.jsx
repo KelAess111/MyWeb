@@ -1,6 +1,6 @@
 import { Navigate, Outlet, useLocation } from 'react-router-dom'
 import { useEffect, useMemo, useState } from 'react'
-import rainyBg from '../assets/background/Reset_Rainy.png'
+import rainyBg from '../assets/background/Reset_Rainy.webp'
 import OCShowcase from './OCShowcase'
 import SpeechBubbleRotator from './SpeechBubbleRotator'
 import { hiddenSpaceOcScenes } from '../data/hiddenSpaceOcLines'

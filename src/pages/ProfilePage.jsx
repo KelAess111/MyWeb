@@ -6,7 +6,7 @@ import GamePlanSection from '../components/GamePlanSection'
 import Annotate from '../components/Annotate'
 import CircularRevealTransition from '../components/CircularRevealTransition'
 import { useTransition } from '../contexts/TransitionContext'
-import avatarImage from '../assets/about/rui-original.png'
+import avatarImage from '../assets/about/rui-original.webp'
 import '../styles/profile-avatar.css'
 
 function ProfilePage() {

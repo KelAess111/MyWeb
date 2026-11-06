@@ -5,6 +5,7 @@ import { Navigate, Route, Routes, useLocation } from 'react-router-dom'
 import HiddenSpaceLayout from './components/HiddenSpaceLayout'
 import BackgroundLayer from './components/BackgroundLayer'
 import SiteHeader from './components/SiteHeader'
+import HomeIntro from './components/HomeIntro'
 import MiniMusicPlayer from './components/MiniMusicPlayer'
 import MusicVisualizer from './components/MusicVisualizer'
 import PageTransition from './components/PageTransition'
@@ -65,7 +66,26 @@ const AnkiWrongCardsPage = lazyWithPreload(() => import('./pages/AnkiWrongCardsP
 
 const PLAYBACK_STORAGE_KEY = 'kel-music-player-playback'
 const MESSAGE_STORAGE_KEY = 'kel-music-player-messages'
-const INTRO_REPLAY_STORAGE_KEY = 'kel-home-replay-intro-enabled'
+const INTRO_ENABLED_KEY = 'kel-home-daily-intro-enabled'
+const INTRO_SEEN_KEY = 'kel-home-intro-last-local-day'
+
+function localDay() {
+  const now = new Date()
+  return [now.getFullYear(), now.getMonth() + 1, now.getDate()].join('-')
+}
+
+function readIntroPreference(key) {
+  try { return localStorage.getItem(key) } catch { return null }
+}
+
+function saveIntroPreference(key, value) {
+  try { localStorage.setItem(key, value) } catch { /* Storage is unavailable. */ }
+}
+
+function dailyIntroFor(isHome, enabled) {
+  const day = localDay()
+  return isHome && enabled && readIntroPreference(INTRO_SEEN_KEY) !== day ? { day } : null
+}
 
 function formatTime(seconds) {
   if (!Number.isFinite(seconds) || seconds < 0) {
@@ -525,7 +545,7 @@ function MusicPlayerProvider({ children }) {
   return <MusicPlayerContext.Provider value={contextValue}>{children}</MusicPlayerContext.Provider>
 }
 
-function AppRoutes({ musicUiState, onOcAreaChange, replayIntroEnabled, locationKey }) {
+function AppRoutes({ musicUiState, onOcAreaChange, onHomeReady, locationKey }) {
   return (
     <Suspense fallback={<div className="route-loading-shell" role="status">页面加载中…</div>}>
       <PageTransition transitionKey={locationKey} className="site-route-shell">
@@ -534,7 +554,7 @@ function AppRoutes({ musicUiState, onOcAreaChange, replayIntroEnabled, locationK
           path="/"
           element={
             <HomePage
-              initialReplayIntroEnabled={replayIntroEnabled}
+              onReady={onHomeReady}
               musicUiState={musicUiState}
               onOcAreaChange={onOcAreaChange}
             />
@@ -629,13 +649,7 @@ function AppShell() {
 
 
 
-  const [replayIntroEnabled, setReplayIntroEnabled] = useState(() => {
-    if (typeof window === 'undefined') {
-      return false
-    }
-
-    return window.localStorage.getItem(INTRO_REPLAY_STORAGE_KEY) === 'true'
-  })
+  const [introEnabled, setIntroEnabled] = useState(() => readIntroPreference(INTRO_ENABLED_KEY) !== 'false')
   const [ocArea, setOcArea] = useState(null)
   const [musicUiState, setMusicUiState] = useState({
     isExpanded: false,
@@ -648,22 +662,51 @@ function AppShell() {
   const isHomePage = location.pathname === '/'
   const isHiddenSpace = location.pathname.startsWith('/hidden')
 
-  useEffect(() => {
-    if (typeof window === 'undefined') {
-      return
-    }
+  const [wasHome, setWasHome] = useState(isHomePage)
+  const [introRun, setIntroRun] = useState(() => dailyIntroFor(isHomePage, introEnabled))
+  const [introRevealing, setIntroRevealing] = useState(false)
+  const [homeReady, setHomeReady] = useState(false)
+  if (wasHome !== isHomePage) {
+    setWasHome(isHomePage)
+    setHomeReady(false)
+    setIntroRevealing(false)
+    setIntroRun(dailyIntroFor(isHomePage, introEnabled))
+  }
 
-    window.localStorage.setItem(INTRO_REPLAY_STORAGE_KEY, replayIntroEnabled ? 'true' : 'false')
-  }, [replayIntroEnabled])
+  useEffect(() => {
+    if (introRun?.day && introEnabled) saveIntroPreference(INTRO_SEEN_KEY, introRun.day)
+  }, [introRun, introEnabled])
+
+  const handleHomeReady = useCallback(() => setHomeReady(true), [])
+  const revealIntro = useCallback(() => setIntroRevealing(true), [])
+  const finishIntro = useCallback(() => {
+    setIntroRun(null)
+    setIntroRevealing(false)
+  }, [])
+  const changeIntroSetting = (enabled) => {
+    saveIntroPreference(INTRO_ENABLED_KEY, String(enabled))
+    setIntroEnabled(enabled)
+    if (!enabled) finishIntro()
+  }
+  const testIntro = import.meta.env.DEV && isHomePage &&
+    ['localhost', '127.0.0.1', '[::1]'].includes(window.location.hostname)
+      ? () => {
+          window.scrollTo({ top: 0, behavior: 'instant' })
+          setIntroRun({ test: true })
+          setIntroRevealing(false)
+        }
+      : undefined
+  const showIntro = isHomePage && introEnabled && Boolean(introRun)
+  const introClass = showIntro ? (introRevealing ? ' site--intro-revealing' : ' site--intro-covered') : ''
 
   return (
     <TransitionContext.Provider value={{ showGlobalMask, setShowGlobalMask }}>
-      <div className="site">
+      <div className={'site' + introClass} inert={showIntro || undefined}>
         {!isHiddenSpace && <BackgroundLayer mode="base" />}
         <ClickEffects />
-        <SiteHeader replayIntroEnabled={replayIntroEnabled} setReplayIntroEnabled={setReplayIntroEnabled} />
+        <SiteHeader introEnabled={introEnabled} onIntroSettingChange={changeIntroSetting} onTestIntro={testIntro} />
         <AppRoutes
-          replayIntroEnabled={replayIntroEnabled}
+          onHomeReady={handleHomeReady}
           locationKey={location.pathname + location.hash}
           musicUiState={{
             ...musicUiState,
@@ -687,6 +730,7 @@ function AppShell() {
           />
         )}
       </div>
+      {showIntro && <HomeIntro homeReady={homeReady} onReveal={revealIntro} onDone={finishIntro} />}
     </TransitionContext.Provider>
   )
 }

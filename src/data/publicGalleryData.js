@@ -1,3 +1,15 @@
+import imageSizes from './publicGalleryImageSizes.json'
+
+const thumbnailModules = import.meta.glob('../assets/picture/*/thumbs/*.webp', {
+  eager: true,
+  query: '?url',
+  import: 'default',
+})
+
+function thumbnailFor(path) {
+  return thumbnailModules[path.replace(/\/([^/]+)$/, '/thumbs/$1.webp')]
+}
+
 const coverModules = import.meta.glob('../assets/picture/*/surface.{jpg,jpeg,png,webp}', {
   eager: true,
   query: '?url',
@@ -76,7 +88,8 @@ function getYear(path) {
 }
 
 function getCoverForYear(year) {
-  return Object.entries(coverModules).find(([path]) => getYear(path) === year)?.[1] ?? ''
+  const cover = Object.entries(coverModules).find(([path]) => getYear(path) === year)
+  return cover ? thumbnailFor(cover[0]) ?? cover[1] : ''
 }
 
 function getImagesForYear(year) {
@@ -85,8 +98,12 @@ function getImagesForYear(year) {
     .sort(([leftPath], [rightPath]) => galleryCollator.compare(getFileName(leftPath), getFileName(rightPath)))
     .map(([path, src], index) => {
       const baseName = getBaseName(path)
+      const [width, height] = imageSizes[path.split('/').slice(-2).join('/')] ?? []
       return {
         src,
+        thumbnail: thumbnailFor(path) ?? src,
+        width,
+        height,
         alt: baseName ? `${year} 图册 ${baseName}` : `${year} 图册第 ${index + 1} 张`,
       }
     })
@@ -98,6 +115,7 @@ export const publicGalleryData = galleryMetadata.map((entry) => {
   return {
     ...entry,
     cover: getCoverForYear(entry.year),
+    backdrop: thumbnailModules['../assets/picture/' + entry.year + '/thumbs/backdrop.webp'],
     images,
     imageCount: images.length,
     hasImages: images.length > 0,

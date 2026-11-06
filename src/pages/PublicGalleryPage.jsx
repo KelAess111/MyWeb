@@ -65,7 +65,7 @@ function PublicGalleryPage() {
   }, [])
 
   const validCoverEntries = publicGalleryData.filter((entry) => entry.cover && !failedCovers.has(entry.year))
-  const activeCover = activeEntry?.cover && loadedCovers.has(activeEntry.year) ? activeEntry.cover : ''
+  const activeCover = activeEntry?.cover && loadedCovers.has(activeEntry.year) ? activeEntry.backdrop ?? activeEntry.cover : ''
   const activeCoverIndex = validCoverEntries.findIndex((entry) => entry.year === activeEntry?.year)
   const preloadYears = new Set([
     activeEntry?.year,
@@ -76,7 +76,10 @@ function PublicGalleryPage() {
   return (
     <main
       className="public-gallery-page"
-      style={activeCover ? { '--public-gallery-active-cover': `url("${activeCover}")` } : undefined}
+      style={activeCover ? {
+        '--public-gallery-active-cover': `url("${activeCover}")`,
+        '--public-gallery-cover-blur': activeEntry.backdrop ? '0px' : '18px',
+      } : undefined}
     >
       <section className="public-gallery-shell" aria-labelledby="public-gallery-title">
         <header className="public-gallery-heading">

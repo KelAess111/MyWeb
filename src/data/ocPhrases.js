@@ -1,10 +1,10 @@
-import guide from '../assets/oc/rui-approved/guide.png'
-import idle from '../assets/oc/rui-approved/idle.png'
-import dislike from '../assets/oc/rui-approved/dislike.png'
-import annoyed from '../assets/oc/rui-approved/annoyed.png'
-import surprise from '../assets/oc/rui-approved/surprise.png'
-import talk from '../assets/oc/rui-approved/talk.png'
-import side from '../assets/oc/rui-approved/side.png'
+import guide from '../assets/oc/rui-approved/guide.webp'
+import idle from '../assets/oc/rui-approved/idle.webp'
+import dislike from '../assets/oc/rui-approved/dislike.webp'
+import annoyed from '../assets/oc/rui-approved/annoyed.webp'
+import surprise from '../assets/oc/rui-approved/surprise.webp'
+import talk from '../assets/oc/rui-approved/talk.webp'
+import side from '../assets/oc/rui-approved/side.webp'
 
 export const homepageDefaultScenes = [
   {

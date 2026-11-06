@@ -23,10 +23,10 @@
   background-image: var(--public-gallery-active-cover);
   background-position: center;
   background-size: cover;
-  filter: blur(18px) saturate(1.18) brightness(1.34);
+  filter: blur(var(--public-gallery-cover-blur, 18px)) saturate(1.18) brightness(1.34);
   opacity: 0.58;
   transform: scale(1.08);
-  transition: opacity 420ms ease, filter 420ms ease;
+  transition: opacity 420ms ease;
   pointer-events: none;
 }
 

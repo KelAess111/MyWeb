@@ -1,10 +1,10 @@
-import surprise from '../assets/oc/rui-approved/surprise.png'
-import talk from '../assets/oc/rui-approved/talk.png'
-import guide from '../assets/oc/rui-approved/guide.png'
-import side from '../assets/oc/rui-approved/side.png'
-import annoyed from '../assets/oc/rui-approved/annoyed.png'
-import dislike from '../assets/oc/rui-approved/dislike.png'
-import idle from '../assets/oc/rui-approved/idle.png'
+import surprise from '../assets/oc/rui-approved/surprise.webp'
+import talk from '../assets/oc/rui-approved/talk.webp'
+import guide from '../assets/oc/rui-approved/guide.webp'
+import side from '../assets/oc/rui-approved/side.webp'
+import annoyed from '../assets/oc/rui-approved/annoyed.webp'
+import dislike from '../assets/oc/rui-approved/dislike.webp'
+import idle from '../assets/oc/rui-approved/idle.webp'
 
 export const hiddenSpaceOcScenes = {
   firstVisit: [

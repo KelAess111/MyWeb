@@ -55,7 +55,7 @@ function GalleryCover({ entry }) {
 }
 
 function GalleryTileImage({ image, onImageLoad, onImageError }) {
-  const { status, handleError, handleLoad } = useImageLoadState(image.src)
+  const { status, handleError, handleLoad } = useImageLoadState(image.thumbnail)
 
   const handleLoadImage = (event) => {
     handleLoad(event)
@@ -70,7 +70,7 @@ function GalleryTileImage({ image, onImageLoad, onImageError }) {
   return (
     <>
       <img
-        src={image.src}
+        src={image.thumbnail}
         alt={image.alt}
         onLoad={handleLoadImage}
         onError={handleErrorImage}
@@ -122,7 +122,7 @@ function PublicGalleryAlbumPage() {
       return
     }
 
-    saveImageSize(image, { width: naturalWidth, height: naturalHeight })
+    if (!image.width && image.thumbnail === image.src) saveImageSize(image, { width: naturalWidth, height: naturalHeight })
   }
 
   const markImageFailed = (src) => {
@@ -143,7 +143,7 @@ function PublicGalleryAlbumPage() {
     const attempt = openAttemptRef.current + 1
     openAttemptRef.current = attempt
 
-    if (!imageSizes[image.src]) {
+    if (!image.width && !imageSizes[image.src]) {
       try {
         const size = await readImageSize(image.src)
         if (openAttemptRef.current !== attempt || failedImagesRef.current.has(image.src)) {
@@ -234,9 +234,9 @@ function PublicGalleryAlbumPage() {
                   <Item
                     key={image.src}
                     original={image.src}
-                    thumbnail={image.src}
-                    width={size?.width ?? 1200}
-                    height={size?.height ?? 1600}
+                    thumbnail={image.thumbnail}
+                    width={image.width ?? size?.width ?? 1200}
+                    height={image.height ?? size?.height ?? 1600}
                     alt={image.alt}
                   >
                     {({ ref, open }) => (

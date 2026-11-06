@@ -13,7 +13,6 @@
   background-repeat: no-repeat;
   background-size: cover;
   background-position: right center;
-  background-attachment: fixed;
   transform: scale(1.02);
   filter: blur(14px) brightness(0.72);
 }

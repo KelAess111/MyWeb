@@ -1,8 +1,8 @@
-import idle from '../assets/oc/rui-approved/idle.png'
-import annoyed from '../assets/oc/rui-approved/annoyed.png'
-import talk from '../assets/oc/rui-approved/talk.png'
-import dislike from '../assets/oc/rui-approved/dislike.png'
-import side from '../assets/oc/rui-approved/side.png'
+import idle from '../assets/oc/rui-approved/idle.webp'
+import annoyed from '../assets/oc/rui-approved/annoyed.webp'
+import talk from '../assets/oc/rui-approved/talk.webp'
+import dislike from '../assets/oc/rui-approved/dislike.webp'
+import side from '../assets/oc/rui-approved/side.webp'
 
 const expressionImageMap = {
   calm: idle,
