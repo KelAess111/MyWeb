@@ -5,8 +5,7 @@ import '../styles/home-intro.css'
 const stages = {
   greeting: [820, 'ready'],
   shatter: [1580, 'star'],
-  star: [650, 'wave'],
-  wave: [1500, 'scan'],
+  star: [650, 'scan'],
   scan: [2410, 'reveal'],
   reveal: [3160, 'done'],
 }
@@ -67,22 +66,32 @@ function DataStreams() {
   </div>
 }
 
-function CrossStar() {
-  return <svg className="home-intro-star" viewBox="0 0 160 160" aria-hidden="true">
+function CrossStar({ ping, style }) {
+  return <svg
+    className={ping ? 'home-intro-star home-intro-star--ping' : 'home-intro-star'}
+    viewBox="0 0 160 160"
+    aria-hidden="true"
+    data-ping={ping}
+    style={style}
+  >
     <circle className="home-intro-star-core" cx="80" cy="80" r="15" />
     <circle className="home-intro-star-ring" cx="80" cy="80" r="34" pathLength="100" fill="none" />
     <path className="home-intro-star-rays" d="M80 5 82.2 77.8 155 80 82.2 82.2 80 155 77.8 82.2 5 80 77.8 77.8Z" />
   </svg>
 }
 
-function DataWave() {
+function waveUnit(width, height) {
+  return Math.max(13, Math.ceil(Math.sqrt(width * height / 1450)))
+}
+
+function DataWave({ sweepRadius, band }) {
   const canvasRef = useRef(null)
   useEffect(() => {
     const canvas = canvasRef.current
     const ctx = canvas.getContext('2d')
     if (!ctx) return undefined
     let cells = []
-    let width, height, unit, radius, frame, start
+    let width, height, unit, frame, start
     const resize = () => {
       width = canvas.clientWidth
       height = canvas.clientHeight
@@ -90,8 +99,7 @@ function DataWave() {
       canvas.width = Math.round(width * ratio)
       canvas.height = Math.round(height * ratio)
       ctx.setTransform(ratio, 0, 0, ratio, 0, 0)
-      unit = Math.max(13, Math.ceil(Math.sqrt(width * height / 1450)))
-      radius = Math.hypot(width / 2, height / 2)
+      unit = waveUnit(width, height)
       cells = []
       for (let y = height / 2 % unit; y < height + unit; y += unit) {
         for (let x = width / 2 % unit; x < width + unit; x += unit) {
@@ -110,9 +118,8 @@ function DataWave() {
     }
     const draw = (now) => {
       start ??= now
-      const progress = Math.min((now - start) / stages.wave[0], 1)
-      const band = unit * 6
-      const front = progress * (radius + band)
+      const elapsed = now - start
+      const front = elapsed / scanSweepDuration * (sweepRadius + band)
       ctx.clearRect(0, 0, width, height)
       for (const cell of cells) {
         const offset = (cell.distance - front) / band
@@ -123,8 +130,8 @@ function DataWave() {
         // An overhead camera sees the top straight on at the center.
         // Toward the edges, taller tops project outward and expose a side.
         const lift = crest * unit * .45
-        const dx = (cell.x - width / 2) / radius * lift
-        const dy = (cell.y - height / 2) / radius * lift
+        const dx = (cell.x - width / 2) / sweepRadius * lift
+        const dy = (cell.y - height / 2) / sweepRadius * lift
         const spread = lift * .15
         const left = cell.x - half
         const right = cell.x + half
@@ -147,7 +154,7 @@ function DataWave() {
         ctx.fillStyle = '#f0f6ff'
         ctx.fillRect(topLeft, topTop, topRight - topLeft, topBottom - topTop)
       }
-      if (progress < 1) frame = requestAnimationFrame(draw)
+      if (front < sweepRadius + band) frame = requestAnimationFrame(draw)
     }
     resize()
     window.addEventListener('resize', resize)
@@ -156,7 +163,7 @@ function DataWave() {
       cancelAnimationFrame(frame)
       window.removeEventListener('resize', resize)
     }
-  }, [])
+  }, [sweepRadius, band])
   return <canvas className="home-intro-wave" ref={canvasRef} aria-hidden="true" />
 }
 
@@ -181,6 +188,9 @@ function scanRadius(width, height) {
 function readScanLayout() {
   const { innerWidth: width, innerHeight: height } = window
   const radius = scanRadius(width, height)
+  const band = waveUnit(width, height) * 6
+  const waveSpeed = (radius + band) / scanSweepDuration
+  const tailDelay = band / waveSpeed
   const grid = width < 640 ? 24 : 32
   const snap = (value) => Math.round(value / grid) * grid
   const areas = scanTargets.flatMap(([kind, selector]) => {
@@ -193,19 +203,19 @@ function readScanLayout() {
     const bottom = Math.max(top + grid, snap(Math.min(height, rect.bottom)))
     const x = (left + right) / 2
     const y = (top + bottom) / 2
-    const delay = Math.hypot(x - width / 2, y - height / 2) / radius * scanSweepDuration
+    const delay = tailDelay + Math.hypot(x - width / 2, y - height / 2) / waveSpeed
     return [{ kind, left, top, width: right - left, height: bottom - top, x, y, delay }]
   })
-  return { radius, grid, areas }
+  return { radius, band, tailDelay, grid, areas }
 }
 
 function LayoutScan({ layout }) {
   if (!layout) return null
-  const { radius, grid, areas } = layout
+  const { radius, tailDelay, grid, areas } = layout
   return <div className="home-intro-scan" aria-hidden="true" style={{
-    '--sweep-time': scanSweepDuration + 'ms',
+    '--sweep-time': (scanSweepDuration - tailDelay) + 'ms',
+    '--sweep-delay': tailDelay + 'ms',
     '--sweep-radius': radius + 'px',
-    '--sweep-diameter': radius * 2 + 'px',
   }}>
     <svg className="home-intro-scan-map" width="100%" height="100%">
       <defs>
@@ -217,12 +227,10 @@ function LayoutScan({ layout }) {
       {areas.map(area => <rect key={area.kind} className="home-intro-scan-area"
         x={area.left} y={area.top} width={area.width} height={area.height} />)}
     </svg>
-    <div className="home-intro-scan-ring" />
-    {areas.map(({ kind, x, y, delay }) => <i
-      className="home-intro-scan-ping"
-      data-ping={kind}
+    {areas.map(({ kind, x, y, delay }) => <CrossStar
+      ping={kind}
       key={kind}
-      style={{ left: x, top: y, '--ping-delay': delay + 'ms' }}
+      style={{ left: x, top: y, '--star-delay': delay + 'ms' }}
     />)}
   </div>
 }
@@ -276,8 +284,8 @@ export default function HomeIntro({ homeReady, onReveal, onDone }) {
       {stage === 'loading' && <span className="home-intro-sr" role="status">正在加载首页</span>}
       {stage === 'ready' && <button ref={enterRef} className="home-intro-enter" type="button" aria-label="你好，创作者。点击屏幕任意处进入首页" onClick={() => setStage(reduced ? 'reveal' : 'shatter')} />}
       {stage === 'star' && <CrossStar />}
-      {stage === 'wave' && <DataWave />}
       {(stage === 'scan' || stage === 'reveal') && <LayoutScan layout={scanLayout} />}
+      {stage === 'scan' && scanLayout && <DataWave sweepRadius={scanLayout.radius} band={scanLayout.band} />}
     </div>,
     document.body,
   )

@@ -91,9 +91,9 @@
 
 .home-intro-star { width: clamp(92px, 15vw, 220px); overflow: visible; color: #f3f8ff; filter: drop-shadow(0 0 6px #b3d8ff80); }
 .home-intro-star > * { transform-box: view-box; transform-origin: center; }
-.home-intro-star-core { fill: currentColor; animation: home-intro-star-core 650ms ease-out both; }
-.home-intro-star-ring { stroke: currentColor; animation: home-intro-star-ring 650ms ease-out both; }
-.home-intro-star-rays { fill: currentColor; animation: home-intro-star-rays 650ms ease-out both; }
+.home-intro-star-core { fill: currentColor; animation: home-intro-star-core 650ms ease-out var(--star-delay, 0ms) both; }
+.home-intro-star-ring { stroke: currentColor; animation: home-intro-star-ring 650ms ease-out var(--star-delay, 0ms) both; }
+.home-intro-star-rays { fill: currentColor; animation: home-intro-star-rays 650ms ease-out var(--star-delay, 0ms) both; }
 @keyframes home-intro-star-core {
   0%, 100% { opacity: 0; transform: scale(.14); }
   12%, 22% { opacity: 1; transform: scale(1); }
@@ -117,7 +117,7 @@
 .home-intro-scan-map {
   position: absolute;
   inset: 0;
-  animation: home-intro-scan-map var(--sweep-time) linear both;
+  animation: home-intro-scan-map var(--sweep-time) linear var(--sweep-delay) both;
 }
 .home-intro-scan-map pattern path {
   fill: none;
@@ -136,47 +136,11 @@
   from { clip-path: circle(0 at 50% 50%); }
   to { clip-path: circle(var(--sweep-radius) at 50% 50%); }
 }
-.home-intro-scan-ping {
+.home-intro-star--ping {
   position: absolute;
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: #fff;
-  box-shadow: 0 0 9px 3px #bfe9ffb0;
+  width: clamp(48px, 5.4vw, 80px);
+  height: auto;
   translate: -50% -50%;
-  animation: home-intro-ping 560ms ease-out var(--ping-delay) both;
-}
-.home-intro-scan-ping::after {
-  content: '';
-  position: absolute;
-  inset: -5px;
-  border: 1px solid #edfaff;
-  border-radius: 50%;
-  animation: home-intro-ping-echo 560ms ease-out var(--ping-delay) both;
-}
-@keyframes home-intro-ping {
-  0% { opacity: 0; scale: .55; }
-  15% { opacity: 1; scale: 1; }
-  100% { opacity: .22; scale: .8; }
-}
-@keyframes home-intro-ping-echo {
-  0% { opacity: .9; transform: scale(.45); }
-  100% { opacity: 0; transform: scale(3.6); }
-}
-.home-intro-scan-ring {
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  width: var(--sweep-diameter);
-  height: var(--sweep-diameter);
-  border-radius: 50%;
-  background: radial-gradient(circle closest-side, transparent 96.9%, #88cafd25 98.6%, #c9eaffc9 99.7%, transparent 100%);
-  animation: home-intro-scan var(--sweep-time) linear both;
-}
-@keyframes home-intro-scan {
-  0% { opacity: .78; transform: translate(-50%, -50%) scale(.001); }
-  82% { opacity: .94; }
-  100% { opacity: 0; transform: translate(-50%, -50%) scale(1); }
 }
 .home-intro-sr { position: absolute; clip-path: inset(50%); white-space: nowrap; }
 
