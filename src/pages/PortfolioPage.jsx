@@ -8,7 +8,7 @@ function PortfolioPage() {
         <div className="section-heading">
           <span className="section-kicker">Portfolio / Selected Games</span>
           <h1>个人作品集</h1>
-          <p>从光影中的探索，到异国旅途里的故事。这里记录我参与开发的游戏，以及由我独立推进的作品。</p>
+          <p>这里记录我参与开发和独立制作的游戏，包含作品介绍与 Windows 试玩下载。</p>
         </div>
 
         <nav className="portfolio-index" aria-label="游戏作品目录">
@@ -35,11 +35,11 @@ function PortfolioPage() {
                 <h2 id={`${project.id}-title`}>{project.title}</h2>
                 <p className="portfolio-project-description">{project.description}</p>
                 <dl className="portfolio-project-facts">
-                  <div><dt>我的角色</dt><dd>{project.role}</dd></div>
+                  {project.role && <div><dt>我的角色</dt><dd>{project.role}</dd></div>}
                   <div><dt>制作工具</dt><dd>{project.engine}</dd></div>
                   <div><dt>试玩平台</dt><dd>{project.platform}</dd></div>
                 </dl>
-                <div className="portfolio-project-role">
+                {project.responsibility && <div className="portfolio-project-role">
                   <h3>我负责的部分</h3>
                   <p>{project.responsibility}</p>
                   {project.contributions?.length > 0 && <details>
@@ -51,7 +51,7 @@ function PortfolioPage() {
                     ))}</ul>
                     {project.collaborationNote && <p className="portfolio-collaboration-note">{project.collaborationNote}</p>}
                   </details>}
-                </div>
+                </div>}
                 {project.disclosure && <p className="portfolio-project-disclosure">{project.disclosure}</p>}
                 <div className="portfolio-project-download">
                   <div className="portfolio-download-actions">

@@ -50,4 +50,22 @@ export const portfolioProjects = [
     baiduFileName: '香水瓶中的魔女.zip',
     downloadNote: 'Windows 试玩版；完整解压后运行 WebGAL.exe。',
   },
+  {
+    id: 'chu-ji-yin-lu',
+    number: '03',
+    title: '触机引路',
+    subtitle: '布置机关，为小球找到出路。',
+    category: '2D 物理解谜',
+    engine: 'Unity',
+    platform: 'Windows',
+    status: '可试玩',
+    cover: '/portfolio/chu-ji-yin-lu-cover.jpg',
+    coverAlt: '《触机引路》的蓝黑色主界面，画面中有滚动的小球和开始游戏按钮',
+    description:
+      '一款围绕小球运动与机关布置展开的 2D 解谜游戏。玩家调整装置，利用碰撞改变小球的运动路线，再发射小球检验解法。',
+    baiduUrl: 'https://pan.baidu.com/s/1Dt0bwnT1dOhRNUUW3K2fJw?pwd=39dy',
+    baiduCode: '39dy',
+    baiduFileName: '触机引路-修复版.zip',
+    downloadNote: 'Windows 版。完整解压后运行 ChuJiYinLu.exe。按空格发射小球，按 R 重置。',
+  },
 ]
