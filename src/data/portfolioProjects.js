@@ -56,6 +56,7 @@ export const portfolioProjects = [
     title: '触机引路',
     subtitle: '布置机关，为小球找到出路。',
     category: '2D 物理解谜',
+    role: '程序开发（KelAess）',
     engine: 'Unity',
     platform: 'Windows',
     status: '可试玩',
@@ -63,6 +64,8 @@ export const portfolioProjects = [
     coverAlt: '《触机引路》的蓝黑色主界面，画面中有滚动的小球和开始游戏按钮',
     description:
       '一款围绕小球运动与机关布置展开的 2D 解谜游戏。玩家调整装置，利用碰撞改变小球的运动路线，再发射小球检验解法。',
+    responsibility:
+      '我负责 Unity 程序开发，将小球运动、碰撞反弹和机关布置做成可玩的关卡交互，并实现发射、重置与主菜单等功能。',
     baiduUrl: 'https://pan.baidu.com/s/1Dt0bwnT1dOhRNUUW3K2fJw?pwd=39dy',
     baiduCode: '39dy',
     baiduFileName: '触机引路-修复版.zip',
