@@ -14,6 +14,18 @@ function command(executable, args, cwd, onLog = () => {}) {
   })
 }
 
+async function buildSite(root, onLog) {
+  const node = process.env.ProgramFiles ? join(process.env.ProgramFiles, 'nodejs', 'node.exe') : 'node'
+  let executable = node
+  try {
+    await command(executable, ['--version'], root)
+  } catch (error) {
+    if (error.code !== 'ENOENT' || executable === 'node') throw error
+    executable = 'node'
+  }
+  await command(executable, [join(root, 'node_modules', 'vite', 'bin', 'vite.js'), 'build'], root, onLog)
+}
+
 function publishable(file) {
   if (file.includes('\\') || file.split('/').some(part => !part || part === '..' || part.startsWith('.env') || ['node_modules','dist','.git','.claude'].includes(part))) return false
   if (/\.(env|local|log|exe|zip|pem|key|pfx)$/i.test(file) || (/(?:secret|credential|token)/i.test(file) && file !== 'src/data/secretRoom.js')) return false
@@ -76,4 +88,4 @@ async function publish(root, version, expectedFiles, onLog, build) {
   return pending
 }
 
-module.exports = { command, publishable, parseStatus, inspect, publish }
+module.exports = { command, buildSite, publishable, parseStatus, inspect, publish }

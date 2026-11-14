@@ -10,7 +10,7 @@ const log = value => window?.webContents.send('studio:log', String(value))
 function workerRun(operation) {
   return new Promise((resolve, reject) => {
     const process = utilityProcess.fork(join(__dirname,'server.mjs'), [root, operation], { stdio: 'pipe', serviceName: `Kel Studio ${operation}` })
-    if (operation !== 'build') worker = process
+    worker = process
     process.stdout?.on('data', data => log(data.toString()))
     process.stderr?.on('data', data => log(data.toString()))
     process.on('message', message => message.error ? reject(new Error(message.error)) : resolve(message))
@@ -60,7 +60,7 @@ app.whenReady().then(async () => {
   handle('choose', async () => { const result = await dialog.showOpenDialog(window,{ title:'选择 my-portfolio 项目文件夹',properties:['openDirectory'] }); return result.canceled ? info() : openProject(result.filePaths[0]) })
   handle('mode', value => { if (!['edit','preview'].includes(value)) throw new Error('模式无效'); mode = value; return info() })
   handle('inspect', () => publisher.inspect(root))
-  handle('publish', async (version,files) => { busy = true; try { return await publisher.publish(root,version,files,log, () => workerRun('build')) } finally { busy = false } })
+  handle('publish', async (version,files) => { busy = true; try { return await publisher.publish(root,version,files,log, () => publisher.buildSite(root, log)) } finally { busy = false } })
   try {
     let config = { root: 'E:\\Kel-MyselfWeb\\my-portfolio' }
     try { config = JSON.parse(await readFile(join(app.getPath('userData'),'project.json'),'utf8')) } catch {}

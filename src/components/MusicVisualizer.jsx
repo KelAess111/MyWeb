@@ -1,16 +1,23 @@
-﻿import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useMusicPlayer } from '../contexts/MusicPlayerContext'
 import '../styles/music-visualizer.css'
 import Annotate from './Annotate'
 
 function MusicVisualizer() {
   const { isPlaying, audioElement } = useMusicPlayer()
+  const [pianoAnalyser, setPianoAnalyser] = useState(null)
   const canvasRef = useRef(null)
   const animationRef = useRef(null)
   const audioContextRef = useRef(null)
   const analyserRef = useRef(null)
   const sourceRef = useRef(null)
   const [isInitialized, setIsInitialized] = useState(false)
+
+  useEffect(() => {
+    const receivePiano = event => setPianoAnalyser(event.detail ?? null)
+    window.addEventListener('record-piano-spectrum', receivePiano)
+    return () => window.removeEventListener('record-piano-spectrum', receivePiano)
+  }, [])
 
   // 初始化音频分析器（只执行一次）
   useEffect(() => {
@@ -44,15 +51,16 @@ function MusicVisualizer() {
 
   // 处理可视化动画
   useEffect(() => {
-    if (!isInitialized || !canvasRef.current || !analyserRef.current) {
+    if (!canvasRef.current || (!analyserRef.current && !pianoAnalyser)) {
       return
     }
 
     const canvas = canvasRef.current
     const ctx = canvas.getContext('2d')
-    const analyser = analyserRef.current
+    const analyser = analyserRef.current ?? pianoAnalyser
     const bufferLength = analyser.frequencyBinCount
     const dataArray = new Uint8Array(bufferLength)
+    const pianoData = new Uint8Array(bufferLength)
 
     const updateCanvasSize = () => {
       const rect = canvas.getBoundingClientRect()
@@ -62,18 +70,21 @@ function MusicVisualizer() {
     }
     updateCanvasSize()
 
-    const sizeUpdateTimer = setTimeout(updateCanvasSize, 450)
+    const observer = new ResizeObserver(updateCanvasSize)
+    observer.observe(canvas)
 
     window.addEventListener('resize', updateCanvasSize)
 
     const draw = () => {
-      analyser.getByteFrequencyData(dataArray)
+      if (isPlaying && analyserRef.current) analyserRef.current.getByteFrequencyData(dataArray)
+      if (pianoAnalyser) pianoAnalyser.getByteFrequencyData(pianoData)
 
       const width = canvas.width
       const height = canvas.height
 
       ctx.clearRect(0, 0, width, height)
 
+      const sides = Boolean(document.querySelector('.record-piano[data-open="true"]'))
       const barCount = 120
       const barWidth = (width / barCount) * 0.5
       const gap = (width / barCount) * 0.5
@@ -103,14 +114,21 @@ function MusicVisualizer() {
         }
 
         const dataIndex = Math.floor(frequencyPos * usableBufferLength)
-        const rawValue = dataArray[dataIndex]
+        const pianoPosition = sides ? 1 - Math.abs(2 * normalizedPos - 1) : normalizedPos
+        const pianoIndex = Math.floor(pianoPosition * 0.28 * (bufferLength - 1))
+        const rawValue = Math.max(dataArray[dataIndex], pianoData[pianoIndex])
 
         // 增强对比度：使用幂函数增加高低差
         const normalizedValue = rawValue / 255
         const enhancedValue = Math.pow(normalizedValue, 0.7) // 0.7次方会拉大差距
         const barHeight = Math.max(enhancedValue * height * 0.9, 1)
 
-        const x = i * (barWidth + gap)
+        if (sides && rawValue < 2) continue
+        const sideWidth = Math.min(180, width * 0.21)
+        const sideProgress = (i % (barCount / 2)) / (barCount / 2)
+        const x = sides
+          ? (i < barCount / 2 ? 0 : width - sideWidth) + sideProgress * sideWidth
+          : i * (barWidth + gap)
         const y = height - barHeight
 
         // 创建渐变（更透明）
@@ -122,14 +140,14 @@ function MusicVisualizer() {
         ctx.fillStyle = gradient
         ctx.shadowColor = 'rgba(162, 210, 255, 0.3)'
         ctx.shadowBlur = 6
-        ctx.fillRect(x, y, barWidth, barHeight)
+        ctx.fillRect(x, y, sides ? sideWidth / 86 : barWidth, barHeight)
       }
 
       animationRef.current = requestAnimationFrame(draw)
     }
 
-    if (isPlaying && audioContextRef.current) {
-      if (audioContextRef.current.state === 'suspended') {
+    if (isPlaying || pianoAnalyser) {
+      if (audioContextRef.current?.state === 'suspended') {
         audioContextRef.current.resume()
       }
       draw()
@@ -146,13 +164,13 @@ function MusicVisualizer() {
         cancelAnimationFrame(animationRef.current)
         animationRef.current = null
       }
-      clearTimeout(sizeUpdateTimer)
+      observer.disconnect()
       window.removeEventListener('resize', updateCanvasSize)
     }
-  }, [isPlaying, isInitialized])
+  }, [isPlaying, isInitialized, pianoAnalyser])
 
   return (
-    <div className={`music-visualizer ${isPlaying ? 'is-playing' : ''}`}>
+    <div aria-hidden="true" className={`music-visualizer ${(isPlaying || pianoAnalyser) ? 'is-playing' : ''}`}>
       <canvas ref={canvasRef} className="music-visualizer-canvas" />
     </div>
   )

@@ -1,9 +1,10 @@
-﻿import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { musicAlbums, musicMakers, musicRecommendationsTree } from '../data/musicRecommendations'
 import { useImageLoadState } from '../hooks/useImageLoadState'
 import { useWritingWorkspace } from '../hooks/useWritingWorkspace'
 import { MUSIC_WRITING_WORKSPACE } from '../services/writingService'
+import RecordPiano, { pianoPreviews } from '../components/RecordPiano'
 import Annotate from '../components/Annotate'
 
 const EMPTY_COPY = '作者待补充'
@@ -12,13 +13,51 @@ const MAKER_MANUAL_RESUME_DELAY = 6500
 const MAKER_TRANSITION_DURATION = 1250
 const MAKER_SWIPE_THRESHOLD = 40
 
+const fullPianoScores = {
+  'album-帝国少女': '/music-scores/imperial-girl-performance.json',
+  'album-拟剧论': '/music-scores/dramaturgy-performance.json',
+  'album-熱異常': '/music-scores/heat-abnormal-performance.json',
+}
+
+const albumScores = {
+  'album-帝国少女': { prefix: 'imperial-girl', pages: 4 },
+  'album-拟剧论': { prefix: 'drama', pages: 7, pdf: 'dramaturgy.pdf' },
+  'album-熱異常': { prefix: 'heat', pages: 9, pdf: 'heat-abnormal.pdf' },
+}
+
+function MusicScoreDialog({ score, onClose }) {
+  const dialog = useRef(null)
+  const [page, setPage] = useState(1)
+
+  useEffect(() => {
+    dialog.current.showModal()
+  }, [])
+
+  function turnPage(delta) {
+    setPage(current => current + delta)
+    dialog.current.scrollTop = 0
+  }
+
+  return <dialog ref={dialog} className="music-score-dialog" aria-labelledby="music-score-title" onClose={onClose}>
+    <header className="music-score-header">
+      <strong id="music-score-title">{score.title} · 五线谱</strong>
+      <button type="button" onClick={() => turnPage(-1)} disabled={page === 1}>上一页</button>
+      <span aria-live="polite">{page} / {score.pages}</span>
+      <button type="button" onClick={() => turnPage(1)} disabled={page === score.pages}>下一页</button>
+      {score.pdf && <a href={`/music-scores/${score.pdf}`} download>下载 PDF</a>}
+      <button type="button" onClick={() => dialog.current.close()}>关闭谱面</button>
+    </header>
+    <img className="music-score-image" src={`/music-scores/${score.prefix}-${page}.jpg`} alt={`《${score.title}》第 ${page} 页`} />
+  </dialog>
+}
+
 function MusicImage({ item, className = '' }) {
   const { status, handleLoad, handleError } = useImageLoadState(item.src)
-  return <div className={`music-image music-image--${status} ${className}`}>
+  return <span className={`music-image music-image--${status} ${className}`}>
     {item.src ? <img src={item.src} alt={item.name} loading="lazy" decoding="async" onLoad={handleLoad} onError={handleError} /> : null}
     {status === 'loading' ? <span>图片加载中…</span> : null}
     {status === 'error' || status === 'empty' ? <span>图片暂不可用</span> : null}
-  </div>
+  </span>
 }
 
 function getMusicEntryText(entry) {
@@ -99,6 +138,9 @@ function MusicPage() {
   const [makerIndex, setMakerIndex] = useState(0)
   const [makerTransition, setMakerTransition] = useState(null)
   const [reducedMotion, setReducedMotion] = useState(false)
+  const [openScore, setOpenScore] = useState(null)
+  const [pianoRequest, setPianoRequest] = useState(null)
+  const stopPiano = useCallback(() => setPianoRequest(null), [])
   const [lockedAlbum, setLockedAlbum] = useState(null)
   const [albumsExpanded, setAlbumsExpanded] = useState(false)
   const [editingEntry, setEditingEntry] = useState(null)
@@ -334,28 +376,73 @@ function MusicPage() {
           <button
             type="button"
             className="music-albums-toggle"
-            onClick={() => setAlbumsExpanded((current) => !current)}
+            aria-expanded={albumsExpanded}
+            aria-controls="music-albums-list"
+            onClick={() => {
+              if (albumsExpanded) setLockedAlbum(null)
+              setAlbumsExpanded(!albumsExpanded)
+            }}
           >
             {albumsExpanded ? '收起唱片' : '展开唱片'}
           </button>
         ) : null}
       </div>
-      <div className={`music-albums-grid ${albumsExpanded ? 'is-expanded' : ''}`}>
-        {musicAlbums.length ? musicAlbums.map((album, index) => {
-          const entry = albumEntries.get(album.assetKey)
-          const open = lockedAlbum === album.assetKey
-          return <article className={`music-record-box ${open ? 'is-open' : ''}`} key={album.assetKey} style={{ '--album-index': index }}>
-            <button type="button" className="music-record-toggle" onClick={() => setLockedAlbum((current) => current === album.assetKey ? null : album.assetKey)} aria-expanded={open}>
-              <MusicImage item={album} />
-              <span className="music-record-disc-stack" aria-hidden="true"><span className="music-record-disc" /></span>
-              <span className="music-record-meta"><span className="music-record-title">{album.track}</span><span className="music-record-label"><small>{open ? '收起乐评' : '查看乐评'}</small></span></span>
-            </button>
-            {open ? <div className="music-record-review"><div className="music-record-review-content">{renderMusicText(entry)}{workspace.canEdit && entry ? <button type="button" onClick={() => setEditingEntry(entry)}>编辑乐评</button> : null}</div></div> : null}
-          </article>
-        }) : <div className="music-empty-state"><strong>还没有专辑图片</strong><p>将图片放入 src/assets/music_share/music 后，这里会自动生成唱片盒。</p></div>}
+      <div className="music-albums-stack" data-collapsed={musicAlbums.length > 1 && !albumsExpanded}>
+        <div className="music-albums-stack-inner">
+          <button type="button" className="music-albums-stack-button" aria-label="展开唱片" aria-controls="music-albums-list" aria-expanded={albumsExpanded} inert={musicAlbums.length < 2 || albumsExpanded} onClick={(event) => {
+            event.currentTarget.closest('.music-albums').querySelector('.music-albums-toggle')?.focus()
+            setAlbumsExpanded(true)
+          }}>
+            {musicAlbums.slice(0, 3).reverse().map((album) => <MusicImage key={album.assetKey} item={album} />)}
+          </button>
+        </div>
+      </div>
+      <div id="music-albums-list" className="music-albums-list" data-expanded={musicAlbums.length <= 1 || albumsExpanded} inert={musicAlbums.length > 1 && !albumsExpanded}>
+        <div className="music-albums-grid">
+          {musicAlbums.length ? musicAlbums.map((album, index) => {
+            const entry = albumEntries.get(album.assetKey)
+            const open = lockedAlbum === album.assetKey
+            const preview = pianoPreviews[album.assetKey]
+            const fullScore = fullPianoScores[album.assetKey]
+            const reviewId = `music-record-review-${index}`
+            return <article className={`music-record-box ${open ? 'is-open' : ''}`} key={album.assetKey}>
+              <button type="button" className="music-record-toggle" onClick={() => setLockedAlbum((current) => current === album.assetKey ? null : album.assetKey)} aria-expanded={open} aria-controls={reviewId}>
+                <span className="music-record-sleeve">
+                  <MusicImage item={album} />
+                  <span className="music-record-disc-stack" aria-hidden="true"><span className="music-record-disc" /></span>
+                </span>
+                <span className="music-record-meta"><span className="music-record-title">{album.track}</span><span className="music-record-label"><small>{open ? '收起乐评' : '查看乐评'}</small></span></span>
+              </button>
+              <div className="music-record-review" id={reviewId} inert={!open}>
+                <div className="music-record-review-clip">
+                  <div className="music-record-review-content">
+                    {renderMusicText(entry)}
+                    {preview && <div className="music-piano-preview">
+                      <button type="button" onClick={() => pianoRequest === preview ? stopPiano() : setPianoRequest(preview)}>
+                        {pianoRequest === preview ? '停止钢琴片段' : '播放钢琴片段'}
+                      </button>
+                      {fullScore && <button type="button" onClick={() => pianoRequest?.fullScore === fullScore
+                        ? stopPiano()
+                        : setPianoRequest({ ...preview, fullScore })}>
+                        {pianoRequest?.fullScore === fullScore ? '停止全曲' : '试播全曲（自动识谱）'}
+                      </button>}
+                      <small>{preview.credit}</small>
+                    </div>}
+                    {albumScores[album.assetKey] && <div className="music-piano-preview">
+                      <button type="button" onClick={() => setOpenScore({ ...albumScores[album.assetKey], title: album.track })}>查看完整五线谱</button>
+                    </div>}
+                    {workspace.canEdit && entry ? <button type="button" onClick={() => setEditingEntry(entry)}>编辑乐评</button> : null}
+                  </div>
+                </div>
+              </div>
+            </article>
+          }) : <div className="music-empty-state"><strong>还没有专辑图片</strong><p>将图片放入 src/assets/music_share/music 后，这里会自动生成唱片盒。</p></div>}
+        </div>
       </div>
     </section>
 
+    {openScore && <MusicScoreDialog score={openScore} onClose={() => setOpenScore(null)} />}
+    <RecordPiano request={pianoRequest} onStop={stopPiano} />
     <MusicReviewEditor entry={editingEntry} isOpen={Boolean(editingEntry)} onSave={handleSave} onClose={() => setEditingEntry(null)} isSaving={workspace.isSaving} error={workspace.editorError} />
   </main>
 }
