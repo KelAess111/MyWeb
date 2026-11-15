@@ -9,7 +9,7 @@ function filename(path) {
 
 function assetKey(name, fallback) {
   const value = name.toLowerCase().replace(/[^a-z0-9一-龥]+/g, '-').replace(/^-+|-+$/g, '')
-  return value || fallback
+  return value || (/^[ぁ-ゖァ-ヺ・ー]+$/.test(name) ? name : fallback)
 }
 
 function collect(modules, prefix) {

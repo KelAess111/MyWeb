@@ -1,3 +1,5 @@
+import illustratedArticle from './kiriaina-article.json'
+
 // 同时读取 .txt、.md 和 .pdf 文件
 const txtModules = import.meta.glob('../assets/article/*.txt', {
   eager: true,
@@ -103,13 +105,25 @@ const externalArticles = Object.entries(externalPdfArticles).map(([key, data]) =
   isPdf: true,
 }))
 
-export const articles = [...localArticles, ...externalArticles]
+const illustrated = {
+  ...illustratedArticle,
+  path: 'illustrated://kiriaina',
+  fileName: illustratedArticle.title,
+  isIllustrated: true,
+  content: [
+    illustratedArticle.intro,
+    ...illustratedArticle.sections.flatMap(({ title, paragraphs }) => [title, ...paragraphs]),
+    illustratedArticle.ending,
+  ].join('\n'),
+}
+
+export const articles = [illustrated, ...localArticles, ...externalArticles]
   .filter((item) => item.title)
   .sort((left, right) => articleCollator.compare(left.title, right.title))
   .map((item, index) => ({
     ...item,
     id: `article-${index + 1}`,
-    slug: getSlug(item.fileName, index),
+    slug: item.isIllustrated ? 'kiriaina' : getSlug(item.fileName, index),
     excerpt: item.isPdf ? 'PDF 文档' : (item.content.slice(0, 180).trim() + (item.content.length > 180 ? '…' : '')),
   }))
 

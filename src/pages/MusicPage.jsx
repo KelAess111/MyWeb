@@ -14,12 +14,53 @@ const MAKER_TRANSITION_DURATION = 1250
 const MAKER_SWIPE_THRESHOLD = 40
 
 const fullPianoScores = {
+  'album-少女a': '/music-scores/shoujo-a-performance.json',
+  'album-脳漿炸裂': '/music-scores/noushou-performance.json',
+  'album-携帯恋話': '/music-scores/keitai-performance.json',
+  'album-虚無': '/music-scores/kyomu-performance.json',
+  'album-鍵': '/music-scores/momoiro-performance.json',
+  'album-1000年生': '/music-scores/1000-performance.json',
+  'album-起死開戦': '/music-scores/kishi-kaisen-performance.json',
+  'album-ロミオとシンデレラ': '/music-scores/romeo-performance.json',
+  'album-怪物': '/music-scores/monster-performance.json',
+  'album-アンノウン・マザーグース': '/music-scores/goose-performance.json',
+  'album-ロウワー': '/music-scores/lower-v12-performance.json',
+  'album-又三郎': '/music-scores/matasaburo-performance.json',
   'album-帝国少女': '/music-scores/imperial-girl-performance.json',
   'album-拟剧论': '/music-scores/dramaturgy-performance.json',
   'album-熱異常': '/music-scores/heat-abnormal-performance.json',
 }
 
+const fullScoreDetails = {
+  'album-少女a': { credit: '原曲 椎名もた · 双钢琴谱 yorutsuki', autoTranscribed: true, playLabel: '试播双钢琴合奏（自动识谱）' },
+  'album-脳漿炸裂': { credit: '原曲 れるりり · 钢琴 I 谱 yorutsuki', autoTranscribed: true, playLabel: '试播钢琴 I（自动识谱）' },
+  'album-携帯恋話': { credit: '原曲 まふまふ · 钢琴谱 yorutsuki', autoTranscribed: true },
+  'album-虚無': { credit: '原曲 ¿?shimon · 钢琴谱 yorutsuki', autoTranscribed: true },
+  'album-鍵': { credit: '原曲 いよわ · 钢琴谱 yorutsuki', autoTranscribed: true },
+  'album-1000年生': { credit: '原曲 いよわ · 钢琴谱 yorutsuki', autoTranscribed: true },
+  'album-起死開戦': { credit: '原曲 millsage · 键盘谱 cumin', autoTranscribed: true, playLabel: '试播键盘声部（自动识谱）' },
+  'album-ロミオとシンデレラ': { credit: '原曲 doriko · 钢琴改编 WILEFIRE', autoTranscribed: true },
+  'album-怪物': { credit: '原曲 YOASOBI · C 大调钢琴编配 WILEFIRE-1', autoTranscribed: true, playLabel: '试播钢琴改编（自动识谱）' },
+  'album-アンノウン・マザーグース': { credit: '原曲 wowaka · 钢琴改编 WILEFIRE', autoTranscribed: true },
+  'album-又三郎': { credit: '原曲 ヨルシカ · 钢琴 MIDI' },
+  'album-ロウワー': { credit: '原曲 ぬゆり · 钢琴版 marasy · 制谱 Xai_metafnix', autoTranscribed: true },
+}
+
 const albumScores = {
+  'album-少女a': [
+    { label: '钢琴 I', prefix: 'shoujo-a-piano-i-page', pages: 6, pdf: 'shoujo-a-piano-i.pdf' },
+    { label: '钢琴 II', prefix: 'shoujo-a-page', pages: 7, pdf: 'shoujo-a.pdf' },
+  ],
+  'album-脳漿炸裂': { prefix: 'noushou-page', pages: 7, pdf: 'noushou.pdf' },
+  'album-携帯恋話': { prefix: 'keitai-page', pages: 4, pdf: 'keitai.pdf' },
+  'album-虚無': { prefix: 'kyomu-page', pages: 4, pdf: 'kyomu.pdf' },
+  'album-鍵': { prefix: 'momoiro-page', pages: 7, pdf: 'momoiro.pdf' },
+  'album-1000年生': { prefix: '1000-page', pages: 8, pdf: '1000.pdf' },
+  'album-起死開戦': { prefix: 'kishi-kaisen-page', pages: 6, pdf: 'kishi-kaisen.pdf' },
+  'album-ロミオとシンデレラ': { prefix: 'romeo-page', pages: 3, pdf: 'romeo.pdf' },
+  'album-怪物': { prefix: 'monster-page', pages: 2, pdf: 'monster.pdf' },
+  'album-アンノウン・マザーグース': { prefix: 'goose-page', pages: 8, pdf: 'goose.pdf' },
+  'album-ロウワー': { prefix: 'lower-v12-page', pages: 9, pdf: 'lower-v12.pdf' },
   'album-帝国少女': { prefix: 'imperial-girl', pages: 4 },
   'album-拟剧论': { prefix: 'drama', pages: 7, pdf: 'dramaturgy.pdf' },
   'album-熱異常': { prefix: 'heat', pages: 9, pdf: 'heat-abnormal.pdf' },
@@ -404,6 +445,9 @@ function MusicPage() {
             const open = lockedAlbum === album.assetKey
             const preview = pianoPreviews[album.assetKey]
             const fullScore = fullPianoScores[album.assetKey]
+            const fullScoreInfo = fullScoreDetails[album.assetKey]
+            const scores = albumScores[album.assetKey]
+            const credit = preview?.credit ?? fullScoreInfo?.credit
             const reviewId = `music-record-review-${index}`
             return <article className={`music-record-box ${open ? 'is-open' : ''}`} key={album.assetKey}>
               <button type="button" className="music-record-toggle" onClick={() => setLockedAlbum((current) => current === album.assetKey ? null : album.assetKey)} aria-expanded={open} aria-controls={reviewId}>
@@ -417,19 +461,24 @@ function MusicPage() {
                 <div className="music-record-review-clip">
                   <div className="music-record-review-content">
                     {renderMusicText(entry)}
-                    {preview && <div className="music-piano-preview">
-                      <button type="button" onClick={() => pianoRequest === preview ? stopPiano() : setPianoRequest(preview)}>
+                    {(preview || fullScore) && <div className="music-piano-preview">
+                      {preview && <button type="button" onClick={() => pianoRequest === preview ? stopPiano() : setPianoRequest(preview)}>
                         {pianoRequest === preview ? '停止钢琴片段' : '播放钢琴片段'}
-                      </button>
+                      </button>}
                       {fullScore && <button type="button" onClick={() => pianoRequest?.fullScore === fullScore
                         ? stopPiano()
-                        : setPianoRequest({ ...preview, fullScore })}>
-                        {pianoRequest?.fullScore === fullScore ? '停止全曲' : '试播全曲（自动识谱）'}
+                        : setPianoRequest({ title: album.track, fullScore })}>
+                        {pianoRequest?.fullScore === fullScore ? '停止全曲' : (fullScoreInfo?.playLabel ?? ((preview || fullScoreInfo?.autoTranscribed) ? '试播全曲（自动识谱）' : '播放钢琴全曲'))}
                       </button>}
-                      <small>{preview.credit}</small>
+                      <small>{credit}</small>
                     </div>}
-                    {albumScores[album.assetKey] && <div className="music-piano-preview">
-                      <button type="button" onClick={() => setOpenScore({ ...albumScores[album.assetKey], title: album.track })}>查看完整五线谱</button>
+                    {scores && <div className="music-piano-preview">
+                      {[scores].flat().map(score => <button key={score.prefix} type="button" onClick={() => setOpenScore({
+                        ...score,
+                        title: score.label ? `${album.track} · ${score.label}` : album.track,
+                      })}>
+                        {score.label ? `查看${score.label}谱` : '查看完整五线谱'}
+                      </button>)}
                     </div>}
                     {workspace.canEdit && entry ? <button type="button" onClick={() => setEditingEntry(entry)}>编辑乐评</button> : null}
                   </div>

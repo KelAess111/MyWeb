@@ -7,6 +7,8 @@ import rehypeKatex from 'rehype-katex'
 import 'katex/dist/katex.min.css'
 import { findArticleBySlug } from '../data/articleData'
 import readingOutline from '../utils/readingOutline'
+import IllustratedArticle from '../components/IllustratedArticle'
+import '../styles/illustrated-article.css'
 
 // 懒加载 PDF 查看器
 const PDFViewer = lazy(() => import('../components/PDFViewer'))
@@ -28,11 +30,11 @@ function ArticleDetailPage() {
   }
 
   return (
-    <main className={`article-detail-page reading-page${article.isPdf ? ' reading-page--pdf' : ''}`}>
+    <main className={`article-detail-page reading-page${article.isPdf ? ' reading-page--pdf' : article.isIllustrated ? ' reading-page--illustrated' : ''}`}>
       <article className="article-detail-container">
         <header className="article-detail-header">
           <Link to="/share" className="article-back-link">← 返回列表</Link>
-          <p className="reading-meta">{article.isPdf ? 'PDF / 文档阅览' : `${article.isMarkdown ? 'MARKDOWN' : 'TXT'} / 约 ${Math.max(1, Math.ceil(article.content.length / 450))} 分钟阅读`}</p>
+          <p className="reading-meta">{article.isPdf ? 'PDF / 文档阅览' : `${article.isIllustrated ? '图文文章' : article.isMarkdown ? 'MARKDOWN' : 'TXT'} / 约 ${Math.max(1, Math.ceil(article.content.length / 450))} 分钟阅读`}</p>
           <h1 className="article-detail-title">{article.title.replace(/^#+\s*/, '')}</h1>
         </header>
 
@@ -46,6 +48,8 @@ function ArticleDetailPage() {
             }>
               <PDFViewer key={article.pdfUrl} url={article.pdfUrl} fileName={article.fileName} />
             </Suspense>
+          ) : article.isIllustrated ? (
+            <IllustratedArticle article={article} />
           ) : article.isMarkdown ? (
             <ReactMarkdown
               remarkPlugins={[remarkGfm, remarkMath]}

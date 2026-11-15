@@ -2,8 +2,8 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { articles } from '../data/articleData'
 
-const formats = ['全部', 'PDF', 'Markdown', 'TXT']
-const getFormat = (article) => article.isPdf ? 'PDF' : article.isMarkdown ? 'Markdown' : 'TXT'
+const formats = ['全部', '图文', 'PDF', 'Markdown', 'TXT']
+const getFormat = (article) => article.isIllustrated ? '图文' : article.isPdf ? 'PDF' : article.isMarkdown ? 'Markdown' : 'TXT'
 const getExcerpt = (article) => {
   if (article.isPdf) return '翻阅完整文档，也可以打开原文件，留待日后细读。'
   const text = article.content.replace(/\$\$[\s\S]*?\$\$|\$[^$\n]+\$/g, '')
